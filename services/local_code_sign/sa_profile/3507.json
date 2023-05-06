@@ -1,0 +1,11 @@
+{
+    "process": "local_code_sign",
+    "systemability": [
+        {
+            "name": 3507,
+            "libpath": "liblocal_code_sign.z.so",
+            "run-on-create": true,
+            "distributed": false
+        }
+    ]
+}

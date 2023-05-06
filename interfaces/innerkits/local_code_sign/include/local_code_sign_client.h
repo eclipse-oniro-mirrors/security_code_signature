@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef OHOS_LOCAL_CODE_SIGN_CLIENT_H
+#define OHOS_LOCAL_CODE_SIGN_CLIENT_H
+
+#include <condition_variable>
+#include <cstdint>
+#include <cstring>
+#include <iostream>
+#include <mutex>
+#include <unistd.h>
+
+#include "byte_buffer.h"
+#include "errcode.h"
+#include "local_code_sign_interface.h"
+#include "iremote_object.h"
+#include "iservice_registry.h"
+#include "refbase.h"
+
+namespace OHOS {
+namespace Security {
+namespace CodeSign {
+class LocalCodeSignClient {
+public:
+    static LocalCodeSignClient &GetInstance();
+    int32_t InitLocalCertificate(ByteBuffer &cert);
+    void OnRemoteLocalCodeSignSvrDied(const wptr<IRemoteObject> &remote);
+    void FinishStartSA(const sptr<IRemoteObject> &remoteObject);
+    void FailStartSA();
+
+private:
+    class LocalCodeSignSvrRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    };
+
+    LocalCodeSignClient();
+    ~LocalCodeSignClient() = default;
+
+    LocalCodeSignClient(const LocalCodeSignClient &source) = delete;
+    LocalCodeSignClient &operator = (const LocalCodeSignClient &source) = delete;
+
+    int32_t StartSA();
+    void CheckLocalCodeSignProxy();
+
+    std::mutex proxyMutex_;
+    std::condition_variable proxyConVar_;
+    sptr<ILocalCodeSign> localCodeSignProxy_ = nullptr;
+    sptr<LocalCodeSignSvrRecipient> localCodeSignSvrRecipient_ = nullptr;
+};
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+__attribute__((visibility("default"))) LocalCodeSignClient *GetLocalCodeSignClient();
+#ifdef __cplusplus
+}
+#endif
+}
+}
+}
+#endif

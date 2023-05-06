@@ -1,0 +1,66 @@
+{
+  "name": "@ohos/code_signature",
+  "description": "Code signature",
+  "version": "4.0",
+  "license": "Apache License 2.0",
+  "publishAs": "code-segment",
+  "segment": {
+    "destPath": "base/security/code_signature"
+  },
+  "dirs": {},
+  "scripts": {},
+  "component": {
+    "name": "code_signature",
+    "subsystem": "security",
+    "syscap": [],
+    "hisysevent_config": [
+      "//base/security/code_signature/hisysevent.yaml"
+    ],
+    "features": [],
+    "adapted_system_type": [ "standard" ],
+    "rom": "1024KB",
+    "ram": "2048KB",
+    "external_deps": {
+      "components": [
+        "ability_tools",
+        "hiviewdfx_hilog_native",
+        "hitrace_native",
+        "hisysevent_native",
+        "ability_base",
+        "c_utils",
+        "ipc",
+        "samgr",
+        "safwk",
+        "huks",
+        "eventhandler",
+        "access_token",
+        "init"
+      ],
+      "third_party": [
+        "openssl"
+      ]
+    },
+    "build": {
+      "sub_component": [
+        "//base/security/code_signature:subcomponents"
+      ],
+      "inner_kits": [
+        {
+          "name" : "//base/security/code_signature/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
+          "header": {
+            "header_files": [],
+            "header_base": "//base/security/code_signature/interfaces/innerkits/code_sign_utils/include"
+          }
+        },
+        {
+          "name" : "//base/security/code_signature/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
+          "header": {
+            "header_files": [],
+            "header_base": "//base/security/code_signature/interfaces/innerkits/local_code_sign/include"
+          }
+        }
+      ],
+      "test": [ "//base/security/code_signature/test:testgroup" ]
+    }
+  }
+}

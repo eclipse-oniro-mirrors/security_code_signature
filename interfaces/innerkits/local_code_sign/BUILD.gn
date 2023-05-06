@@ -1,0 +1,46 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/security/code_signature//code_signature.gni")
+import("//build/ohos.gni")
+
+ohos_shared_library("liblocal_code_sign_sdk") {
+  sources = [
+    "src/local_code_sign_client.cpp",
+    "src/local_code_sign_kit.cpp",
+    "src/local_code_sign_load_callback.cpp",
+    "src/local_code_sign_proxy.cpp",
+  ]
+
+  include_dirs = [ "include" ]
+
+  public_configs = [ "${code_signature_root_dir}:common_public_config" ]
+  configs = [ "${code_signature_root_dir}:common_utils_config" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  part_name = "code_signature"
+
+  subsystem_name = "security"
+
+  install_images = [ "system" ]
+
+  install_enable = true
+}
