@@ -20,7 +20,7 @@
     "adapted_system_type": [ "standard" ],
     "rom": "1024KB",
     "ram": "2048KB",
-    "external_deps": {
+    "deps": {
       "components": [
         "ability_tools",
         "hiviewdfx_hilog_native",
@@ -33,8 +33,7 @@
         "safwk",
         "huks",
         "eventhandler",
-        "access_token",
-        "init"
+        "access_token"
       ],
       "third_party": [
         "openssl"

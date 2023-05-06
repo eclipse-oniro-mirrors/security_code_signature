@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <configuration ver="2.0">
-    <target name="code_signature_unittest">
+    <target name="code_sign_utils_unittest">
         <preparer>
             <option name="shell" value="mkdir -p /data/app/el1/bundle/public/tmp/demo_without_lib/pkcs7_error"/>
             <option name="shell" value="mkdir -p /data/app/el1/bundle/public/tmp/demo_with_multi_lib/pkcs7_error/file"/>

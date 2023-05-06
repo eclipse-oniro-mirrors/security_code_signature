@@ -40,21 +40,21 @@
 domain: CODE_SIGN
 
 CS_ADD_KEY:
-  __BASE: {type: FAULT, level: CRITICAL, desc: add key into keyring event}
+  __BASE: {type: FAULT, level: CRITICAL, desc: adding key into keyring failure event}
   CERT_TYPE: {type: STRING, desc: certificate type}
   ERR_TYPE: {type: INT32, desc: add key error type}
 
 CS_ENABLE_ERR:
-  __BASE: {type: SECURITY, level: CRITICAL, desc: enable code sign event}
+  __BASE: {type: SECURITY, level: CRITICAL, desc: enabling code sign failure event}
   FILE_INFO: {type: STRING, desc: target file info}
   SIGN_INFO: {type: STRING, desc: incorrect signature content}
   ERR_TYPE: {type: INT32, desc: enable file error type}
 
 CS_LOAD_SA_ERR:
-  __BASE: {type: FAULT, level: CRITICAL, desc: add key into keyring event}
+  __BASE: {type: FAULT, level: CRITICAL, desc: loading SA failure event}
   ERR_TYPE: {type: INT32, desc: load SA error type}
 
 CS_SA_INVALID_CALLER:
-  __BASE: {type: SECURITY, level: CRITICAL, desc: invalid caller}
+  __BASE: {type: SECURITY, level: CRITICAL, desc: invalid caller event}
   INTERFACE: {type: STRING, desc: interface type, Cert or Sign}
   TOKEN_ID : {type: UINT32, desc: token id of invalid caller}

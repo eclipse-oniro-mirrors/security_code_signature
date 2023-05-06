@@ -16,9 +16,9 @@ import("//build/ohos.gni")
 group("testgroup") {
   testonly = true
   if (!defined(ohos_lite)) {
-    deps = [ 
+    deps = [
       "unittest:code_sign_utils_unittest",
-      "unittest:local_code_sign_unittest"
+      "unittest:local_code_sign_unittest",
     ]
   }
 }
