@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/security/code_signature/code_signature.gni")
 import("//build/test.gni")
+import("../../code_signature.gni")
 
 ohos_unittest("code_sign_utils_unittest") {
   module_out_path = "security/code_signature"

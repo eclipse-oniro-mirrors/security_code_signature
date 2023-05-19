@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/security/code_signature//code_signature.gni")
 import("//build/ohos.gni")
+import("../../../code_signature.gni")
 
 ohos_static_library("libkey_enable_utils") {
   sources = [
@@ -33,4 +33,6 @@ ohos_static_library("libkey_enable_utils") {
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
+  subsystem_name = "security"
+  part_name = "code_signature"
 }
