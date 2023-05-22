@@ -63,10 +63,6 @@ int32_t CodeSignUtils::EnforceCodeSignForApp(const EntryMap &entryPath,
     }
 
     std::unique_ptr<AbilityBase::Extractor> extractor = std::make_unique<AbilityBase::Extractor>(signatureFile);
-    if (extractor == nullptr) {
-        LOG_ERROR(LABEL, "Create extractor for signature file failed.");
-        return CS_ERR_EXTRACT_FILES;
-    }
     std::vector<std::string> signatureFileList;
     if (!extractor->Init()) {
         LOG_ERROR(LABEL, "Init extractor failed.");
@@ -94,7 +90,7 @@ int32_t CodeSignUtils::EnforceCodeSignForApp(const EntryMap &entryPath,
             LOG_ERROR(LABEL, "Extract signture failed.");
             return CS_ERR_EXTRACT_FILES;
         }
-        int ret = EnforceCodeSignForFile(targetFile, signatureBuffer.get(), signatureSize);
+        ret = EnforceCodeSignForFile(targetFile, signatureBuffer.get(), signatureSize);
         if (ret != CS_SUCCESS) {
             return ret;
         }

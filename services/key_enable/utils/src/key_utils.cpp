@@ -34,7 +34,7 @@ KeySerial AddKey(
     KeySerial ringId)
 {
     KeySerial ret = syscall(__NR_add_key,
-        type, description, (const void *)payload,
+        type, description, static_cast<const void *>(payload),
         pLen, ringId);
     if (ret < 0) {
         LOG_ERROR(LABEL, "Add certificate failed, errno = <%{public}d, %{public}s>",
