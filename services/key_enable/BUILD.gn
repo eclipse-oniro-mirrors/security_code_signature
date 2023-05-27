@@ -21,11 +21,11 @@ ohos_rust_executable("key_enable") {
     "src/key_enable.rs",
     "src/main.rs",
   ]
-  deps = [
-    "utils:libkey_enable_utils",
-    "//base/hiviewdfx/hisysevent/interfaces/rust/innerkits:hisysevent_rust",
+  deps = [ "utils:libkey_enable_utils" ]
+  external_deps = [
+    "hisysevent_native:hisysevent_rust",
+    "hiviewdfx_hilog_native:hilog_rust",
   ]
-  external_deps = [ "hiviewdfx_hilog_native:hilog_rust" ]
   crate_name = "key_enable"
   crate_type = "bin"
   subsystem_name = "security"
