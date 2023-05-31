@@ -25,14 +25,16 @@
 #include "hks_api.h"
 #include "hks_param.h"
 #include "log.h"
+#include "sign_key.h"
 
 namespace OHOS {
 namespace Security {
 namespace CodeSign {
-class LocalSignKey {
+class LocalSignKey : public SignKey {
 public:
     static LocalSignKey &GetInstance();
-    const ByteBuffer *GetCert();
+    const ByteBuffer *GetSignCert() override;
+    bool Sign(const ByteBuffer &data, ByteBuffer &ret) override;
     const HksCertChain *GetCertChain();
     bool InitKey();
 private:
@@ -89,7 +91,9 @@ private:
     HksCertChain *QueryCertChain();
     bool GetKeyParamSet(HUKSParamSet &paramSet);
     bool GetAttestParamSet(HUKSParamSet &paramSet);
-
+    bool GetSignParamSet(HUKSParamSet &paramSet);
+    bool SignByHUKS(const struct HksBlob *inData, struct HksBlob *outData);
+    
 private:
     ByteBuffer *cert_ = nullptr;
     HksCertChain *certChain_ = nullptr;

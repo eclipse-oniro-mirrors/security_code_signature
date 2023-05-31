@@ -29,6 +29,7 @@ public:
         : IRemoteProxy<ILocalCodeSign>(impl) {}
     ~LocalCodeSignProxy() {}
     int32_t InitLocalCertificate(ByteBuffer &cert) override;
+    int32_t SignLocalCode(const std::string &filePath, ByteBuffer &signature) override;
 private:
     static inline BrokerDelegator<LocalCodeSignProxy> delegator_;
     int32_t ReadResultFromReply(MessageParcel &reply, ByteBuffer &buffer);

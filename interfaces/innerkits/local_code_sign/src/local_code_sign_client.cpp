@@ -143,6 +143,21 @@ int32_t LocalCodeSignClient::InitLocalCertificate(ByteBuffer &cert)
     return CS_SUCCESS;
 }
 
+int32_t LocalCodeSignClient::SignLocalCode(const std::string &path, ByteBuffer &signature)
+{
+    CheckLocalCodeSignProxy();
+    std::lock_guard<std::mutex> lock(proxyMutex_);
+    if (localCodeSignProxy_ == nullptr) {
+        return CS_ERR_SA_GET_PROXY;
+    }
+    int ret = localCodeSignProxy_->SignLocalCode(path, signature);
+    if (ret != CS_SUCCESS) {
+        LOG_ERROR(LABEL, "SignLocalCode err, error code = %{public}d", ret);
+        return ret;
+    }
+    return CS_SUCCESS;
+}
+
 void LocalCodeSignClient::OnRemoteLocalCodeSignSvrDied(const wptr<IRemoteObject> &remote)
 {
     LOG_INFO(LABEL, "LocalCodeSignClient OnRemoteSinkSvrDied");

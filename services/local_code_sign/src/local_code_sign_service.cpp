@@ -15,31 +15,51 @@
 
 #include "local_code_sign_service.h"
 
+#include "directory_ex.h"
+#include "fsverity_utils_helper.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "local_sign_key.h"
 #include "log.h"
+#include "pkcs7_generator.h"
 
 namespace OHOS {
 namespace Security {
 namespace CodeSign {
+const std::string DEFAULT_HASH_ALGORITHM = "sha256";
 const std::string TASK_ID = "unload";
 constexpr int32_t DELAY_TIME = 180000;
 
-REGISTER_SYSTEM_ABILITY_BY_ID(LocalCodeSignService, LOCAL_CODE_SIGN_SA_ID, true);
+const bool REGISTER_RESULT =
+    SystemAbility::MakeAndRegisterAbility(DelayedSingleton<LocalCodeSignService>::GetInstance().get());
 
-LocalCodeSignService::LocalCodeSignService(int32_t saId, bool runOnCreate) : SystemAbility(saId, runOnCreate)
+LocalCodeSignService::LocalCodeSignService()
+    : SystemAbility(LOCAL_CODE_SIGN_SA_ID, false), state_(ServiceRunningState::STATE_NOT_START)
+{
+}
+
+LocalCodeSignService::~LocalCodeSignService()
 {
 }
 
 void LocalCodeSignService::OnStart()
 {
+    LOG_INFO(LABEL, "LocalCodeSignService OnStart");
+    if (state_ == ServiceRunningState::STATE_RUNNING) {
+        LOG_INFO(LABEL, "LocalCodeSignService has already started.");
+        return;
+    }
     if (!Init()) {
         LOG_ERROR(LABEL, "Init LocalCodeSignService failed.");
         return;
     }
+    bool ret = Publish(DelayedSingleton<LocalCodeSignService>::GetInstance().get());
+    if (!ret) {
+        LOG_ERROR(LABEL, "Publish service failed.");
+        return;
+    }
+    state_ = ServiceRunningState::STATE_RUNNING;
     DelayUnloadTask();
-    Publish(this);
 }
 
 bool LocalCodeSignService::Init()
@@ -47,9 +67,6 @@ bool LocalCodeSignService::Init()
     auto runner = AppExecFwk::EventRunner::Create(TASK_ID);
     if (unloadHandler_ == nullptr) {
         unloadHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
-    }
-    if (unloadHandler_ == nullptr) {
-        return false;
     }
     return true;
 }
@@ -62,7 +79,7 @@ void LocalCodeSignService::DelayUnloadTask()
             LOG_ERROR(LABEL, "Get system ability mgr failed.");
             return;
         }
-        int ret = samgr->UnloadSystemAbility(LOCAL_CODE_SIGN_SA_ID);
+        int32_t ret = samgr->UnloadSystemAbility(LOCAL_CODE_SIGN_SA_ID);
         if (ret != ERR_OK) {
             LOG_ERROR(LABEL, "Remove system ability failed.");
             return;
@@ -74,6 +91,8 @@ void LocalCodeSignService::DelayUnloadTask()
 
 void LocalCodeSignService::OnStop()
 {
+    LOG_INFO(LABEL, "LocalCodeSignService OnStop");
+    state_ = ServiceRunningState::STATE_NOT_START;
 }
 
 int32_t LocalCodeSignService::InitLocalCertificate(ByteBuffer &cert)
@@ -83,7 +102,7 @@ int32_t LocalCodeSignService::InitLocalCertificate(ByteBuffer &cert)
         LOG_ERROR(LABEL, "Init key failed.");
         return CS_ERR_HUKS_INIT_KEY;
     }
-    const ByteBuffer *keyCert = key.GetCert();
+    const ByteBuffer *keyCert = key.GetSignCert();
     if (keyCert == nullptr) {
         LOG_ERROR(LABEL, "Get cert failed.");
         return CS_ERR_HUKS_OBTAIN_CERT;
@@ -92,6 +111,22 @@ int32_t LocalCodeSignService::InitLocalCertificate(ByteBuffer &cert)
         return CS_ERR_MEMORY;
     }
     return CS_SUCCESS;
+}
+
+int32_t LocalCodeSignService::SignLocalCode(const std::string &filePath, ByteBuffer &signature)
+{
+    ByteBuffer digest;
+    std::string realPath;
+    if (!OHOS::PathToRealPath(filePath, realPath)) {
+        LOG_INFO(LABEL, "Get real path failed, path = %{public}s", filePath.c_str());
+        return CS_ERR_FILE_PATH;
+    }
+    if (!FsverityUtilsHelper::GetInstance().GenerateFormattedDigest(realPath.c_str(), digest)) {
+        LOG_ERROR(LABEL, "Generate formatted fsverity digest failed.");
+        return CS_ERR_COMPUTE_DIGEST;
+    }
+    return PKCS7Generator::GenerateSignature(LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
+        digest, signature);
 }
 }
 }

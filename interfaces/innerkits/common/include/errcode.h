@@ -45,7 +45,8 @@ enum SignErrCode {
 
 enum OpenSSLErrCode {
     CS_ERR_OPENSSL_LOAD_CERT = -0x210,
-    CS_ERR_OPENSSL_CREATE_PKCS7_DATA = -0x211
+    CS_ERR_OPENSSL_CREATE_PKCS7_DATA = -0x211,
+    CS_ERR_OPENSSL_PKCS7 = -0x212
 };
 
 enum FsverityErrCode {

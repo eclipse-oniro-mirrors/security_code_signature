@@ -14,14 +14,20 @@
 import("//build/ohos.gni")
 import("../../../code_signature.gni")
 
+config("public_code_sign_utils_configs") {
+  include_dirs = [ "include" ]
+}
+
 ohos_shared_library("libcode_sign_utils") {
   sources = [
     "${code_signature_root_dir}/utils/src/file_helper.cpp",
     "src/code_sign_utils.cpp",
     "src/stat_utils.cpp",
   ]
-  include_dirs = [ "include" ]
-  public_configs = [ "${code_signature_root_dir}:common_public_config" ]
+  public_configs = [
+    "${code_signature_root_dir}:common_public_config",
+    ":public_code_sign_utils_configs"
+  ]
   configs = [ "${code_signature_root_dir}:common_utils_config" ]
 
   external_deps = [

@@ -17,8 +17,8 @@ group("testgroup") {
   testonly = true
   if (!defined(ohos_lite)) {
     deps = [
-      "unittest:code_sign_utils_unittest",
-      "unittest:local_code_sign_unittest",
+      "unittest:unittest_group",
+      "fuzztest:fuzztest_group",
     ]
   }
 }

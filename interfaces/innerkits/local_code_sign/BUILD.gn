@@ -14,6 +14,10 @@
 import("//build/ohos.gni")
 import("../../../code_signature.gni")
 
+config("public_local_code_sign_configs") {
+  include_dirs = [ "include" ]
+}
+
 ohos_shared_library("liblocal_code_sign_sdk") {
   sources = [
     "src/local_code_sign_client.cpp",
@@ -22,9 +26,10 @@ ohos_shared_library("liblocal_code_sign_sdk") {
     "src/local_code_sign_proxy.cpp",
   ]
 
-  include_dirs = [ "include" ]
-
-  public_configs = [ "${code_signature_root_dir}:common_public_config" ]
+  public_configs = [
+    "${code_signature_root_dir}:common_public_config",
+    ":public_local_code_sign_configs",
+  ]
   configs = [ "${code_signature_root_dir}:common_utils_config" ]
 
   external_deps = [

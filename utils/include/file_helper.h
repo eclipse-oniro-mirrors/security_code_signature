@@ -22,7 +22,6 @@
 namespace OHOS {
 namespace Security {
 namespace CodeSign {
-bool PathIsValid(const std::string &path);
 bool CheckFilePathValid(const std::string &path, const std::string &basePath);
 }
 }

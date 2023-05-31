@@ -36,7 +36,9 @@
         "access_token"
       ],
       "third_party": [
-        "openssl"
+        "openssl",
+        "fsverity-utils",
+        "googletest"
       ]
     },
     "build": {

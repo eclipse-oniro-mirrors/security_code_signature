@@ -48,6 +48,8 @@ int32_t LocalCodeSignStub::OnRemoteRequest(uint32_t code,
     switch (code) {
         case INIT_LOCAL_CERTIFICATE:
             return InitLocalCertificateInner(data, reply);
+        case SIGN_LOCAL_CODE:
+            return SignLocalCodeInner(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -67,10 +69,38 @@ int32_t LocalCodeSignStub::InitLocalCertificateInner(MessageParcel &data, Messag
     if (result != CS_SUCCESS) {
         return result;
     }
-    if (!reply.WriteUint32(cert.GetSize())) {
+    // cert size is less than UINT32_MAX
+    if (!reply.WriteUint32(static_cast<uint32_t>(cert.GetSize()))) {
         return CS_ERR_IPC_WRITE_DATA;
     }
     if (!reply.WriteBuffer(cert.GetBuffer(), cert.GetSize())) {
+        return CS_ERR_IPC_WRITE_DATA;
+    }
+    return CS_SUCCESS;
+}
+
+int32_t LocalCodeSignStub::SignLocalCodeInner(MessageParcel &data, MessageParcel &reply)
+{
+    if (!PermissionUtils::IsValidCallerOfLocalCodeSign()) {
+        (void)reply.WriteInt32(CS_ERR_NO_PERMISSION);
+        return CS_ERR_NO_PERMISSION;
+    }
+    std::string filePath = data.ReadString();
+    StartTrace(HITRACE_TAG_ACCESS_CONTROL, CODE_SIGN_ENABLE_START);
+    ByteBuffer signature;
+    int32_t result = SignLocalCode(filePath, signature);
+    FinishTrace(HITRACE_TAG_ACCESS_CONTROL);
+    if (!reply.WriteInt32(result)) {
+        return CS_ERR_IPC_WRITE_DATA;
+    }
+    if (result != CS_SUCCESS) {
+        return result;
+    }
+    // signature size is less than UINT32_MAX
+    if (!reply.WriteUint32(static_cast<uint32_t>(signature.GetSize()))) {
+        return CS_ERR_IPC_WRITE_DATA;
+    }
+    if (!reply.WriteBuffer(signature.GetBuffer(), signature.GetSize())) {
         return CS_ERR_IPC_WRITE_DATA;
     }
     return CS_SUCCESS;

@@ -19,24 +19,27 @@
 #include "event_handler.h"
 #include "event_runner.h"
 #include "local_code_sign_stub.h"
+#include "singleton.h"
 #include "system_ability.h"
 
 namespace OHOS {
 namespace Security {
 namespace CodeSign {
+enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 class LocalCodeSignService : public SystemAbility, public LocalCodeSignStub {
-DECLARE_SYSTEM_ABILITY(LocalCodeSignService);
-
+    DECLARE_DELAYED_SINGLETON(LocalCodeSignService);
+    DECLARE_SYSTEM_ABILITY(LocalCodeSignService);
 public:
-    LocalCodeSignService(int32_t saId, bool runOnCreate);
-    ~LocalCodeSignService() = default;
     void OnStart() override;
     void OnStop() override;
+
     int32_t InitLocalCertificate(ByteBuffer &cert) override;
+    int32_t SignLocalCode(const std::string &filePath, ByteBuffer &signature) override;
     void DelayUnloadTask() override;
 private:
     bool Init();
     std::shared_ptr<AppExecFwk::EventHandler> unloadHandler_;
+    ServiceRunningState state_;
 };
 }
 }

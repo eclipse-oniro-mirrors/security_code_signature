@@ -29,8 +29,10 @@ class ILocalCodeSign : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.Security.ILocalCodeSign");
     virtual int32_t InitLocalCertificate(ByteBuffer &cert) = 0;
+    virtual int32_t SignLocalCode(const std::string &filePath, ByteBuffer &signature) = 0;
     enum {
-        INIT_LOCAL_CERTIFICATE = 1
+        INIT_LOCAL_CERTIFICATE = 1,
+        SIGN_LOCAL_CODE = 2
     };
 };
 }

@@ -25,9 +25,9 @@ namespace OHOS {
 namespace Security {
 namespace CodeSign {
 class PermissionUtils {
-
 public:
     static bool IsValidCallerOfCert();
+    static bool IsValidCallerOfLocalCodeSign();
 private:
     static bool VerifyCallingProcess(const std::vector<std::string> &validCallers,
     const AccessToken::AccessTokenID &callerTokenID);

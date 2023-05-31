@@ -151,7 +151,7 @@ static bool ReadSignatureFromFile(const std::string &path, ByteBuffer &data)
  * @tc.name: CodeSignUtilsTest_0001
  * @tc.desc: enable code signature for app failed, reason = zip file wrong foramt
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0001, TestSize.Level0)
 {
@@ -164,7 +164,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0001, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0002
  * @tc.desc: enable code signature for app failed, reason = no signature in the signatrue file
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0002, TestSize.Level0)
 {
@@ -176,7 +176,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0002, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0003
  * @tc.desc: enable code signature for app failed, reason = invalied signature path
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0003, TestSize.Level0)
 {
@@ -190,7 +190,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0003, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0004
  * @tc.desc: enable code signature for app failed, reason = invalied hap path
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0004, TestSize.Level0)
 {
@@ -204,7 +204,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0004, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0005
  * @tc.desc: enable code signature for app  failed, reason = wrong format hap
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0005, TestSize.Level0)
 {
@@ -217,7 +217,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0005, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0006
  * @tc.desc: enable code signature for app without so failed, reason = enable failed
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0006, TestSize.Level0)
 {
@@ -239,7 +239,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0006, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0007
  * @tc.desc: enable code signature for file, reason = wrong foramt lib
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0007, TestSize.Level0)
 {
@@ -254,7 +254,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0007, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0008
  * @tc.desc: enable code signature for file, reason = enable failed
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0008, TestSize.Level0)
 {
@@ -273,7 +273,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0008, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0009
  * @tc.desc: enable code signature for file failed, reason = invalid path
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0009, TestSize.Level0)
 {
@@ -288,7 +288,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0009, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0010
  * @tc.desc: enable code signature for file failed, reason = no signature
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0010, TestSize.Level0)
 {
@@ -307,7 +307,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0010, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0000
  * @tc.desc: enable code signature for file successfully
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0011, TestSize.Level0)
 {
@@ -323,7 +323,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0011, TestSize.Level0)
  * @tc.name: CodeSignUtilsTest_0012
  * @tc.desc: enable code signature for app successfully
  * @tc.type: Func
- * @tc.require: AR000HS4JN
+ * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0012, TestSize.Level0)
 {

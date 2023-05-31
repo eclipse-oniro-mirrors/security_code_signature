@@ -42,6 +42,29 @@ int32_t LocalCodeSignProxy::InitLocalCertificate(ByteBuffer &cert)
     return ReadResultFromReply(reply, cert);
 }
 
+int32_t LocalCodeSignProxy::SignLocalCode(const std::string &filePath, ByteBuffer &signature)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        return CS_ERR_REMOTE_CONNECTION;
+    }
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        LOG_ERROR(LABEL, "Write interface token failed.");
+        return CS_ERR_IPC_WRITE_DATA;
+    }
+    if (!data.WriteString(filePath)) {
+        LOG_ERROR(LABEL, "Write string failed.");
+        return CS_ERR_IPC_WRITE_DATA;
+    }
+    if (remote->SendRequest(SIGN_LOCAL_CODE, data, reply, option) != NO_ERROR) {
+        return CS_ERR_IPC_MSG_INVALID;
+    }
+    return ReadResultFromReply(reply, signature);
+}
+
 int32_t LocalCodeSignProxy::ReadResultFromReply(MessageParcel &reply, ByteBuffer &buffer)
 {
     int32_t result;

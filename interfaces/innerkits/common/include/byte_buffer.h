@@ -76,12 +76,12 @@ public:
         return true;
     }
 
-    bool Resize(size_t size)
+    bool Resize(size_t newSize)
     {
         if (data != nullptr) {
             data.reset(nullptr);
         }
-        return Init(size);
+        return Init(newSize);
     }
 
     uint8_t *GetBuffer() const

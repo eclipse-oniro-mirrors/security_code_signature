@@ -25,7 +25,7 @@ using namespace OHOS::Security::CodeSign;
 int32_t InitLocalCertificate(uint8_t *certData, size_t *certSize)
 {
     ByteBuffer cert;
-    int ret = LocalCodeSignKit::InitLocalCertificate(cert);
+    int32_t ret = LocalCodeSignKit::InitLocalCertificate(cert);
     if (ret != CS_SUCCESS) {
         return ret;
     }

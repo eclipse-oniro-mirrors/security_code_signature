@@ -15,11 +15,14 @@
 
 #include <cstdlib>
 #include <gtest/gtest.h>
+#include <string>
 
 #include "accesstoken_kit.h"
 #include "access_token.h"
 #include "byte_buffer.h"
+#include "code_sign_utils.h"
 #include "local_code_sign_kit.h"
+#include "log.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
@@ -32,11 +35,14 @@ namespace OHOS {
 namespace Security {
 namespace CodeSign {
 
-static uint64_t NativeTokenSet(const char* caller)
+#define AN_BASE_PATH "/data/local/ark-cache/tmp/"
+static const std::string DEMO_AN_PATH = AN_BASE_PATH"demo.an";
+
+static uint64_t NativeTokenSet(const char *caller)
 {
     uint64_t tokenId = GetSelfTokenID();
-    uint64_t mockTokenID = AccessTokenKit::GetNativeTokenId(caller);
-    SetSelfTokenID(mockTokenID);
+    uint64_t mockTokenId = AccessTokenKit::GetNativeTokenId(caller);
+    SetSelfTokenID(mockTokenId);
     return tokenId;
 }
 
@@ -59,7 +65,7 @@ public:
  * @tc.name: LocalCodeSignTest_0001
  * @tc.desc: init local certificate successfully
  * @tc.type: Func
- * @tc.require: AR000HS08H
+ * @tc.require:
  */
 HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0001, TestSize.Level0)
 {
@@ -74,13 +80,58 @@ HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0001, TestSize.Level0)
  * @tc.name: LocalCodeSignTest_0002
  * @tc.desc: init local certificate failed with invalid caller
  * @tc.type: Func
- * @tc.require: AR000HS08H
+ * @tc.require:
  */
 HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0002, TestSize.Level0)
 {
     ByteBuffer cert;
     int ret = LocalCodeSignKit::InitLocalCertificate(cert);
     EXPECT_EQ(ret, CS_ERR_NO_PERMISSION);
+}
+
+/**
+ * @tc.name: LocalCodeSignTest_0003
+ * @tc.desc: sign local code successfully
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0003, TestSize.Level0)
+{
+    ByteBuffer sig;
+    uint64_t selfTokenId = NativeTokenSet("installs");
+    int ret = LocalCodeSignKit::SignLocalCode(DEMO_AN_PATH, sig);
+    NativeTokenReset(selfTokenId);
+    EXPECT_EQ(ret, CS_SUCCESS);
+    ret = CodeSignUtils::EnforceCodeSignForFile(DEMO_AN_PATH, sig);
+    EXPECT_EQ(ret, CS_SUCCESS);
+}
+
+/**
+ * @tc.name: LocalCodeSignTest_0004
+ * @tc.desc: sign local code failed with invalid caller
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0004, TestSize.Level0)
+{
+    ByteBuffer sig;
+    int ret = LocalCodeSignKit::SignLocalCode(DEMO_AN_PATH, sig);
+    EXPECT_EQ(ret, CS_ERR_NO_PERMISSION);
+}
+
+/**
+ * @tc.name: LocalCodeSignTest_0005
+ * @tc.desc: sign local code failed with wrong path
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0005, TestSize.Level0)
+{
+    ByteBuffer sig;
+    uint64_t selfTokenId = NativeTokenSet("installs");
+    int ret = LocalCodeSignKit::SignLocalCode(DEMO_AN_PATH + "invalid", sig);
+    NativeTokenReset(selfTokenId);
+    EXPECT_EQ(ret, CS_ERR_FILE_PATH);
 }
 } //namespace CodeSign
 } //namespace Security

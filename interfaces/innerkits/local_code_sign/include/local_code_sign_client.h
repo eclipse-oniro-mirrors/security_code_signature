@@ -37,6 +37,7 @@ class LocalCodeSignClient {
 public:
     static LocalCodeSignClient &GetInstance();
     int32_t InitLocalCertificate(ByteBuffer &cert);
+    int32_t SignLocalCode(const std::string &path, ByteBuffer &signature);
     void OnRemoteLocalCodeSignSvrDied(const wptr<IRemoteObject> &remote);
     void FinishStartSA(const sptr<IRemoteObject> &remoteObject);
     void FailStartSA();

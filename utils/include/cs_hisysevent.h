@@ -35,11 +35,11 @@ inline void ReportLoadSAError(int32_t errCode)
         HiviewDFX::HiSysEvent::EventType::FAULT, "ERR_TYPE", errCode);
 }
 
-inline void ReportInvalidCaller(const std::string &interfaceType, uint32_t tokenID)
+inline void ReportInvalidCaller(const std::string &interfaceType, uint32_t tokenId)
 {
     HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::CODE_SIGN, "CS_SA_INVALID_CALLER",
         HiviewDFX::HiSysEvent::EventType::SECURITY,
-        "INTERFACE", interfaceType, "TOKEN_ID", tokenID);
+        "INTERFACE", interfaceType, "TOKEN_ID", tokenId);
 }
 }
 }

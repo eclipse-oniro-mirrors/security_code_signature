@@ -31,6 +31,7 @@
 #include "cs_hisysevent.h"
 #include "cs_hitrace.h"
 #include "constants.h"
+#include "directory_ex.h"
 #include "extractor.h"
 #include "file_helper.h"
 #include "log.h"
@@ -139,19 +140,25 @@ int32_t CodeSignUtils::EnforceCodeSignForFile(const std::string &path, const uin
     if ((signature == nullptr) || (size == 0)) {
         return CS_ERR_NO_SIGNATURE;
     }
-    if (!PathIsValid(path)) {
+    std::string realPath;
+    if (!OHOS::PathToRealPath(path, realPath)) {
+        LOG_INFO(LABEL, "Get real path failed, path = %{public}s", path.c_str());
         return CS_ERR_FILE_PATH;
     }
-    int fd = open(path.c_str(), O_RDONLY);
+    int fd = open(realPath.c_str(), O_RDONLY);
     if (fd < 0) {
         LOG_ERROR(LABEL, "Open file failed, path = %{public}s, errno = <%{public}d, %{public}s>",
-            path.c_str(), errno, strerror(errno));
+            realPath.c_str(), errno, strerror(errno));
         return CS_ERR_FILE_OPEN;
     }
-    if (IsFsVerityEnabled(fd) == CS_SUCCESS) {
+    int32_t ret = IsFsVerityEnabled(fd);
+    if (ret == CS_SUCCESS) {
         close(fd);
         LOG_INFO(LABEL, "Fs-verity has been enabled.");
         return CS_SUCCESS;
+    } else if (ret == CS_ERR_FILE_INVALID) {
+        close(fd);
+        return CS_ERR_FILE_INVALID;
     }
     struct fsverity_enable_arg arg = {};
     arg.version = 1;    // version of fs-verity, must be 1

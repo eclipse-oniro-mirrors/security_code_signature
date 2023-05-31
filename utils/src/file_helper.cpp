@@ -17,22 +17,14 @@
 
 #include <climits>
 #include <cstdlib>
-#include <dirent.h>
 #include <unistd.h>
 
 #include "directory_ex.h"
-
 #include "log.h"
-#include "constants.h"
 
 namespace OHOS {
 namespace Security {
 namespace CodeSign {
-bool PathIsValid(const std::string &path)
-{
-    return access(path.c_str(), F_OK) == 0;
-}
-
 bool CheckFilePathValid(const std::string &path, const std::string &baseRealPath)
 {
     std::string realPath;

@@ -35,6 +35,13 @@ public:
      * @return err code, see err_code.h
      */
     static int32_t InitLocalCertificate(ByteBuffer &cert);
+    /**
+     * @brief sign local code
+     * @param filePath file path to sign
+     * @param signature signature from local code sign SA
+     * @return err code, see err_code.h
+     */
+    static int32_t SignLocalCode(const std::string &filePath, ByteBuffer &signature);
 };
 }
 }
