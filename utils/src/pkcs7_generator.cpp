@@ -79,7 +79,7 @@ int32_t PKCS7Generator::GenerateSignature(SignKey &key, const char *hashAlg,
 
 int32_t PKCS7Generator::SignData(SignKey &key, SignerInfo &signerInfo)
 {
-    int dataSize = 0;
+    uint32_t dataSize = 0;
     uint8_t *data = signerInfo.GetDataToSign(dataSize);
     if (data == nullptr) {
         return CS_ERR_OPENSSL_PKCS7;

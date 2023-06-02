@@ -30,7 +30,7 @@ class SignerInfo {
 public:
     bool InitSignerInfo(X509 *cert, const EVP_MD *md, const ByteBuffer &contentData, bool carrySigningTime = false);
     bool AddSignatureInSignerInfo(const ByteBuffer &signature);
-    uint8_t *GetDataToSign(int &len);
+    uint8_t *GetDataToSign(uint32_t &len);
     PKCS7_SIGNER_INFO *GetSignerInfo();
 private:
     bool AddAttrsToSignerInfo(const ByteBuffer &contentData);

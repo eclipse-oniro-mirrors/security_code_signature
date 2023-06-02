@@ -46,7 +46,7 @@ public:
      * @param len length of signature data
      * @return err code, see err_code.h
      */
-    static int32_t EnforceCodeSignForFile(const std::string &path, const uint8_t *signature, const size_t len);
+    static int32_t EnforceCodeSignForFile(const std::string &path, const uint8_t *signature, const uint32_t len);
     /**
      * @brief Enforce code signature for file with signature
      * @param path file path

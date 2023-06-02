@@ -39,7 +39,7 @@ void GetOpensslErrorMessage()
     }
 }
 
-X509 *LoadCertFromBuffer(const uint8_t *buffer, const size_t size)
+X509 *LoadCertFromBuffer(const uint8_t *buffer, const uint32_t size)
 {
     BIO *mem = BIO_new_mem_buf(buffer, size);
     if (mem == nullptr) {

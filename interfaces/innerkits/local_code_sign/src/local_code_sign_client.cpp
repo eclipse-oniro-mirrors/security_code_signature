@@ -135,7 +135,7 @@ int32_t LocalCodeSignClient::InitLocalCertificate(ByteBuffer &cert)
     if (localCodeSignProxy_ == nullptr) {
         return CS_ERR_SA_GET_PROXY;
     }
-    int ret = localCodeSignProxy_->InitLocalCertificate(cert);
+    int32_t ret = localCodeSignProxy_->InitLocalCertificate(cert);
     if (ret != CS_SUCCESS) {
         LOG_ERROR(LABEL, "InitLocalCertificate err, error code = %{public}d", ret);
         return ret;
@@ -150,7 +150,7 @@ int32_t LocalCodeSignClient::SignLocalCode(const std::string &path, ByteBuffer &
     if (localCodeSignProxy_ == nullptr) {
         return CS_ERR_SA_GET_PROXY;
     }
-    int ret = localCodeSignProxy_->SignLocalCode(path, signature);
+    int32_t ret = localCodeSignProxy_->SignLocalCode(path, signature);
     if (ret != CS_SUCCESS) {
         LOG_ERROR(LABEL, "SignLocalCode err, error code = %{public}d", ret);
         return ret;

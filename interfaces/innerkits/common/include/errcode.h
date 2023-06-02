@@ -24,6 +24,7 @@ enum CommonErrCode {
     CS_ERR_MEMORY = -0x1,
     CS_ERR_NO_PERMISSION = -0x2,
     CS_ERR_NO_SIGNATURE = -0x3,
+    CS_ERR_INVALID_SIGNATURE = -0x4
 };
 
 enum FileOperationErrCode {
@@ -31,8 +32,7 @@ enum FileOperationErrCode {
     CS_ERR_FILE_PATH = -0x101,
     CS_ERR_FILE_OPEN = -0x102,
     CS_ERR_FILE_READ = -0x103,
-    CS_ERR_EXTRACT_FILES = -0x104,
-    CS_ERR_DIR_CREATE = -0x105
+    CS_ERR_EXTRACT_FILES = -0x104
 };
 
 enum SignErrCode {

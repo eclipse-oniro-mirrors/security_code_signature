@@ -93,7 +93,7 @@ private:
     bool GetAttestParamSet(HUKSParamSet &paramSet);
     bool GetSignParamSet(HUKSParamSet &paramSet);
     bool SignByHUKS(const struct HksBlob *inData, struct HksBlob *outData);
-    
+
 private:
     ByteBuffer *cert_ = nullptr;
     HksCertChain *certChain_ = nullptr;

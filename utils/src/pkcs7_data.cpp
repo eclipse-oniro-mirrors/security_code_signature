@@ -71,8 +71,11 @@ bool PKCS7Data::GetPKCS7Data(ByteBuffer &pkcs7Data)
             break;
         }
         uint8_t *tmp = nullptr;
-        size_t tmpSize = BIO_get_mem_data(bio, &tmp);
-        if (!pkcs7Data.CopyFrom(tmp, tmpSize)) {
+        long tmpSize = BIO_get_mem_data(bio, &tmp);
+        if ((tmpSize < 0) || (tmpSize > UINT32_MAX)) {
+            break;
+        }
+        if (!pkcs7Data.CopyFrom(tmp, static_cast<uint32_t>(tmpSize))) {
             break;
         }
         ret = true;

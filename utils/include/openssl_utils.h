@@ -26,7 +26,7 @@ namespace Security {
 namespace CodeSign {
 void ErrLogWithOpenSSLMsg(const char *msg);
 void GetOpensslErrorMessage();
-X509 *LoadCertFromBuffer(const uint8_t *buffer, const size_t size);
+X509 *LoadCertFromBuffer(const uint8_t *buffer, const uint32_t size);
 STACK_OF(X509) *MakeStackOfCerts(const std::vector<ByteBuffer> &certChain);
 }
 }

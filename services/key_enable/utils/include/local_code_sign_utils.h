@@ -24,7 +24,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-__attribute__((visibility("default"))) int32_t InitLocalCertificate(uint8_t *cert, size_t *certSize);
+__attribute__((visibility("default"))) int32_t InitLocalCertificate(uint8_t *cert, uint32_t *certSize);
 #ifdef __cplusplus
 }
 #endif

@@ -69,8 +69,7 @@ int32_t LocalCodeSignStub::InitLocalCertificateInner(MessageParcel &data, Messag
     if (result != CS_SUCCESS) {
         return result;
     }
-    // cert size is less than UINT32_MAX
-    if (!reply.WriteUint32(static_cast<uint32_t>(cert.GetSize()))) {
+    if (!reply.WriteUint32(cert.GetSize())) {
         return CS_ERR_IPC_WRITE_DATA;
     }
     if (!reply.WriteBuffer(cert.GetBuffer(), cert.GetSize())) {
@@ -96,8 +95,7 @@ int32_t LocalCodeSignStub::SignLocalCodeInner(MessageParcel &data, MessageParcel
     if (result != CS_SUCCESS) {
         return result;
     }
-    // signature size is less than UINT32_MAX
-    if (!reply.WriteUint32(static_cast<uint32_t>(signature.GetSize()))) {
+    if (!reply.WriteUint32(signature.GetSize())) {
         return CS_ERR_IPC_WRITE_DATA;
     }
     if (!reply.WriteBuffer(signature.GetBuffer(), signature.GetSize())) {

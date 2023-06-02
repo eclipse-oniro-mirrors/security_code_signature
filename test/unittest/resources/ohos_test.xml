@@ -76,11 +76,14 @@
     </target>
     <target name="local_code_sign_unittest">
         <preparer>
+            <option name="shell" value="mkdir -p /data/test/tmp"/>
             <option name="shell" value="mkdir -p /data/local/ark-cache/tmp"/>
-            <option name="push" value="demo_an/demo.an -> /data/local/ark-cache/tmp" src="res"/>
+            <option name="push" value="demo_an/demo.an -> /data/test/tmp" src="res"/>
+            <option name="shell" value="cp /data/test/tmp/* /data/local/ark-cache/tmp"/>
         </preparer>
         <cleaner>
             <option name="shell" value="rm -rf /data/local/ark-cache/tmp"/>
+            <option name="shell" value="rm -rf /data/test/tmp"/>
         </cleaner>
     </target>
 </configuration>

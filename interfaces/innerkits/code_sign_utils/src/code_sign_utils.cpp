@@ -91,7 +91,11 @@ int32_t CodeSignUtils::EnforceCodeSignForApp(const EntryMap &entryPath,
             LOG_ERROR(LABEL, "Extract signture failed.");
             return CS_ERR_EXTRACT_FILES;
         }
-        ret = EnforceCodeSignForFile(targetFile, signatureBuffer.get(), signatureSize);
+        if (signatureSize > UINT32_MAX) {
+            LOG_ERROR(LABEL, "Signature is too long.");
+            return CS_ERR_INVALID_SIGNATURE;
+        }
+        ret = EnforceCodeSignForFile(targetFile, signatureBuffer.get(), static_cast<const uint32_t>(signatureSize));
         if (ret != CS_SUCCESS) {
             return ret;
         }
@@ -135,7 +139,7 @@ int32_t CodeSignUtils::EnforceCodeSignForFile(const std::string &path, const Byt
 }
 
 int32_t CodeSignUtils::EnforceCodeSignForFile(const std::string &path, const uint8_t *signature,
-    const size_t size)
+    const uint32_t size)
 {
     if ((signature == nullptr) || (size == 0)) {
         return CS_ERR_NO_SIGNATURE;

@@ -100,7 +100,7 @@ bool FsverityUtilsHelper::GenerateFormattedDigest(const char *path, ByteBuffer &
     if (!ComputeDigest(path, &digest)) {
         return false;
     }
-    size_t digestLen = sizeof(struct fsverity_formatted_digest) + digest->digest_size;
+    uint32_t digestLen = sizeof(struct fsverity_formatted_digest) + digest->digest_size;
     if (!digestBuffer.Resize(digestLen)) {
         free(digest);
         return false;

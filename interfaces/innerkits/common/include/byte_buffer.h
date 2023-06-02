@@ -33,7 +33,7 @@ public:
     {
     }
 
-    ByteBuffer(size_t bufferSize)
+    ByteBuffer(uint32_t bufferSize)
     {
         Init(bufferSize);
     }
@@ -51,7 +51,7 @@ public:
         }
         size = 0;
     }
-    bool CopyFrom(const uint8_t *srcData, size_t srcSize)
+    bool CopyFrom(const uint8_t *srcData, uint32_t srcSize)
     {
         if (srcData == nullptr) {
             return false;
@@ -65,7 +65,7 @@ public:
         return true;
     }
 
-    bool PutData(size_t pos, const uint8_t *srcData, size_t srcSize)
+    bool PutData(uint32_t pos, const uint8_t *srcData, uint32_t srcSize)
     {
         if (pos >= size) {
             return false;
@@ -76,7 +76,7 @@ public:
         return true;
     }
 
-    bool Resize(size_t newSize)
+    bool Resize(uint32_t newSize)
     {
         if (data != nullptr) {
             data.reset(nullptr);
@@ -89,7 +89,7 @@ public:
         return data.get();
     }
 
-    size_t GetSize() const
+    uint32_t GetSize() const
     {
         return size;
     }
@@ -99,7 +99,7 @@ public:
         return (size == 0) || (data == nullptr);
     }
 private:
-    bool Init(size_t bufferSize)
+    bool Init(uint32_t bufferSize)
     {
         if (bufferSize == 0) {
             return false;
@@ -113,7 +113,7 @@ private:
     }
 
     std::unique_ptr<uint8_t[]> data;
-    size_t size;
+    uint32_t size;
 };
 }
 }

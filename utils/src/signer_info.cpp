@@ -111,7 +111,7 @@ bool SignerInfo::AddAttrsToSignerInfo(const ByteBuffer &contentData)
     return true;
 }
 
-uint8_t *SignerInfo::GetDataToSign(int &len)
+uint8_t *SignerInfo::GetDataToSign(uint32_t &len)
 {
     if (p7info_ == nullptr) {
         return nullptr;
@@ -119,8 +119,12 @@ uint8_t *SignerInfo::GetDataToSign(int &len)
 
     uint8_t *data = nullptr;
     if (carrySigningTime_) {
-        len = ASN1_item_i2d(reinterpret_cast<ASN1_VALUE *>(p7info_->auth_attr), &data,
+        int itemLen = ASN1_item_i2d(reinterpret_cast<ASN1_VALUE *>(p7info_->auth_attr), &data,
             ASN1_ITEM_rptr(PKCS7_ATTR_SIGN));
+        if (itemLen < 0) {
+            return nullptr;
+        }
+        len = itemLen;
     } else {
         if (unsignedData_ == nullptr) {
             return nullptr;
@@ -136,7 +140,7 @@ bool SignerInfo::AddSignatureInSignerInfo(const ByteBuffer &signature)
     if (p7info_ == nullptr) {
         return false;
     }
-    size_t signatureSize = signature.GetSize();
+    uint32_t signatureSize = signature.GetSize();
     // tmp will be free when freeing p7info_
     uint8_t *tmp = static_cast<uint8_t *>(malloc(signatureSize));
     if (tmp == nullptr) {
