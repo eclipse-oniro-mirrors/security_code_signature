@@ -33,6 +33,7 @@
         "safwk",
         "huks",
         "eventhandler",
+        "common",
         "access_token"
       ],
       "third_party": [
