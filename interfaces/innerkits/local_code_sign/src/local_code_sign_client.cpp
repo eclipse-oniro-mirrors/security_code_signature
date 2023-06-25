@@ -130,6 +130,7 @@ void LocalCodeSignClient::CheckLocalCodeSignProxy()
 
 int32_t LocalCodeSignClient::InitLocalCertificate(ByteBuffer &cert)
 {
+    LOG_DEBUG(LABEL, "InitLocalCertificate called");
     CheckLocalCodeSignProxy();
     std::lock_guard<std::mutex> lock(proxyMutex_);
     if (localCodeSignProxy_ == nullptr) {
@@ -145,6 +146,7 @@ int32_t LocalCodeSignClient::InitLocalCertificate(ByteBuffer &cert)
 
 int32_t LocalCodeSignClient::SignLocalCode(const std::string &path, ByteBuffer &signature)
 {
+    LOG_DEBUG(LABEL, "SignLocalCode called");
     CheckLocalCodeSignProxy();
     std::lock_guard<std::mutex> lock(proxyMutex_);
     if (localCodeSignProxy_ == nullptr) {
@@ -155,6 +157,7 @@ int32_t LocalCodeSignClient::SignLocalCode(const std::string &path, ByteBuffer &
         LOG_ERROR(LABEL, "SignLocalCode err, error code = %{public}d", ret);
         return ret;
     }
+    LOG_INFO(LABEL, "SignLocalCode successfully");
     return CS_SUCCESS;
 }
 
