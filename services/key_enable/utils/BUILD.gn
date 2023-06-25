@@ -31,7 +31,7 @@ ohos_static_library("libkey_enable_utils") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
   subsystem_name = "security"
   part_name = "code_signature"

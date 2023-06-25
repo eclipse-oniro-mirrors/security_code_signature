@@ -28,7 +28,7 @@ ohos_unittest("code_sign_utils_unittest") {
     "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils/include",
   ]
 
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 ohos_unittest("local_code_sign_unittest") {
@@ -53,7 +53,7 @@ ohos_unittest("local_code_sign_unittest") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

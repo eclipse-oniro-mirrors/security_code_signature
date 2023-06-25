@@ -23,9 +23,9 @@
     "deps": {
       "components": [
         "ability_tools",
-        "hiviewdfx_hilog_native",
-        "hitrace_native",
-        "hisysevent_native",
+        "hilog",
+        "hitrace",
+        "hisysevent",
         "ability_base",
         "c_utils",
         "ipc",
