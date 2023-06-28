@@ -22,7 +22,6 @@
     "ram": "2048KB",
     "deps": {
       "components": [
-        "ability_tools",
         "hilog",
         "hitrace",
         "hisysevent",
