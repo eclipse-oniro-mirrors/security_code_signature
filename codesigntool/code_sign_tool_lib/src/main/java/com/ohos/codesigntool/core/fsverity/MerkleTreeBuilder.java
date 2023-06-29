@@ -15,7 +15,6 @@
 
 package com.ohos.codesigntool.core.fsverity;
 
-import com.ohos.codesigntool.core.exception.FsVerityDigestException;
 import com.ohos.codesigntool.core.utils.DigestUtils;
 
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -83,14 +83,13 @@ public class MerkleTreeBuilder {
      * @param size                     total size of input stream
      * @return                         ByteBuffer data
      * @throws IOException             if error
-     * @throws FsVerityDigestException if error
      */
     private ByteBuffer[] convertToByteBuffer(InputStream inputStream, long size)
-            throws IOException, FsVerityDigestException {
+            throws IOException {
         if (size == 0) {
-            throw new FsVerityDigestException("Input size is empty");
+            throw new IOException("Input size is empty");
         } else if (size > INPUTSTREAM_MAX_SIZE) {
-            throw new FsVerityDigestException("Input size is too long");
+            throw new IOException("Input size is too long");
         }
         int count = (int) getChunkCount(size, MAX_READ_SIZE);
         ByteBuffer[] byteBuffer = new ByteBuffer[count];
@@ -111,7 +110,7 @@ public class MerkleTreeBuilder {
                 }
             }
             if (offset != readSize) {
-                throw new FsVerityDigestException("IOException read buffer from input error.");
+                throw new IOException("IOException read buffer from input error.");
             }
             byteBuffer[i].flip();
             readOffset += readSize;
@@ -144,12 +143,11 @@ public class MerkleTreeBuilder {
      * each level from the root node to the leaf node
      */
     private static int[] getOffsetArrays(long dataSize, int digestSize) {
-        ArrayList<Long> levelSize = getlevelSize(dataSize, digestSize);
+        ArrayList<Long> levelSize = getLevelSize(dataSize, digestSize);
         int[] levelOffset = new int[levelSize.size() + 1];
         levelOffset[0] = 0;
         for (int i = 0; i < levelSize.size(); i++) {
-            levelOffset[i + 1] = levelOffset[i] + Math.toIntExact((
-                levelSize.get(levelSize.size() - i - 1)).longValue());
+            levelOffset[i + 1] = levelOffset[i] + Math.toIntExact(levelSize.get(levelSize.size() - i - 1));
         }
         return levelOffset;
     }
@@ -162,29 +160,27 @@ public class MerkleTreeBuilder {
      * @return                      data size list,contains the offset of
      * each level from the root node to the leaf node
      */
-    private static ArrayList<Long> getlevelSize(long dataSize, int digestSize) {
+    private static ArrayList<Long> getLevelSize(long dataSize, int digestSize) {
         ArrayList<Long> levelSize = new ArrayList<>();
         long fullChunkSize = 0L;
         long originalDataSize = dataSize;
         do {
             fullChunkSize = getFullChunkSize(originalDataSize, CHUNK_SIZE, digestSize);
             long size = getFullChunkSize(fullChunkSize, CHUNK_SIZE, CHUNK_SIZE);
-            levelSize.add(Long.valueOf(size));
+            levelSize.add(size);
             originalDataSize = fullChunkSize;
         } while (fullChunkSize > CHUNK_SIZE);
         return levelSize;
     }
 
     /**
-     * encrypted data
+     * hash data of input array
      *
      * @param inputBuffer              original data
      * @param size                     total size of input stream
      * @param outputBuffer             hash data
-     * @throws FsVerityDigestException if error
      */
-    private void transInputDataToHashData(ByteBuffer[] inputBuffer, long size, ByteBuffer outputBuffer)
-            throws FsVerityDigestException {
+    private void transInputDataToHashData(ByteBuffer[] inputBuffer, long size, ByteBuffer outputBuffer) {
         int count = inputBuffer.length;
         int chunks = (int) getChunkCount(size, CHUNK_SIZE);
         byte[][] hashes = new byte[chunks][];
@@ -193,21 +189,7 @@ public class MerkleTreeBuilder {
             ByteBuffer buffer = inputBuffer[i];
             buffer.rewind();
             int readChunkIndex = (int) getFullChunkSize(MAX_READ_SIZE, CHUNK_SIZE, i);
-            Runnable task = () -> {
-                int offset = 0;
-                int bufferSize = buffer.capacity();
-                int index = readChunkIndex;
-                while (offset < bufferSize) {
-                    ByteBuffer chunk = slice(buffer, offset, offset + (int) CHUNK_SIZE);
-                    byte[] tempByte = new byte[(int) CHUNK_SIZE];
-                    chunk.get(tempByte);
-                    hashes[index++] = DigestUtils.computeDigest(tempByte, this.mAlgorithm);
-                    offset += (int) CHUNK_SIZE;
-                }
-                tasks.arriveAndDeregister();
-            };
-            tasks.register();
-            this.mPools.execute(task);
+            runHashTask(hashes, tasks, buffer, readChunkIndex);
         }
         tasks.arriveAndAwaitAdvance();
         for (byte[] hash : hashes) {
@@ -215,15 +197,35 @@ public class MerkleTreeBuilder {
         }
     }
 
+    private void runHashTask(byte[][] hashes, Phaser tasks, ByteBuffer buffer, int readChunkIndex) {
+        Runnable task = () -> {
+            int offset = 0;
+            int bufferSize = buffer.capacity();
+            int index = readChunkIndex;
+            while (offset < bufferSize) {
+                ByteBuffer chunk = slice(buffer, offset, offset + (int) CHUNK_SIZE);
+                byte[] tempByte = new byte[(int) CHUNK_SIZE];
+                chunk.get(tempByte);
+                try {
+                    hashes[index++] = DigestUtils.computeDigest(tempByte, this.mAlgorithm);
+                } catch (NoSuchAlgorithmException e) {
+                    throw new IllegalStateException(e);
+                }
+                offset += (int) CHUNK_SIZE;
+            }
+            tasks.arriveAndDeregister();
+        };
+        tasks.register();
+        this.mPools.execute(task);
+    }
+
     /**
-     * encrypted data
+     * hash data of buffer
      *
      * @param inputBuffer              original data
      * @param outputBuffer             hash data
-     * @throws FsVerityDigestException if error
      */
-    private void transInputDataToHashData(ByteBuffer inputBuffer, ByteBuffer outputBuffer)
-            throws FsVerityDigestException {
+    private void transInputDataToHashData(ByteBuffer inputBuffer, ByteBuffer outputBuffer) {
         long size = inputBuffer.capacity();
         int chunks = (int) getChunkCount(size, CHUNK_SIZE);
         byte[][] hashes = new byte[chunks][];
@@ -235,21 +237,7 @@ public class MerkleTreeBuilder {
             ByteBuffer buffer = slice(inputBuffer, (int) readOffset, (int) readLimit);
             buffer.rewind();
             int readChunkIndex = startChunkIndex;
-            Runnable task = () -> {
-                int offset = 0;
-                int bufferSize = buffer.capacity();
-                int index = readChunkIndex;
-                while (offset < bufferSize) {
-                    ByteBuffer chunk = slice(buffer, offset, offset + (int) CHUNK_SIZE);
-                    byte[] tempByte = new byte[(int) CHUNK_SIZE];
-                    chunk.get(tempByte);
-                    hashes[index++] = DigestUtils.computeDigest(tempByte, this.mAlgorithm);
-                    offset += (int) CHUNK_SIZE;
-                }
-                tasks.arriveAndDeregister();
-            };
-            tasks.register();
-            this.mPools.execute(task);
+            runHashTask(hashes, tasks, buffer, readChunkIndex);
             int readSize = (int) (readLimit - readOffset);
             startChunkIndex += (int) getChunkCount(readSize, CHUNK_SIZE);
             readOffset += readSize;
@@ -267,10 +255,11 @@ public class MerkleTreeBuilder {
      * @param size                     total size of input stream
      * @param fsVerityHashAlgorithm    hash algorithm for FsVerity
      * @return                         merkle tree
-     * @throws FsVerityDigestException if error
+     * @throws NoSuchAlgorithmException if error
+     * @throws IOException if error
      */
     public MerkleTree generateMerkleTree(InputStream inputStream, long size,
-            FsVerityHashAlgorithm fsVerityHashAlgorithm) throws FsVerityDigestException {
+        FsVerityHashAlgorithm fsVerityHashAlgorithm) throws IOException, NoSuchAlgorithmException {
         setAlgorithm(fsVerityHashAlgorithm.getHashAlgorithm());
         int digestSize = fsVerityHashAlgorithm.getOutputByteSize();
         int[] offsetArrays = getOffsetArrays(size, digestSize);
@@ -288,41 +277,34 @@ public class MerkleTreeBuilder {
      * @param outputBuffer             hash data
      * @param offsetArrays             level offset
      * @param digestSize               algorithm output byte size
-     * @throws FsVerityDigestException if error
+     * @throws IOException if error
      */
     private void generateHashDataByInputData(InputStream inputStream, long size, ByteBuffer outputBuffer,
-            int[] offsetArrays, int digestSize) throws FsVerityDigestException {
+        int[] offsetArrays, int digestSize) throws IOException {
         int inputDataOffsetBegin = offsetArrays[offsetArrays.length - 2];
         int inputDataOffsetEnd = offsetArrays[offsetArrays.length - 1];
         long inputDataBufferSize = 0L;
         ByteBuffer hashBuffer = slice(outputBuffer, inputDataOffsetBegin, inputDataOffsetEnd);
-        ByteBuffer[] inputBuffer;
-        try {
-            inputBuffer = convertToByteBuffer(inputStream, size);
-            for (ByteBuffer tempinputBuffer : inputBuffer) {
-                inputDataBufferSize += tempinputBuffer.capacity();
-            }
-        } catch (IOException e) {
-            throw new FsVerityDigestException("IOException" + e.getMessage(), e);
+        ByteBuffer[] inputBuffer = convertToByteBuffer(inputStream, size);
+        for (ByteBuffer tempinputBuffer : inputBuffer) {
+            inputDataBufferSize += tempinputBuffer.capacity();
         }
         transInputDataToHashData(inputBuffer, inputDataBufferSize, hashBuffer);
         dataRoundupChunkSize(hashBuffer, inputDataBufferSize, digestSize);
     }
 
     /**
-     * get buffer data by level offset,transforms digest data,save in another memory
+     * get buffer data by level offset,transforms digest data, save in another memory
      *
      * @param buffer                   hash data
      * @param offsetArrays             level offset
      * @param digestSize               algorithm output byte size
-     * @throws FsVerityDigestException if error
      */
-    private void generateHashDataByHashData(ByteBuffer buffer, int[] offsetArrays,
-            int digestSize) throws FsVerityDigestException {
+    private void generateHashDataByHashData(ByteBuffer buffer, int[] offsetArrays, int digestSize) {
         for (int i = offsetArrays.length - 3; i >= 0; i--) {
             ByteBuffer generateHashBuffer = slice(buffer, offsetArrays[i], offsetArrays[i + 1]);
             ByteBuffer originalHashBuffer = slice(buffer.asReadOnlyBuffer(),
-                offsetArrays[i + 1], offsetArrays[i + 2]);
+                    offsetArrays[i + 1], offsetArrays[i + 2]);
             transInputDataToHashData(originalHashBuffer, generateHashBuffer);
             dataRoundupChunkSize(generateHashBuffer, originalHashBuffer.capacity(), digestSize);
         }
@@ -335,10 +317,10 @@ public class MerkleTreeBuilder {
      * @param inputDataSize            total size of input stream
      * @param fsVerityHashAlgorithm    hash algorithm for FsVerity
      * @return                         merkle tree
-     * @throws FsVerityDigestException if error
+     * @throws NoSuchAlgorithmException if error
      */
     private MerkleTree getMerkleTree(ByteBuffer dataBuffer, long inputDataSize,
-            FsVerityHashAlgorithm fsVerityHashAlgorithm) throws FsVerityDigestException {
+        FsVerityHashAlgorithm fsVerityHashAlgorithm) throws NoSuchAlgorithmException {
         int digestSize = fsVerityHashAlgorithm.getOutputByteSize();
         dataBuffer.flip();
         byte[] rootHash = null;
@@ -374,18 +356,18 @@ public class MerkleTreeBuilder {
     }
 
     /**
-     * get satisfy need minimum data chunk
+     * get mount of chucks to store data
      *
      * @param dataSize              data size
      * @param divisor               split chunk size
-     * @return                      chunk
+     * @return                      chunk count
      */
     private static long getChunkCount(long dataSize, long divisor) {
         return (long) Math.ceil((double) dataSize / (double) divisor);
     }
 
     /**
-     * get satisfy need minimum data chunk
+     * get total size of chunk to store data
      *
      * @param dataSize              data size
      * @param divisor               split chunk size
