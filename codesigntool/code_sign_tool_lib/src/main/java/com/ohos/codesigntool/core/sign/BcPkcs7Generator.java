@@ -40,8 +40,6 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cert.jcajce.JcaX509CRLHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
-import org.bouncycastle.cms.CMSProcessableByteArray;
-import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DigestAlgorithmIdentifierFinder;
@@ -111,7 +109,7 @@ public class BcPkcs7Generator implements Pkcs7Generator {
         ContentInfo contentInfo = new ContentInfo(PKCSObjectIdentifiers.data, null);
         ASN1Set certs = null;
         ASN1Set crls = null;
-        byte[] signBlock;
+        byte[] signResult;
         try {
             if (checkListNotNullOrEmty(signerConfig.getCertificates())) {
                 certs = createBerSetFromCerts(signerConfig.getCertificates());
@@ -122,22 +120,21 @@ public class BcPkcs7Generator implements Pkcs7Generator {
             SignedData signedData = new SignedData(
                 new ASN1Integer(1), algorithmIdLst, contentInfo, certs, crls, signerInfoLst);
             ContentInfo pkcs7 = new ContentInfo(PKCSObjectIdentifiers.signedData, signedData);
-            signBlock = pkcs7.getEncoded(ASN1Encoding.DER);
+            signResult = pkcs7.getEncoded(ASN1Encoding.DER);
         } catch (CertificateEncodingException | CRLException | IOException e) {
             throw new SignatureException("Packaging PKCS cms data failed!", e);
         }
 
         boolean verifyResult = false;
         try {
-            CMSSignedData cmsSignedData = new CMSSignedData(new CMSProcessableByteArray(unsignedHapDigest), signBlock);
-            verifyResult = VerifyUtils.verifyCmsSignedData(cmsSignedData);
+            verifyResult = VerifyUtils.verifyPKCS7withContent(unsignedHapDigest, signResult);
         } catch (CMSException e) {
             throw new SignatureException("PKCS cms data verify failed", e);
         }
         if (!verifyResult) {
             throw new SignatureException("PKCS cms data did not verify");
         }
-        return signBlock;
+        return signResult;
     }
 
     private SignerInfo getSignerInfo(

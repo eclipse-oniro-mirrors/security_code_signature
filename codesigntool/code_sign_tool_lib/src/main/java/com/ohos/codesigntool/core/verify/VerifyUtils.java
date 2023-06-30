@@ -17,6 +17,7 @@ package com.ohos.codesigntool.core.verify;
 
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -71,5 +72,18 @@ public class VerifyUtils {
             }
         });
         return verifyResult;
+    }
+
+    /**
+     * Verify cms signed data which has no content
+     *
+     * @param contentData signed content data
+     * @param pkcs7 cms signed data
+     * @return true if verify success
+     * @throws CMSException if error
+     */
+    public static boolean verifyPKCS7withContent(byte[] contentData, byte[] pkcs7) throws CMSException {
+        CMSSignedData cmsSignedData = new CMSSignedData(new CMSProcessableByteArray(contentData), pkcs7);
+        return VerifyUtils.verifyCmsSignedData(cmsSignedData);
     }
 }
