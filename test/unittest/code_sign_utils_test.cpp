@@ -304,7 +304,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0010, TestSize.Level0)
 }
 
 /**
- * @tc.name: CodeSignUtilsTest_0000
+ * @tc.name: CodeSignUtilsTest_0011
  * @tc.desc: enable code signature for file successfully
  * @tc.type: Func
  * @tc.require:

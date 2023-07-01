@@ -43,6 +43,72 @@ ohos_unittest("local_code_sign_unittest") {
   ]
 
   include_dirs = [
+    "utils/include",
+    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign/include",
+    "${code_signature_root_dir}/services/local_code_sign/include",
+    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils/include",
+  ]
+  configs = [ "${code_signature_root_dir}:common_utils_config" ]
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+}
+
+ohos_unittest("sign_and_enforce_unittest") {
+  module_out_path = "security/code_signature"
+  resource_config_file = "resources/ohos_test.xml"
+  sources = [
+    "sign_and_enforce_test.cpp"
+  ]
+  deps = [
+    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
+    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
+    "${googletest_dir}:gtest",
+    "${openssl_dir}:libcrypto_shared",
+  ]
+
+  include_dirs = [
+    "utils/include",
+    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign/include",
+    "${code_signature_root_dir}/services/local_code_sign/include",
+    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils/include",
+  ]
+  configs = [ "${code_signature_root_dir}:common_utils_config" ]
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+}
+
+ohos_unittest("multi_thread_local_sign_unittest") {
+  module_out_path = "security/code_signature"
+  resource_config_file = "resources/ohos_test.xml"
+  sources = [
+    "multi_thread_local_sign_test.cpp",
+    "${code_signature_root_dir}/utils/src/openssl_utils.cpp"
+  ]
+  deps = [
+    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
+    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
+    "${googletest_dir}:gtest",
+    "${openssl_dir}:libcrypto_shared",
+  ]
+
+  include_dirs = [
+    "utils/include",
     "${code_signature_root_dir}/interfaces/innerkits/local_code_sign/include",
     "${code_signature_root_dir}/services/local_code_sign/include",
     "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils/include",
@@ -66,6 +132,8 @@ group("unittest_group") {
     deps = [
       ":code_sign_utils_unittest",
       ":local_code_sign_unittest",
+      ":sign_and_enforce_unittest",
+      ":multi_thread_local_sign_unittest"
     ]
   }
 }

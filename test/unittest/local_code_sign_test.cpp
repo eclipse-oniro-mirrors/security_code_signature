@@ -17,18 +17,14 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "accesstoken_kit.h"
-#include "access_token.h"
+#include "access_token_setter.h"
 #include "byte_buffer.h"
 #include "code_sign_utils.h"
 #include "local_code_sign_kit.h"
 #include "log.h"
-#include "nativetoken_kit.h"
-#include "token_setproc.h"
 
 using namespace OHOS::Security::CodeSign;
 using namespace testing::ext;
-using namespace OHOS::Security::AccessToken;
 using namespace std;
 
 namespace OHOS {
@@ -37,19 +33,6 @@ namespace CodeSign {
 
 #define AN_BASE_PATH "/data/local/ark-cache/tmp/"
 static const std::string DEMO_AN_PATH = AN_BASE_PATH"demo.an";
-
-static uint64_t NativeTokenSet(const char *caller)
-{
-    uint64_t tokenId = GetSelfTokenID();
-    uint64_t mockTokenId = AccessTokenKit::GetNativeTokenId(caller);
-    SetSelfTokenID(mockTokenId);
-    return tokenId;
-}
-
-static void NativeTokenReset(uint64_t tokenId)
-{
-    SetSelfTokenID(tokenId);
-}
 
 class LocalCodeSignTest : public testing::Test {
 public:
