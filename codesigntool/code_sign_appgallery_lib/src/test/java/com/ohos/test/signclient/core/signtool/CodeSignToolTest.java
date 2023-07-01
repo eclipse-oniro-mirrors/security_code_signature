@@ -138,6 +138,23 @@ public class CodeSignToolTest {
     }
 
     /**
+     * Test sign file that does not exist.
+     *
+     * @throws Exception on error.
+     */
+    @Test
+    public void testInvalidInputFile() throws Exception {
+        Params param = new Params();
+        param.addParam(ParamConstants.PARAM_BASIC_INPUT_FILE, "invalid");
+        param.addParam(ParamConstants.PARAM_BASIC_OUTPUT_PATH, tmpOutputPath);
+        param.addParam(ParamConstants.PARAM_BASIC_SIGANTURE_ALG, DEFAULT_SIGN_ALG);
+
+        String[] params = param.toArray();
+        TestCodeSignServer server = new TestCodeSignServer();
+        Assert.assertFalse("sign nonexistent file", CodeSignTool.signCode(server, params));
+    }
+
+    /**
      * Test sign and store merkle tree in ouput file.
      *
      * @throws Exception on error
@@ -208,6 +225,17 @@ public class CodeSignToolTest {
         String[] params = param.toArray();
         TestCodeSignServer server = new TestCodeSignServer();
         Assert.assertTrue("sign code failed", CodeSignTool.signCode(server, params));
+        CodeSignVerify codeSignVerify = new CodeSignVerify();
+        Assert.assertTrue("verify code failed", codeSignVerify.verifyCode(
+            unsignedHap.getPath(), spliceFilePath(tmpOutputPath, unsignedHap.getName())));
+    }
+
+    private static String spliceFilePath(String outputDir, String hapName) {
+        String outputPath = outputDir;
+        if (!outputPath.endsWith(File.separator)) {
+            outputPath += File.separator;
+        }
+        return new String(outputPath + hapName + SIG_SUFFIX);
     }
 
     private void testSignCodeWithTree() throws Exception {
@@ -225,6 +253,9 @@ public class CodeSignToolTest {
         String[] params = param.toArray();
         TestCodeSignServer server = new TestCodeSignServer();
         Assert.assertTrue("sign code failed", CodeSignTool.signCode(server, params));
+        CodeSignVerify codeSignVerify = new CodeSignVerify();
+        Assert.assertTrue("verify code failed", codeSignVerify.verifyCode(
+            unsignedHap.getPath(), spliceFilePath(tmpOutputPath, unsignedHap.getName())));
     }
 
     /**
@@ -364,7 +395,9 @@ public class CodeSignToolTest {
                 params.addParam(ParamConstants.PARAM_BASIC_INPUT_FILE, inputFile.getPath());
                 params.addParam(ParamConstants.PARAM_BASIC_OUTPUT_PATH, outputPath);
                 params.addParam(ParamConstants.PARAM_BASIC_SIGANTURE_ALG, DEFAULT_SIGN_ALG);
-                return CodeSignTool.signCode(server, params.toArray());
+                CodeSignVerify codeSignVerify = new CodeSignVerify();
+                return (CodeSignTool.signCode(server, params.toArray()) &
+                    codeSignVerify.verifyCode(inputFile.getPath(), spliceFilePath(outputPath, inputFile.getName())));
             } finally {
                 countDownLatch.countDown();
             }

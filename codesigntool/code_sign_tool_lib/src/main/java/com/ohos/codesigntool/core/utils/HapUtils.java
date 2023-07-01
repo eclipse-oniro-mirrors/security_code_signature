@@ -58,7 +58,15 @@ public class HapUtils {
     private HapUtils() {
     }
 
-    private static byte[] toByteArray(final InputStream input, final int size) throws IOException {
+    /**
+     * Translation inputStream to byte array
+     *
+     * @param input inputStream data
+     * @param size inputStream size
+     * @return byte array value of parsing result
+     * @throws IOException io error
+     */
+    public static byte[] toByteArray(final InputStream input, final int size) throws IOException {
         if (size < 0) {
             throw new IllegalArgumentException("Size must be equal or greater than zero: " + size);
         }
