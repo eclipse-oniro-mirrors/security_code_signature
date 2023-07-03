@@ -46,9 +46,9 @@ int32_t LocalCodeSignStub::OnRemoteRequest(uint32_t code,
         return CS_ERR_IPC_MSG_INVALID;
     }
     switch (code) {
-        case INIT_LOCAL_CERTIFICATE:
+        case static_cast<uint32_t>(LocalCodeSignInterfaceCode::INIT_LOCAL_CERTIFICATE):
             return InitLocalCertificateInner(data, reply);
-        case SIGN_LOCAL_CODE:
+        case static_cast<uint32_t>(LocalCodeSignInterfaceCode::SIGN_LOCAL_CODE):
             return SignLocalCodeInner(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

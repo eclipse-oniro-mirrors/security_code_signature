@@ -36,7 +36,8 @@ int32_t LocalCodeSignProxy::InitLocalCertificate(ByteBuffer &cert)
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return CS_ERR_IPC_WRITE_DATA;
     }
-    if (remote->SendRequest(INIT_LOCAL_CERTIFICATE, data, reply, option) != NO_ERROR) {
+    if (remote->SendRequest(static_cast<uint32_t>(LocalCodeSignInterfaceCode::INIT_LOCAL_CERTIFICATE),
+        data, reply, option) != NO_ERROR) {
         return CS_ERR_IPC_MSG_INVALID;
     }
     return ReadResultFromReply(reply, cert);
@@ -59,7 +60,8 @@ int32_t LocalCodeSignProxy::SignLocalCode(const std::string &filePath, ByteBuffe
         LOG_ERROR(LABEL, "Write string failed.");
         return CS_ERR_IPC_WRITE_DATA;
     }
-    if (remote->SendRequest(SIGN_LOCAL_CODE, data, reply, option) != NO_ERROR) {
+    if (remote->SendRequest(static_cast<uint32_t>(LocalCodeSignInterfaceCode::SIGN_LOCAL_CODE),
+        data, reply, option) != NO_ERROR) {
         return CS_ERR_IPC_MSG_INVALID;
     }
     return ReadResultFromReply(reply, signature);

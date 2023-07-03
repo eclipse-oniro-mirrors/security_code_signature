@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,24 +13,16 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_LOCAL_CODE_SIGN_INTERFACE_H
-#define OHOS_LOCAL_CODE_SIGN_INTERFACE_H
-
-#include "byte_buffer.h"
-#include "errcode.h"
-#include "local_code_sign_ipc_interface_code.h"
-#include "iremote_broker.h"
+#ifndef LOCAL_CODE_SIGN_IPC_INTERFACE_CODE_H
+#define LOCAL_CODE_SIGN_IPC_INTERFACE_CODE_H
 
 namespace OHOS {
 namespace Security {
 namespace CodeSign {
-constexpr int LOCAL_CODE_SIGN_SA_ID = 3507;
-
-class ILocalCodeSign : public OHOS::IRemoteBroker {
-public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.Security.ILocalCodeSign");
-    virtual int32_t InitLocalCertificate(ByteBuffer &cert) = 0;
-    virtual int32_t SignLocalCode(const std::string &filePath, ByteBuffer &signature) = 0;
+/* SAID: 3507 */
+enum class LocalCodeSignInterfaceCode {
+    INIT_LOCAL_CERTIFICATE = 1,
+    SIGN_LOCAL_CODE = 2
 };
 }
 }

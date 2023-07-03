@@ -54,7 +54,7 @@ namespace OHOS {
             return false;
         }
 
-        uint32_t code = static_cast<uint32_t>(ILocalCodeSign::SIGN_LOCAL_CODE);
+        uint32_t code = static_cast<uint32_t>(LocalCodeSignInterfaceCode::SIGN_LOCAL_CODE);
         MessageParcel reply;
         MessageOption option;
         uint64_t selfTokenId = NativeTokenSet("installs");
