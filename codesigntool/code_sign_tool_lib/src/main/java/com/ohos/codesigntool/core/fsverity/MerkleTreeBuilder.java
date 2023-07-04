@@ -43,7 +43,7 @@ public class MerkleTreeBuilder {
 
     private static final long INPUTSTREAM_MAX_SIZE = 4503599627370496L;
 
-    private static final long CHUNK_SIZE = 4096L;
+    private static final int CHUNK_SIZE = 4096;
 
     private static final long MAX_READ_SIZE = 4194304L;
 
@@ -99,13 +99,16 @@ public class MerkleTreeBuilder {
             int readSize = (int) (readLimit - readOffset);
             int fullChunkSize = (int) getFullChunkSize(readSize, CHUNK_SIZE, CHUNK_SIZE);
             byteBuffer[i] = ByteBuffer.allocate(fullChunkSize);
+
             int offset = 0;
-            byte[] buffer = new byte[(int) CHUNK_SIZE];
+            byte[] buffer = new byte[CHUNK_SIZE];
             int num;
-            while ((num = inputStream.read(buffer)) > 0) {
+            int len = CHUNK_SIZE;
+            while ((num = inputStream.read(buffer, 0, len)) > 0) {
                 byteBuffer[i].put(buffer, 0, num);
                 offset += num;
-                if (offset >= fullChunkSize || offset == readSize) {
+                len = Math.min(CHUNK_SIZE, fullChunkSize - offset);
+                if (len <= 0 || offset == readSize) {
                     break;
                 }
             }
@@ -203,15 +206,15 @@ public class MerkleTreeBuilder {
             int bufferSize = buffer.capacity();
             int index = readChunkIndex;
             while (offset < bufferSize) {
-                ByteBuffer chunk = slice(buffer, offset, offset + (int) CHUNK_SIZE);
-                byte[] tempByte = new byte[(int) CHUNK_SIZE];
+                ByteBuffer chunk = slice(buffer, offset, offset + CHUNK_SIZE);
+                byte[] tempByte = new byte[CHUNK_SIZE];
                 chunk.get(tempByte);
                 try {
                     hashes[index++] = DigestUtils.computeDigest(tempByte, this.mAlgorithm);
                 } catch (NoSuchAlgorithmException e) {
                     throw new IllegalStateException(e);
                 }
-                offset += (int) CHUNK_SIZE;
+                offset += CHUNK_SIZE;
             }
             tasks.arriveAndDeregister();
         };
@@ -350,7 +353,7 @@ public class MerkleTreeBuilder {
         long fullChunkSize = getFullChunkSize(originalDataSize, CHUNK_SIZE, digestSize);
         int diffValue = (int) (fullChunkSize % CHUNK_SIZE);
         if (diffValue > 0) {
-            byte[] padding = new byte[(int) CHUNK_SIZE - diffValue];
+            byte[] padding = new byte[CHUNK_SIZE - diffValue];
             data.put(padding, 0, padding.length);
         }
     }
