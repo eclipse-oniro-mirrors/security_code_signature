@@ -73,7 +73,12 @@ public class FsVerityGenerator {
      */
     public void generateFsVerityDigest(InputStream inputStream, long size)
             throws FsVerityDigestException {
-        MerkleTree merkleTree = generateMerkleTree(inputStream, size, FS_VERITY_HASH_ALGORITHM);
+        MerkleTree merkleTree;
+        if (size == 0) {
+            merkleTree = new MerkleTree(null, null, FS_VERITY_HASH_ALGORITHM);
+        } else {
+            merkleTree = generateMerkleTree(inputStream, size, FS_VERITY_HASH_ALGORITHM);
+        }
         byte[] fsVerityDescriptor = FsVerityDescriptor.getDescriptor(size,
                 FS_VERITY_HASH_ALGORITHM.getId(), LOG2_OF_FSVERITY_HASH_PAGE_SIZE,
                 salt, merkleTree.rootHash);
