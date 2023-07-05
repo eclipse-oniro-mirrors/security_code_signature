@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef CODE_SIGN_ACCESS_TOKEN_SETTER_H
+#define CODE_SIGN_ACCESS_TOKEN_SETTER_H
+
 #include <cstdint>
 
 #include "accesstoken_kit.h"
@@ -40,3 +43,4 @@ inline void NativeTokenReset(uint64_t tokenId)
 }
 }
 }
+#endif
