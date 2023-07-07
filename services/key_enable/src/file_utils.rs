@@ -13,29 +13,13 @@
  * limitations under the License.
  */
 
-//! enable keys for code signature
-use hilog_rust::{info, error, hilog, HiLogLabel, LogType};
-use std::ffi::{c_char, CString};
+use std::fs::File;
+use std::io::{Read};
 
-mod cert_utils;
-mod cs_hisysevent;
-mod file_utils;
-mod key_enable;
-
-const LOG_LABEL: HiLogLabel = HiLogLabel {
-    log_type: LogType::LogCore,
-    domain: 0xd002f00, // security domain
-    tag: "CODE_SIGN"
-};
-
-fn main()
+pub fn load_bytes_from_file(file_path: &str) -> Vec<u8>
 {
-    match key_enable::enable_all_keys() {
-        Ok(()) => {
-            info!(LOG_LABEL, "Succeed to enable all keys.");
-        },
-        Err(()) => {
-            error!(LOG_LABEL, "Enable keys failed.");
-        }
-    };
+    let mut file = File::open(file_path).expect("Open file failed.");
+    let mut data = Vec::new();
+    file.read_to_end(&mut data).expect("Read file failed.");
+    data
 }

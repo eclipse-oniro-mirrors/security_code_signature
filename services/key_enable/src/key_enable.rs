@@ -22,7 +22,6 @@ use std::thread::sleep_ms;
 use std::vec::Vec;
 
 use hilog_rust::{error, hilog, HiLogLabel, LogType};
-
 use super::cs_hisysevent;
 use super::cert_utils;
 

@@ -13,18 +13,63 @@
  * limitations under the License.
  */
 
-use std::fs::File;
-use std::io::{Read};
+use std::ffi::{c_char, CString};
+use hilog_rust::{error, hilog, HiLogLabel, LogType};
+use openssl::error::ErrorStack;
+use openssl::x509::X509;
 
-const TRUSTED_CERT_FILE_PATH: &str = "/system/etc/security/trusted_code_signature_ca.cer";
+use super::file_utils;
 
-// compatible with multiple certs
+const LOG_LABEL: HiLogLabel = HiLogLabel {
+    log_type: LogType::LogCore,
+    domain: 0xd002f00, // security domain
+    tag: "CODE_SIGN"
+};
+
+const CODE_SIGNATURE_TRUSTED_CERTS: &str = "/system/etc/security/trusted_code_signature_certs.cer";
+const CODE_SIGNATURE_TRUSTED_TEST_CERTS: &str = "/system/etc/security/trusted_code_signature_test_certs.cer";
+
+fn print_openssl_error_stack(error_stack: ErrorStack)
+{
+    for error in error_stack.errors() {
+        error!(LOG_LABEL, "{}", error.to_string());
+    }
+}
+
+fn load_certs_from_pem_file(file_path: &str) -> Option<Vec<X509>>
+{
+    let pem = file_utils::load_bytes_from_file(file_path);
+    match X509::stack_from_pem(&pem) {
+        Ok(certs) => Some(certs),
+        Err(e) => {
+            print_openssl_error_stack(e);
+            None
+        }
+    }
+}
+
+fn get_trusted_certs_from_file(certs: &mut Vec<Vec<u8>>, file_path: &str)
+{
+    let loaded_certs = load_certs_from_pem_file(file_path);
+    for cert in loaded_certs.unwrap().iter() {
+        match cert.to_der() {
+            Ok(der) => {
+                certs.push(der);
+            },
+            Err(e) => {
+                print_openssl_error_stack(e);
+            }
+        }
+    }
+}
+
+// compatible with multiple CA
 pub fn get_trusted_certs() -> Vec<Vec<u8>>
 {
-    // now only one certificate in der format stored in file
-    let mut file = File::open(TRUSTED_CERT_FILE_PATH).expect("Open cert file failed.");
-    let mut der = Vec::new();
-    file.read_to_end(&mut der).expect("Read file failed.");
-    let certs = vec![der];
+    let mut certs = Vec::new();
+    get_trusted_certs_from_file(&mut certs, CODE_SIGNATURE_TRUSTED_CERTS);
+    if env!("code_signature_debuggable") == "on" {
+        get_trusted_certs_from_file(&mut certs, CODE_SIGNATURE_TRUSTED_TEST_CERTS);
+    }
     certs
 }
