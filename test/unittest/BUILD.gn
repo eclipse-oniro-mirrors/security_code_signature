@@ -36,8 +36,8 @@ ohos_unittest("local_code_sign_unittest") {
   resource_config_file = "resources/ohos_test.xml"
   sources = [ "local_code_sign_test.cpp" ]
   deps = [
-    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
     "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
+    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
     "${googletest_dir}:gtest",
     "${openssl_dir}:libcrypto_shared",
   ]
@@ -64,12 +64,10 @@ ohos_unittest("local_code_sign_unittest") {
 ohos_unittest("sign_and_enforce_unittest") {
   module_out_path = "security/code_signature"
   resource_config_file = "resources/ohos_test.xml"
-  sources = [
-    "sign_and_enforce_test.cpp"
-  ]
+  sources = [ "sign_and_enforce_test.cpp" ]
   deps = [
-    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
     "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
+    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
     "${googletest_dir}:gtest",
     "${openssl_dir}:libcrypto_shared",
   ]
@@ -96,13 +94,10 @@ ohos_unittest("sign_and_enforce_unittest") {
 ohos_unittest("multi_thread_local_sign_unittest") {
   module_out_path = "security/code_signature"
   resource_config_file = "resources/ohos_test.xml"
-  sources = [
-    "multi_thread_local_sign_test.cpp",
-    "${code_signature_root_dir}/utils/src/openssl_utils.cpp"
-  ]
+  sources = [ "multi_thread_local_sign_test.cpp" ]
   deps = [
-    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
     "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
+    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
     "${googletest_dir}:gtest",
     "${openssl_dir}:libcrypto_shared",
   ]
@@ -132,8 +127,8 @@ group("unittest_group") {
     deps = [
       ":code_sign_utils_unittest",
       ":local_code_sign_unittest",
+      ":multi_thread_local_sign_unittest",
       ":sign_and_enforce_unittest",
-      ":multi_thread_local_sign_unittest"
     ]
   }
 }
