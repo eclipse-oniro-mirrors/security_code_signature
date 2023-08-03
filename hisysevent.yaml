@@ -56,5 +56,5 @@ CS_LOAD_SA_ERR:
 
 CS_SA_INVALID_CALLER:
   __BASE: {type: SECURITY, level: CRITICAL, desc: invalid caller event}
-  INTERFACE: {type: STRING, desc: interface type, Cert or Sign}
+  INTERFACE: {type: STRING, desc: 'interface type, Cert or Sign'}
   TOKEN_ID : {type: UINT32, desc: token id of invalid caller}
