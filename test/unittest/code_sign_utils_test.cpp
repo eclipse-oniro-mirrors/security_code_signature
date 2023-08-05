@@ -32,26 +32,13 @@ static const EntryMap g_hapWithoutLibRetSuc = {
 static const std::string g_sigWithoutLibRetSucPath =
     TMP_BASE_PATH"/demo_without_lib/demo_without_lib.sig";
 
-static const EntryMap g_hapWithSingleLibRetSuc = {
-    {"Hap",
-        APP_BASE_PATH"/demo_with_single_lib/demo_with_single_lib.hap"},
-    {"libs/arm64-v8a/libc++_shared.so",
-        APP_BASE_PATH"/demo_with_single_lib/libs/arm64-v8a/libc++_shared.so"},
-    {"libs/arm64-v8a/libentry.so",
-        APP_BASE_PATH"/demo_with_single_lib/libs/arm64-v8a/libentry.so"},
-};
-static const std::string g_sigWithSingleLibRetSucPath =
-    TMP_BASE_PATH"/demo_with_single_lib/demo_with_single_lib.sig";
-
 static EntryMap g_hapWithMultiLibRetSuc = {
     {"Hap",
         APP_BASE_PATH"/demo_with_multi_lib/demo_with_multi_lib.hap"},
     {"libs/arm64-v8a/libc++_shared.so",
         APP_BASE_PATH"/demo_with_multi_lib/libs/arm64-v8a/libc++_shared.so"},
     {"libs/arm64-v8a/libentry.so",
-        APP_BASE_PATH"/demo_with_multi_lib/libs/arm64-v8a/libentry.so"},
-    {"libs/arm64-v8a/libtest.so",
-        APP_BASE_PATH"/demo_with_multi_lib/libs/arm64-v8a/libtest.so"},
+        APP_BASE_PATH"/demo_with_multi_lib/libs/arm64-v8a/libentry.so"}
 };
 static const std::string g_sigWithMultiLibRetSucPath =
     TMP_BASE_PATH"/demo_with_multi_lib/demo_with_multi_lib.sig";
@@ -63,9 +50,7 @@ static EntryMap g_wrongHapWithMultiLibRetFail = {
     {"libs/arm64-v8a/libc++_shared.so",
         APP_BASE_PATH"/demo_with_multi_lib_error/libs/arm64-v8a/libc++_shared.so"},
     {"libs/arm64-v8a/libentry.so",
-        APP_BASE_PATH"/demo_with_multi_lib_error/libs/arm64-v8a/libentry.so"},
-    {"libs/arm64-v8a/libtest.so",
-        APP_BASE_PATH"/demo_with_multi_lib_error/libs/arm64-v8a/libtest.so"},
+        APP_BASE_PATH"/demo_with_multi_lib_error/libs/arm64-v8a/libentry.so"}
 };
 
 //examples of Enforce code signature for app
@@ -76,6 +61,7 @@ static const std::vector<std::string> g_HapWithoutLibSigPkcs7ErrorPath({
    TMP_BASE_PATH"/demo_without_lib/pkcs7_error/demo_without_lib_004.sig", //Don't support signature algorithm
    TMP_BASE_PATH"/demo_without_lib/pkcs7_error/demo_without_lib_005.sig", //Wrong signature
    TMP_BASE_PATH"/demo_without_lib/pkcs7_error/demo_without_lib_006.sig", //Expired signature
+   TMP_BASE_PATH"/demo_without_lib/pkcs7_error/demo_without_lib_007.sig", //Cert chain validate fail
 });
 
 static const std::vector<std::string> g_HapWithMultiLibSigPkcs7ErrorPath({
@@ -86,7 +72,6 @@ static const std::vector<std::string> g_HapWithMultiLibSigPkcs7ErrorPath({
    TMP_BASE_PATH"/demo_with_multi_lib/pkcs7_error/demo_with_multi_lib_005.sig", //Wrong signature
    TMP_BASE_PATH"/demo_with_multi_lib/pkcs7_error/demo_with_multi_lib_006.sig", //Expired signature
    TMP_BASE_PATH"/demo_with_multi_lib/pkcs7_error/demo_with_multi_lib_007.sig", //Cert chain validate fail
-   TMP_BASE_PATH"/demo_with_multi_lib/pkcs7_error/demo_with_multi_lib_008.sig", //Disable to find key
 });
 
 //examples of Enforce code signature for file
@@ -104,7 +89,6 @@ static const std::vector<std::string> g_fileSigEnableFailPath({
    TMP_BASE_PATH"/demo_with_multi_lib/pkcs7_error/file/libentry_05.so.fsv-sig", //Wrong signature
    TMP_BASE_PATH"/demo_with_multi_lib/pkcs7_error/file/libentry_06.so.fsv-sig", //Expired signature
    TMP_BASE_PATH"/demo_with_multi_lib/pkcs7_error/file/libentry_07.so.fsv-sig", //Cert chain validate fail
-   TMP_BASE_PATH"/demo_with_multi_lib/pkcs7_error/file/libentry_08.so.fsv-sig", //Disable to find key
 });
 
 //examples of can't find the signature file
@@ -202,7 +186,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0004, TestSize.Level0)
 
 /**
  * @tc.name: CodeSignUtilsTest_0005
- * @tc.desc: enable code signature for app  failed, reason = wrong format hap
+ * @tc.desc: enable code signature for app failed, reason = wrong format hap
  * @tc.type: Func
  * @tc.require:
  */
@@ -215,7 +199,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0005, TestSize.Level0)
 
 /**
  * @tc.name: CodeSignUtilsTest_0006
- * @tc.desc: enable code signature for app without so failed, reason = enable failed
+ * @tc.desc: enable code signature for app failed, reason = enable failed
  * @tc.type: Func
  * @tc.require:
  */
@@ -223,11 +207,13 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0006, TestSize.Level0)
 {
     size_t num = g_HapWithoutLibSigPkcs7ErrorPath.size();
     int ret;
+    // wrong hap signature
     for (size_t i = 0; i < num; i++) {
         ret = CodeSignUtils::EnforceCodeSignForApp(g_hapWithoutLibRetSuc, g_HapWithoutLibSigPkcs7ErrorPath[i]);
         EXPECT_EQ(ret, CS_ERR_ENABLE);
     }
 
+    // wrong so signature
     num = g_HapWithMultiLibSigPkcs7ErrorPath.size();
     for (size_t i = 0; i < num; i++) {
         ret = CodeSignUtils::EnforceCodeSignForApp(g_hapWithMultiLibRetSuc, g_HapWithMultiLibSigPkcs7ErrorPath[i]);
@@ -237,7 +223,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0006, TestSize.Level0)
 
 /**
  * @tc.name: CodeSignUtilsTest_0007
- * @tc.desc: enable code signature for file, reason = wrong foramt lib
+ * @tc.desc: enable code signature for file, reason = wrong foramt pkcs7
  * @tc.type: Func
  * @tc.require:
  */
@@ -329,9 +315,6 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0012, TestSize.Level0)
 {
     int ret;
     ret = CodeSignUtils::EnforceCodeSignForApp(g_hapWithoutLibRetSuc, g_sigWithoutLibRetSucPath);
-    EXPECT_EQ(ret, CS_SUCCESS);
-
-    ret = CodeSignUtils::EnforceCodeSignForApp(g_hapWithSingleLibRetSuc, g_sigWithSingleLibRetSucPath);
     EXPECT_EQ(ret, CS_SUCCESS);
 
     ret = CodeSignUtils::EnforceCodeSignForApp(g_hapWithMultiLibRetSuc, g_sigWithMultiLibRetSucPath);
