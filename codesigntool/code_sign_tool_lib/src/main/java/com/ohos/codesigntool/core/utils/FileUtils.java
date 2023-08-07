@@ -35,19 +35,23 @@ public class FileUtils {
      * Check input file is valid.
      *
      * @param file input file.
-     * @throws IOException file is a directory or can not be read.
+     * @throws IOException file is not valid.
      */
-    public static void isValidFile(File file) throws IOException {
+    public static void isValid(File file) throws IOException {
         if (!file.exists()) {
-            throw new FileNotFoundException("File '" + file + "' does not exist");
+            throw new FileNotFoundException(file + " does not exist");
         }
 
         if (file.isDirectory()) {
-            throw new IOException("File '" + file + "' exists but is a directory");
+            throw new IOException(file + " is a directory");
+        }
+
+        if (!file.isFile()) {
+            throw new IOException(file + " is not a file!");
         }
 
         if (!file.canRead()) {
-            throw new IOException("File '" + file + "' cannot be read");
+            throw new IOException(file + " cannot be read");
         }
     }
 
@@ -55,11 +59,11 @@ public class FileUtils {
      * Open an inputstream of input file safely.
      *
      * @param file input file.
-     * @return an inputstream of input file
+     * @return file inputStream
      * @throws IOException file is a directory or can not be read.
      */
-    public static FileInputStream openInputStream(File file) throws IOException {
-        isValidFile(file);
+    public static FileInputStream open(File file) throws IOException {
+        isValid(file);
         return new FileInputStream(file);
     }
 }

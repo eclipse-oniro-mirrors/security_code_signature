@@ -16,9 +16,9 @@
 package com.ohos.codesigntool.core.config;
 
 import com.google.gson.Gson;
-import com.ohos.codesigntool.core.response.DataFromAppGallary;
+import com.ohos.codesigntool.core.response.DataFromAppGallaryServer;
+import com.ohos.codesigntool.core.response.DataFromSignCenterServer;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,8 +30,8 @@ import java.util.Base64;
  *
  * @since 2023/06/05
  */
-public class RemoteCodeSignerConfig extends CodeSignerConfig {
-    private static final Logger LOGGER = LogManager.getLogger(RemoteCodeSignerConfig.class);
+public class RemoteCodeSignConfig extends CodeSignConfig {
+    private static final Logger LOGGER = LogManager.getLogger(RemoteCodeSignConfig.class);
     @Override
     public byte[] getSignature(byte[] data, String signatureAlg, AlgorithmParameterSpec second) {
         LOGGER.info("Compute signature by remote mode!");
@@ -57,40 +57,43 @@ public class RemoteCodeSignerConfig extends CodeSignerConfig {
      * @return binary data of signature
      */
     public byte[] getSignatureFromServer(String responseData) {
-        if (StringUtils.isEmpty(responseData)) {
-            LOGGER.error("Get empty response from signature server!");
+        if (isStringDataInvalid(responseData)) {
+            LOGGER.error("Get invalid response from signature server!");
             return ArrayUtils.EMPTY_BYTE_ARRAY;
         }
-        DataFromAppGallary dataFromAppGallary = new Gson().fromJson(responseData, DataFromAppGallary.class);
-        if (dataFromAppGallary == null || !checkSignaturesIsSuc(dataFromAppGallary)) {
+        DataFromAppGallaryServer dataFromAppGallaryServer =
+            new Gson().fromJson(responseData, DataFromAppGallaryServer.class);
+        if (dataFromAppGallaryServer == null || !checkSignaturesIsSuc(dataFromAppGallaryServer)) {
             LOGGER.error("responseJson is illegals!");
             return ArrayUtils.EMPTY_BYTE_ARRAY;
         }
 
-        if (dataFromAppGallary.getData() == null) {
+        DataFromSignCenterServer signCenterData =
+            dataFromAppGallaryServer.getDataFromSignCenterServer();
+        if (signCenterData == null) {
             LOGGER.error("Get response data error!");
             return ArrayUtils.EMPTY_BYTE_ARRAY;
         }
 
-        if (!getCertificatesFromResponseData(dataFromAppGallary.getData())) {
+        if (!getCertificatesFromResponseData(signCenterData)) {
             LOGGER.error("Get certificate list data error!");
             return ArrayUtils.EMPTY_BYTE_ARRAY;
         }
 
-        getCrlFromResponseData(dataFromAppGallary.getData());
+        getCrlFromResponseData(signCenterData);
 
-        String encodeSignedData = dataFromAppGallary.getData().getSignedData();
-        if (checkEncodeSignedDataIsInvalid(encodeSignedData)) {
+        String encodeSignedData = signCenterData.getSignedData();
+        if (isStringDataInvalid(encodeSignedData)) {
             LOGGER.error("Get signedData data error!");
             return ArrayUtils.EMPTY_BYTE_ARRAY;
         }
         return Base64.getUrlDecoder().decode(encodeSignedData);
     }
 
-    private boolean checkSignaturesIsSuc(DataFromAppGallary dataFromSignCenter) {
-        if (!"success".equals(dataFromSignCenter.getCode())) {
-            if (dataFromSignCenter.getMessage() != null) {
-                LOGGER.error("Get signedData failed: {}", dataFromSignCenter.getMessage());
+    private boolean checkSignaturesIsSuc(DataFromAppGallaryServer dataFromAppGallaryServer) {
+        if (!"success".equals(dataFromAppGallaryServer.getCodeSignature())) {
+            if (dataFromAppGallaryServer.getMessage() != null) {
+                LOGGER.error("Get signedData failed: {}", dataFromAppGallaryServer.getMessage());
             }
             return false;
         }

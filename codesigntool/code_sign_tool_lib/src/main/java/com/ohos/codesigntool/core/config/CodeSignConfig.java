@@ -16,9 +16,9 @@
 package com.ohos.codesigntool.core.config;
 
 import com.ohos.codesigntool.core.api.CodeSignServer;
-import com.ohos.codesigntool.core.response.DataFromServer;
-import com.ohos.codesigntool.core.sign.SignatureAlgorithm;
-import com.ohos.codesigntool.core.utils.CertificateUtils;
+import com.ohos.codesigntool.core.response.DataFromSignCenterServer;
+import com.ohos.codesigntool.core.sign.SignAlgorithm;
+import com.ohos.codesigntool.core.utils.CertUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -44,8 +44,8 @@ import java.util.Map;
  *
  * @since 2023/06/05
  */
-public class CodeSignerConfig {
-    private static final Logger LOGGER = LogManager.getLogger(CodeSignerConfig.class);
+public class CodeSignConfig {
+    private static final Logger LOGGER = LogManager.getLogger(CodeSignConfig.class);
 
     /**
      * certificate chain used for sign hap
@@ -63,7 +63,7 @@ public class CodeSignerConfig {
      * Signature Algorithms used for sign hap
      *
      */
-    private List<SignatureAlgorithm> signatureAlgorithms;
+    private List<SignAlgorithm> signatureAlgorithms;
 
     /**
      * parameters for sign hap
@@ -138,26 +138,26 @@ public class CodeSignerConfig {
     /**
      * Get crl from object of json.
      *
-     * @param data input object of DataFromServer.
+     * @param data input object of DataFromSignCenterServer.
      */
-    protected void getCrlFromResponseData(DataFromServer data) {
+    protected void getCrlFromResponseData(DataFromSignCenterServer data) {
         String encodeCRLData = data.getCrl();
-        if (encodeCRLData == null || StringUtils.isEmpty(encodeCRLData)) {
+        if (isStringDataInvalid(encodeCRLData)) {
             this.x509CRLs = null;
             LOGGER.warn("Get CRL data is null!");
         } else {
             this.x509CRLs = new ArrayList<>();
-            this.x509CRLs.add(CertificateUtils.decodeBase64ToX509CRL(encodeCRLData));
+            this.x509CRLs.add(CertUtils.getX509CRLByBase64EncodedString(encodeCRLData));
         }
     }
 
     /**
      * get certificates from object of json.
      *
-     * @param data input object of DataFromServer.
+     * @param data input object of DataFromSignCenterServer.
      * @return true, if get certificates successfully.
      */
-    protected boolean getCertificatesFromResponseData(DataFromServer data) {
+    protected boolean getCertificatesFromResponseData(DataFromSignCenterServer data) {
         if (data.getCertchain() == null || data.getCertchain().length == 0) {
             LOGGER.error("cert chain array is empty!");
             return false;
@@ -165,19 +165,19 @@ public class CodeSignerConfig {
 
         this.certificates = new ArrayList<>();
         for (String certificate : data.getCertchain()) {
-            this.certificates.add(CertificateUtils.decodeBase64ToX509Certifate(certificate));
+            this.certificates.add(CertUtils.getX509CertByBase64EncodedString(certificate));
         }
         return true;
     }
 
     /**
-     * check whether encoded-signed-data is invalid.
+     * check whether string data is invalid.
      *
-     * @param encodeSignedData string of encoded-signed-data.
+     * @param stringData string data.
      * @return true, if input is null or is empty.
      */
-    protected boolean checkEncodeSignedDataIsInvalid(String encodeSignedData) {
-        return (encodeSignedData == null) || StringUtils.isEmpty(encodeSignedData);
+    protected boolean isStringDataInvalid(String stringData) {
+        return (stringData == null) || StringUtils.isEmpty(stringData);
     }
 
     public List<X509Certificate> getCertificates() {
@@ -196,11 +196,11 @@ public class CodeSignerConfig {
         this.x509CRLs = x509CRLs;
     }
 
-    public List<SignatureAlgorithm> getSignatureAlgorithms() {
+    public List<SignAlgorithm> getSignAlgorithms() {
         return signatureAlgorithms;
     }
 
-    public void setSignatureAlgorithms(List<SignatureAlgorithm> signatureAlgorithms) {
+    public void setSignAlgorithms(List<SignAlgorithm> signatureAlgorithms) {
         this.signatureAlgorithms = signatureAlgorithms;
     }
 

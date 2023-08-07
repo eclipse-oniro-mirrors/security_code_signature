@@ -13,18 +13,32 @@
  * limitations under the License.
  */
 
-package com.ohos.codesigntool.core.factory;
-
-import com.ohos.codesigntool.core.provider.RemoteCodeSignProvider;
+package com.ohos.codesigntool.core.sign;
 
 /**
- * Remote online signature provider factory
+ * Secure hash algorithm
  *
  * @since 2023/06/05
  */
-public class RemoteCodeSignProviderFactory implements IProviderFactory {
-    @Override
-    public RemoteCodeSignProvider getSignProvider() {
-        return new RemoteCodeSignProvider();
+public enum SecureHashAlgorithm {
+    SHA256("SHA-256", 256 / 8),
+    SHA384("SHA-384", 384 / 8),
+    SHA512("SHA-512", 512 / 8);
+
+    private final String hashAlgorithm;
+
+    private final int digestByteSize;
+
+    SecureHashAlgorithm(String hashAlgorithm, int digestByteSize) {
+        this.hashAlgorithm = hashAlgorithm;
+        this.digestByteSize = digestByteSize;
+    }
+
+    public String getHashAlgorithm() {
+        return hashAlgorithm;
+    }
+
+    public int getdigestByteSize() {
+        return digestByteSize;
     }
 }

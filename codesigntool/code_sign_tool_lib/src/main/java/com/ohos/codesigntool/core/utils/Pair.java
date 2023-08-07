@@ -20,36 +20,39 @@ package com.ohos.codesigntool.core.utils;
  *
  * @since 2023/06/05
  */
-public final class Pair<A, B> {
-    private final A mFirst;
+public final class Pair<Key, Value> {
+    private final Key mKey;
 
-    private final B mSecond;
+    private final Value mValue;
 
-    private Pair(A first, B second) {
-        mFirst = first;
-        mSecond = second;
+    private Pair(Key key, Value value) {
+        mKey = key;
+        mValue = value;
     }
 
     /**
-     * create a pair with key of type A and value of type B
+     * create a pair with key and value
      *
-     * @param first key of pair
-     * @param second value of pair
-     * @param <A> type of key
-     * @param <B> type of value
-     * @return a pair with key of type A and value of type B
+     * @param key key of pair
+     * @param value value of pair
+     * @param <Key> type of key
+     * @param <Value> type of value
+     * @return a pair with key and value
      */
-    public static <A, B> Pair<A, B> create(A first, B second) {
-        return new Pair<A, B>(first, second);
+    public static <Key, Value> Pair<Key, Value> create(Key key, Value value) {
+        return new Pair<Key, Value>(key, value);
     }
 
-    /**
-     * get key of pair
-     *
-     * @return key of pair
-     */
-    public A getFirst() {
-        return mFirst;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = hashCode(prime, result, mKey);
+        return hashCode(prime, result, mValue);
+    }
+
+    private <T> int hashCode(int prime, int result, T value) {
+        return prime * result + ((value == null) ? 0 : value.hashCode());
     }
 
     /**
@@ -57,37 +60,38 @@ public final class Pair<A, B> {
      *
      * @return value of pair
      */
-    public B getSecond() {
-        return mSecond;
+    public Value getValue() {
+        return mValue;
+    }
+
+    /**
+     * get key of pair
+     *
+     * @return key of pair
+     */
+    public Key getKey() {
+        return mKey;
+    }
+
+    private <T> boolean compare(T o1, T o2) {
+        if (o1 == null) {
+            return o2 == null;
+        }
+        return o1.equals(o2);
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((mFirst == null) ? 0 : mFirst.hashCode());
-        return prime * result + ((mSecond == null) ? 0 : mSecond.hashCode());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object object) {
+        if (this == object) {
             return true;
         }
-        if (obj == null) {
+        if (object == null) {
             return false;
         }
-        if (!(obj instanceof Pair)) {
+        if (!(object instanceof Pair)) {
             return false;
         }
-        Pair<?, ?> other = (Pair<?, ?>) obj;
-        return compare(mFirst, other.mFirst) && compare(mSecond, other.mSecond);
-    }
-
-    private <C> boolean compare(C value1, C value2) {
-        if (value1 == null) {
-            return value2 == null;
-        }
-        return value1.equals(value2);
+        Pair<?, ?> pair = (Pair<?, ?>) object;
+        return compare(mKey, pair.getKey()) && compare(mValue, pair.getValue());
     }
 }

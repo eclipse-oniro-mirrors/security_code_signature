@@ -15,11 +15,11 @@
 
 package com.ohos.codesigntool.core.provider;
 
-import com.ohos.codesigntool.core.config.CodeSignerConfig;
-import com.ohos.codesigntool.core.config.RemoteCodeSignerConfig;
+import com.ohos.codesigntool.core.config.CodeSignConfig;
+import com.ohos.codesigntool.core.config.RemoteCodeSignConfig;
 import com.ohos.codesigntool.core.exception.InvalidParamsException;
 import com.ohos.codesigntool.core.exception.MissingParamsException;
-import com.ohos.codesigntool.core.sign.SignatureAlgorithm;
+import com.ohos.codesigntool.core.sign.SignAlgorithm;
 import com.ohos.codesigntool.core.utils.ParamConstants;
 import com.ohos.codesigntool.core.utils.ParamProcessUtil;
 
@@ -47,19 +47,19 @@ public class RemoteCodeSignProvider extends CodeSignProvider {
     }
 
     @Override
-    public CodeSignerConfig createSignerConfigs(List<X509Certificate> certificates, X509CRL crl)
+    public CodeSignConfig createSignerConfigs(List<X509Certificate> certificates, X509CRL crl)
         throws InvalidKeyException {
-        CodeSignerConfig signerConfig = new RemoteCodeSignerConfig();
-        signerConfig.setCertificates(certificates);
-        signerConfig.fillParameters(this.signParams);
+        CodeSignConfig signConfig = new RemoteCodeSignConfig();
+        signConfig.setCertificates(certificates);
+        signConfig.fillParameters(this.signParams);
         if (crl != null) {
-            signerConfig.setX509CRLs(Collections.singletonList(crl));
+            signConfig.setX509CRLs(Collections.singletonList(crl));
         }
-        List<SignatureAlgorithm> signAlgorithms = new ArrayList<SignatureAlgorithm>();
+        List<SignAlgorithm> signAlgorithms = new ArrayList<SignAlgorithm>();
         signAlgorithms.add(
-            ParamProcessUtil.getSignatureAlgorithm(this.signParams.get(ParamConstants.PARAM_BASIC_SIGANTURE_ALG)));
-        signerConfig.setSignatureAlgorithms(signAlgorithms);
-        signerConfig.setServer(this.server);
-        return signerConfig;
+            ParamProcessUtil.getSignAlgorithm(this.signParams.get(ParamConstants.PARAM_BASIC_SIGANTURE_ALG)));
+        signConfig.setSignAlgorithms(signAlgorithms);
+        signConfig.setServer(this.server);
+        return signConfig;
     }
 }

@@ -17,6 +17,8 @@ package com.ohos.test.signclient.core.api;
 
 import com.google.gson.Gson;
 import com.ohos.codesigntool.core.api.CodeSignServer;
+import com.ohos.codesigntool.core.response.DataFromAppGallaryServer;
+import com.ohos.codesigntool.core.response.DataFromSignCenterServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -61,98 +63,31 @@ public class TestCodeSignServer implements CodeSignServer {
     private static final String KEYALIAS = "oh_code_sign_test";
     private static final String KEYALIAS_CODE = "123456";
 
-    private class ResponseJson {
-        private String code;
-        private String message;
-        private Data data;
-
+    private class ResponseJson extends DataFromAppGallaryServer {
         ResponseJson(String code, String message, String signedData, String[] certchain, String crl) {
-            this.code = code;
-            this.message = message;
-            this.data = new Data(signedData, certchain, crl);
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        public void setCode(String code) {
-            this.code = code;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        public Data getData() {
-            return data;
-        }
-
-        public void setData(Data data) {
-            this.data = data;
-        }
-
-        private class Data {
-            private String signedData;
-            private String[] certchain;
-            private String crl;
-
-            Data(String signedData, String[] certchain, String crl) {
-                this.signedData = signedData;
-                this.certchain = certchain;
-                this.crl = crl;
-            }
-
-            public String getSignedData() {
-                return signedData;
-            }
-
-            public void setSignedData(String signedData) {
-                this.signedData = signedData;
-            }
-
-            public String[] getCertchain() {
-                return certchain;
-            }
-
-            public void setCertchain(String[] certchain) {
-                this.certchain = certchain;
-            }
-
-            public String getCrl() {
-                return crl;
-            }
-
-            public void setCrl(String crl) {
-                this.crl = crl;
-            }
+            DataFromSignCenterServer dataFromServer = new DataFromSignCenterServer();
+            dataFromServer.setSignedData(signedData);
+            dataFromServer.setCertchain(certchain);
+            dataFromServer.setCrl(crl);
+            setCodeSignature(code);
+            setMessage(message);
+            setDataFromSignCenterServer(dataFromServer);
         }
     }
 
     @Override
     public String getSignature(byte[] data, String signatureAlg) {
         List<X509Certificate> certList = getPublicCerts(CERTPATH);
-        String jsonObject = "";
         if (certList == null) {
-            return jsonObject;
+            LOGGER.error("public certs is null!");
+            return "";
         }
-        String[] certchain = new String[certList.size()];
-        int index = 0;
-        for (X509Certificate cert : certList) {
-            try {
-                certchain[index] =
-                    "-----BEGIN CERTIFICATE-----\n"
-                        + Base64.getEncoder().encodeToString(cert.getEncoded())
-                        + "-----END CERTIFICATE-----\n";
-                index++;
-            } catch (CertificateEncodingException e) {
-                LOGGER.error("get Signature failed!", e);
-                return "";
-            }
+        String[] certchain;
+        try {
+            certchain = getCertchain(certList);
+        } catch (CertificateEncodingException e) {
+            LOGGER.error("get certchain failed!", e);
+            return "";
         }
         byte[] signData = getSignature(data, signatureAlg, null);
         String code = "success";
@@ -165,10 +100,25 @@ public class TestCodeSignServer implements CodeSignServer {
             signedData = Base64.getUrlEncoder().encodeToString(signData);
         }
         ResponseJson ret = new ResponseJson(code, message, signedData, certchain, "");
-        Gson gson = new Gson();
-        jsonObject = gson.toJson(ret);
+        String jsonObject = new Gson().toJson(ret);
         LOGGER.info(jsonObject);
         return jsonObject;
+    }
+
+    private String[] getCertchain(List<X509Certificate> certList)
+            throws CertificateEncodingException {
+        int certListSize = certList.size();
+        String[] certchain = new String[certListSize];
+        for (int i = 0; i < certListSize; i++) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("-----BEGIN CERTIFICATE-----")
+                .append(System.lineSeparator())
+                .append(Base64.getEncoder().encodeToString(certList.get(i).getEncoded()))
+                .append("-----END CERTIFICATE-----")
+                .append(System.lineSeparator());
+            certchain[i] = builder.toString();
+        }
+        return certchain;
     }
 
     private byte[] getSignature(byte[] data, String signatureAlg, AlgorithmParameterSpec second) {

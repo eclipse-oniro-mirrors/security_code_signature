@@ -17,8 +17,8 @@ package com.ohos.test.signclient.core.signtool;
 
 import com.ohos.codesigntool.core.exception.FsVerityDigestException;
 import com.ohos.codesigntool.core.fsverity.FsVerityGenerator;
-import com.ohos.codesigntool.core.utils.HapUtils;
-import com.ohos.codesigntool.core.verify.VerifyUtils;
+import com.ohos.codesigntool.core.utils.CmsUtils;
+import com.ohos.codesigntool.core.utils.InputStreamUtils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -122,7 +122,7 @@ public class CodeSignVerify {
         for (String name : entryNames) {
             JarEntry inEntry = hap.getJarEntry(name);
             try (InputStream data = hap.getInputStream(inEntry)) {
-                byte[] signDigest = HapUtils.toByteArray(data, (int) inEntry.getSize());
+                byte[] signDigest = InputStreamUtils.toByteArray(data, (int) inEntry.getSize());
                 mapSignData.put(name, signDigest);
             }
         }
@@ -136,7 +136,8 @@ public class CodeSignVerify {
                 throw new CMSException("Sign file name err:" + signKey);
             }
             String hapKey = signKey.substring(0, index);
-            boolean verifyResult = VerifyUtils.verifyPKCS7withContent(mapHapData.get(hapKey), entry.getValue());
+            boolean verifyResult = CmsUtils.verifySignDataWithUnsignedDataDigest(
+                mapHapData.get(hapKey), entry.getValue());
             if (!verifyResult) {
                 throw new CMSException("PKCS cms data did not verify");
             }

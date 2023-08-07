@@ -16,27 +16,32 @@
 package com.ohos.codesigntool.core.response;
 
 /**
- * class of data from App Gallary.
+ * class of data from App Gallary server.
  *
  * @since 2023/06/05
  */
-public class DataFromAppGallary extends DataFromSignCenter {
+public class DataFromAppGallaryServer {
     /**
-     * result of signature from server of AppGallary.
+     * AppGallary server signature result.
      */
-    private String code;
+    private String codeSignature;
 
     /**
-     * message from server of AppGallary.
+     * AppGallary server message.
      */
     private String message;
 
-    public String getCode() {
-        return code;
+    /**
+     * json value of data from server of signcenter.
+     */
+    private DataFromSignCenterServer dataFromSignCenterServer;
+
+    public String getCodeSignature() {
+        return codeSignature;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setCodeSignature(String codeSignature) {
+        this.codeSignature = codeSignature;
     }
 
     public String getMessage() {
@@ -45,5 +50,13 @@ public class DataFromAppGallary extends DataFromSignCenter {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public DataFromSignCenterServer getDataFromSignCenterServer() {
+        return dataFromSignCenterServer;
+    }
+
+    public void setDataFromSignCenterServer(DataFromSignCenterServer dataFromSignCenterServer) {
+        this.dataFromSignCenterServer = dataFromSignCenterServer;
     }
 }

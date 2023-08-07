@@ -48,6 +48,11 @@ public class ParamConstants {
     public static final String SIG_ALGORITHM_SHA384_RSA = "SHA384withRSA";
 
     /**
+     * Signature Algorithm name of SHA512withRSA
+     */
+    public static final String SIG_ALGORITHM_SHA512_RSA = "SHA512withRSA";
+
+    /**
      * Signature Algorithm name of SHA256withRSA/PSS
      */
     public static final String SIG_ALGORITHM_SHA256_RSA_PSS = "SHA256withRSA/PSS";
@@ -76,6 +81,21 @@ public class ParamConstants {
      * Signature Algorithm name of SHA512withRSAANDMGF1
      */
     public static final String SIG_ALGORITHM_SHA512_RSA_MGF1 = "SHA512withRSAANDMGF1";
+
+    /**
+     * Signature Algorithm name of SHA256withDSA
+     */
+    public static final String SIG_ALGORITHM_SHA256_DSA = "SHA256withDSA";
+
+    /**
+     * Signature Algorithm name of SHA384withDSA
+     */
+    public static final String SIG_ALGORITHM_SHA384_DSA = "SHA384withDSA";
+
+    /**
+     * Signature Algorithm name of SHA512withDSA
+     */
+    public static final String SIG_ALGORITHM_SHA512_DSA = "SHA512withDSA";
 
     /**
      * Certificate revoke list.

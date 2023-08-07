@@ -16,8 +16,8 @@
 package com.ohos.codesigntool.core.signtool;
 
 import com.ohos.codesigntool.core.api.CodeSignServer;
-import com.ohos.codesigntool.core.factory.RemoteCodeSignProviderFactory;
 import com.ohos.codesigntool.core.provider.CodeSignProvider;
+import com.ohos.codesigntool.core.provider.RemoteCodeSignProvider;
 
 /**
  * code signature tool, defined function to sign hap file
@@ -38,8 +38,8 @@ public class CodeSignTool {
      * @return true, if sign successfully.
      */
     public static boolean signCode(CodeSignServer server, String[] params) {
-        CodeSignProvider signProvider = new RemoteCodeSignProviderFactory().getSignProvider();
-        signProvider.seCodeSignServer(server);
+        CodeSignProvider signProvider = new RemoteCodeSignProvider();
+        signProvider.setCodeSignServer(server);
         return signProvider.sign(params);
     }
 

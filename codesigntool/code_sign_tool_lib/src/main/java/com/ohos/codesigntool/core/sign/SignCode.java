@@ -15,10 +15,10 @@
 
 package com.ohos.codesigntool.core.sign;
 
-import com.ohos.codesigntool.core.config.CodeSignerConfig;
-import com.ohos.codesigntool.core.config.RemoteCodeSignerConfig;
+import com.ohos.codesigntool.core.config.CodeSignConfig;
+import com.ohos.codesigntool.core.config.RemoteCodeSignConfig;
 import com.ohos.codesigntool.core.exception.FsVerityDigestException;
-import com.ohos.codesigntool.core.exception.SignatureException;
+import com.ohos.codesigntool.core.exception.CodeSignException;
 import com.ohos.codesigntool.core.fsverity.FsVerityGenerator;
 import com.ohos.codesigntool.core.utils.HapUtils;
 
@@ -59,16 +59,16 @@ public class SignCode {
         EXTRACTED_NATIVE_LIB_SUFFIXS.add(NATIVE_LIB_SO_SUFFIX);
     }
 
-    private final CodeSignerConfig signerConfig;
+    private final CodeSignConfig signConfig;
     private long timestamp = 0L;
 
     /**
      * provide code sign functions to sign a hap
      *
-     * @param signerConfig configuration of signer
+     * @param signConfig configuration of signer
      */
-    public SignCode(CodeSignerConfig signerConfig) {
-        this.signerConfig = signerConfig;
+    public SignCode(CodeSignConfig signConfig) {
+        this.signConfig = signConfig;
     }
 
     /**
@@ -79,10 +79,10 @@ public class SignCode {
      * @param storeTree determine whether merkle tree is also output in signature file
      * @throws IOException             io error
      * @throws FsVerityDigestException computing FsVerity digest error
-     * @throws SignatureException      signing error
+     * @throws CodeSignException      signing error
      */
     public void signCode(File input, File output, boolean storeTree)
-        throws IOException, FsVerityDigestException, SignatureException {
+        throws IOException, FsVerityDigestException, CodeSignException {
         LOGGER.info("Start to sign code.");
         try (FileOutputStream outputFile = new FileOutputStream(output);
             ZipOutputStream outputZip = new ZipOutputStream(outputFile)) {
@@ -123,15 +123,15 @@ public class SignCode {
      * @param storeTree   determine whether merkle tree is also output
      * @throws IOException             io error
      * @throws FsVerityDigestException computing FsVerity digest error
-     * @throws SignatureException      signing error
+     * @throws CodeSignException      signing error
      */
     private void signFileAndAddToZip(InputStream inputStream, long fileSize, String entryName,
             ZipOutputStream outputZip, boolean storeTree)
-        throws IOException, FsVerityDigestException, SignatureException {
+        throws IOException, FsVerityDigestException, CodeSignException {
         Pair<byte[], byte[]> result = signFile(inputStream, fileSize);
-        addEntryToZip(result.getFirst(), entryName + SIGNATURE_FILE_SUFFIX, outputZip);
+        addEntryToZip(result.getKey(), entryName + SIGNATURE_FILE_SUFFIX, outputZip);
         if (storeTree) {
-            addEntryToZip(result.getSecond(), entryName + MERKLE_TREE_FILE_SUFFIX, outputZip);
+            addEntryToZip(result.getValue(), entryName + MERKLE_TREE_FILE_SUFFIX, outputZip);
         }
 
     }
@@ -189,10 +189,10 @@ public class SignCode {
      * @param storeTree  determine whether merkle tree is also output
      * @throws IOException             io error
      * @throws FsVerityDigestException computing FsVerity digest error
-     * @throws SignatureException      signing error
+     * @throws CodeSignException      signing error
      */
     public void signFilesFromJar(List<String> entryNames, JarFile hap, ZipOutputStream outputZip, boolean storeTree)
-            throws IOException, FsVerityDigestException, SignatureException {
+            throws IOException, FsVerityDigestException, CodeSignException {
         for (String name : entryNames) {
             LOGGER.debug("Sign entry name = " + name);
             JarEntry inEntry = hap.getJarEntry(name);
@@ -210,10 +210,10 @@ public class SignCode {
      * @param fileSize    size of the file
      * @return pair of signature and tree
      * @throws FsVerityDigestException computing FsVerity Digest error
-     * @throws SignatureException      signing error
+     * @throws CodeSignException      signing error
      */
     public Pair<byte[], byte[]> signFile(InputStream inputStream, long fileSize)
-            throws FsVerityDigestException, SignatureException {
+            throws FsVerityDigestException, CodeSignException {
         FsVerityGenerator fsVerityGenerator = new FsVerityGenerator();
         fsVerityGenerator.generateFsVerityDigest(inputStream, fileSize);
         byte[] fsVerityDigest = fsVerityGenerator.getFsVerityDigest();
@@ -221,13 +221,13 @@ public class SignCode {
         return Pair.create(signature, fsVerityGenerator.getTreeBytes());
     }
 
-    private byte[] generateSignature(byte[] signedData) throws SignatureException {
-        if (!(signerConfig instanceof RemoteCodeSignerConfig)) {
-            if (signerConfig.getCertificates().isEmpty()) {
-                throw new SignatureException("No certificates configured for signer");
+    private byte[] generateSignature(byte[] signedData) throws CodeSignException {
+        if (!(signConfig instanceof RemoteCodeSignConfig)) {
+            if (signConfig.getCertificates().isEmpty()) {
+                throw new CodeSignException("No certificates configured for signer");
             }
         }
-        return Pkcs7Generator.BC.generateSignedData(signedData, signerConfig);
+        return SignedDataGenerator.BC.generateSignedData(signedData, signConfig);
     }
 
 }

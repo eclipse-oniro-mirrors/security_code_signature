@@ -16,15 +16,14 @@
 package com.ohos.codesigntool.core.provider;
 
 import com.ohos.codesigntool.core.api.CodeSignServer;
-import com.ohos.codesigntool.core.config.CodeSignerConfig;
+import com.ohos.codesigntool.core.config.CodeSignConfig;
 import com.ohos.codesigntool.core.exception.FsVerityDigestException;
 import com.ohos.codesigntool.core.exception.InvalidParamsException;
 import com.ohos.codesigntool.core.exception.MissingParamsException;
-import com.ohos.codesigntool.core.exception.SignatureException;
-import com.ohos.codesigntool.core.exception.VerifyCertificateChainException;
+import com.ohos.codesigntool.core.exception.CodeSignException;
 import com.ohos.codesigntool.core.sign.SignCode;
-import com.ohos.codesigntool.core.sign.SignatureAlgorithm;
-import com.ohos.codesigntool.core.utils.CertificateUtils;
+import com.ohos.codesigntool.core.sign.SignAlgorithm;
+import com.ohos.codesigntool.core.utils.CertUtils;
 import com.ohos.codesigntool.core.utils.FileUtils;
 import com.ohos.codesigntool.core.utils.ParamConstants;
 import com.ohos.codesigntool.core.utils.ParamProcessUtil;
@@ -38,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Security;
-import java.security.cert.CertificateException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -60,7 +58,9 @@ public abstract class CodeSignProvider {
 
     static {
         VALID_SIGN_ALG_NAME.add(ParamConstants.SIG_ALGORITHM_SHA256_ECDSA);
-        Security.addProvider(new BouncyCastleProvider());
+        if (Security.getProvider("BC") == null) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
     }
 
     /**
@@ -83,7 +83,7 @@ public abstract class CodeSignProvider {
      *
      * @param server interface of sign server
      */
-    public void seCodeSignServer(CodeSignServer server) {
+    public void setCodeSignServer(CodeSignServer server) {
         this.server = server;
     }
 
@@ -93,11 +93,11 @@ public abstract class CodeSignProvider {
      * @return list of x509 certificates.
      */
     private List<X509Certificate> getPublicCerts() {
-        String publicCertsFile = signParams.get(ParamConstants.PARAM_LOCAL_PUBLIC_CERT);
-        if (StringUtils.isEmpty(publicCertsFile)) {
+        String publicCertPath = signParams.get(ParamConstants.PARAM_LOCAL_PUBLIC_CERT);
+        if (StringUtils.isEmpty(publicCertPath)) {
             return Collections.emptyList();
         }
-        return getCertificateChainFromFile(publicCertsFile);
+        return CertUtils.getCertChainsFromFile(publicCertPath);
     }
 
     /**
@@ -116,21 +116,21 @@ public abstract class CodeSignProvider {
      * @return Object of SignerConfig
      * @throws InvalidKeyException on error when the key is invalid.
      */
-    public CodeSignerConfig createSignerConfigs(List<X509Certificate> certificates, X509CRL crl)
+    public CodeSignConfig createSignerConfigs(List<X509Certificate> certificates, X509CRL crl)
             throws InvalidKeyException {
-        CodeSignerConfig signerConfig = new CodeSignerConfig();
-        signerConfig.fillParameters(this.signParams);
-        signerConfig.setCertificates(certificates);
+        CodeSignConfig signConfig = new CodeSignConfig();
+        signConfig.fillParameters(this.signParams);
+        signConfig.setCertificates(certificates);
 
-        List<SignatureAlgorithm> signatureAlgorithms = new ArrayList<>();
+        List<SignAlgorithm> signatureAlgorithms = new ArrayList<>();
         signatureAlgorithms.add(
-            ParamProcessUtil.getSignatureAlgorithm(this.signParams.get(ParamConstants.PARAM_BASIC_SIGANTURE_ALG)));
-        signerConfig.setSignatureAlgorithms(signatureAlgorithms);
+            ParamProcessUtil.getSignAlgorithm(this.signParams.get(ParamConstants.PARAM_BASIC_SIGANTURE_ALG)));
+        signConfig.setSignAlgorithms(signatureAlgorithms);
 
         if (crl != null) {
-            signerConfig.setX509CRLs(Collections.singletonList(crl));
+            signConfig.setX509CRLs(Collections.singletonList(crl));
         }
-        return signerConfig;
+        return signConfig;
     }
 
     /**
@@ -148,7 +148,7 @@ public abstract class CodeSignProvider {
             List<X509Certificate> publicCerts = getPublicCerts();
             // 3. check input hap validation
             File input = new File(signParams.get(ParamConstants.PARAM_BASIC_INPUT_FILE));
-            FileUtils.isValidFile(input);
+            FileUtils.isValid(input);
             // 4. generate output file path
             String outputPath = signParams.get(ParamConstants.PARAM_BASIC_OUTPUT_PATH);
             if (!outputPath.endsWith(File.separator)) {
@@ -160,10 +160,10 @@ public abstract class CodeSignProvider {
             String outTreeSwitch = signParams.get(ParamConstants.PARAM_OUTPUT_MEKLE_TREE);
             boolean storeTree = (outTreeSwitch != null) && (outTreeSwitch.equals("true"));
             // 6. sign code
-            CodeSignerConfig signerConfig = createSignerConfigs(publicCerts, getCrl());
-            SignCode signCode = new SignCode(signerConfig);
+            CodeSignConfig signConfig = createSignerConfigs(publicCerts, getCrl());
+            SignCode signCode = new SignCode(signConfig);
             signCode.signCode(input, output, storeTree);
-        } catch (SignatureException | IOException | InvalidKeyException |
+        } catch (CodeSignException | IOException | InvalidKeyException |
             MissingParamsException | InvalidParamsException | FsVerityDigestException e) {
             printErrorLog(e);
             return false;
@@ -266,18 +266,5 @@ public abstract class CodeSignProvider {
         }
         LOGGER.error("Unsupported signature algorithm :" + signAlg);
         throw new InvalidParamsException("Invalid parameter: Sign Alg");
-    }
-
-    private List<X509Certificate> getCertificateChainFromFile(String certChainFile) {
-        try {
-            return CertificateUtils.getCertListFromFile(certChainFile);
-        } catch (CertificateException e) {
-            LOGGER.error("File content is not certificates! " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error("Certificate file exception: " + e.getMessage());
-        } catch (VerifyCertificateChainException e) {
-            LOGGER.error(e.getMessage());
-        }
-        return Collections.emptyList();
     }
 }

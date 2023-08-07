@@ -16,11 +16,11 @@
 package com.ohos.codesigntool.core.response;
 
 /**
- * class of data from server
+ * class of data from signcenter server
  *
  * @since 2023/06/05
  */
-public class DataFromServer {
+public class DataFromSignCenterServer {
     /**
      * Signature data.
      */
@@ -36,27 +36,41 @@ public class DataFromServer {
      */
     private String crl;
 
-    public String getSignedData() {
-        return signedData;
+    /**
+     * Set Certificates chain.
+     *
+     * @param certchain Giving certchain
+     */
+    public void setCertchain(String[] certchain) {
+        if (certchain == null) {
+            this.certchain = new String[0];
+        } else {
+            this.certchain = certchain.clone();
+        }
     }
 
-    public void setSignedData(String signedData) {
-        this.signedData = signedData;
-    }
-
+    /**
+     * Get Certificates chain.
+     *
+     * @return Certificates chain
+     */
     public String[] getCertchain() {
         return certchain.clone();
     }
 
-    public void setCertchain(String[] certchain) {
-        this.certchain = (certchain == null) ? new String[0] : certchain.clone();
+    public void setCrl(String crl) {
+        this.crl = crl;
     }
 
     public String getCrl() {
         return crl;
     }
 
-    public void setCrl(String crl) {
-        this.crl = crl;
+    public void setSignedData(String signedData) {
+        this.signedData = signedData;
+    }
+
+    public String getSignedData() {
+        return signedData;
     }
 }

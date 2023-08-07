@@ -19,6 +19,7 @@ import com.ohos.codesigntool.core.exception.FsVerityDigestException;
 import com.ohos.codesigntool.core.fsverity.FsVerityHashAlgorithm;
 import com.ohos.codesigntool.core.fsverity.MerkleTree;
 import com.ohos.codesigntool.core.fsverity.MerkleTreeBuilder;
+import com.ohos.codesigntool.core.utils.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -123,9 +124,8 @@ public class MerkleTreeTest {
     private void checkFileHash(String path, String hash, FsVerityHashAlgorithm fsVerityHashAlgorithm)
             throws FsVerityDigestException {
         MerkleTree merkleTree;
-        try {
-            File tempFile = new File(path);
-            FileInputStream inputStream = new FileInputStream(tempFile);
+        File tempFile = new File(path);
+        try (FileInputStream inputStream = FileUtils.open(tempFile);) {
             MerkleTreeBuilder builder = new MerkleTreeBuilder();
             merkleTree = builder.generateMerkleTree(inputStream, tempFile.length(), fsVerityHashAlgorithm);
             builder.close();

@@ -15,25 +15,30 @@
 
 package com.ohos.codesigntool.core.sign;
 
-import com.ohos.codesigntool.core.config.CodeSignerConfig;
-import com.ohos.codesigntool.core.exception.SignatureException;
+import com.ohos.codesigntool.core.config.CodeSignConfig;
+import com.ohos.codesigntool.core.exception.CodeSignException;
 
 /**
- * interface of PKCS#7 signed data generator
+ * Signed data generator interface
  *
  * @since 2023/06/05
  */
 @FunctionalInterface
-public interface Pkcs7Generator {
-    Pkcs7Generator BC = new BcPkcs7Generator();
+public interface SignedDataGenerator {
+    /**
+     * Creat a BcSignedDataGenerator instance
+     *
+     * @return BcSignedDataGenerator instance.
+     */
+    SignedDataGenerator BC = new BcSignedDataGenerator();
 
     /**
-     * Generate PKCS#7 signed data with the specific content and signer config.
+     * Generate signature data with specific content and signer configuration.
      *
-     * @param content PKCS7 data, content of unsigned file digest.
-     * @param signerConfig configurations of signer.
-     * @return PKCS7 signed data.
-     * @throws SignatureException if an error occurs when generating PKCS#7 block.
+     * @param content unsigned file digest content.
+     * @param signConfig signer configurations.
+     * @return signed data.
+     * @throws CodeSignException if error.
      */
-    byte[] generateSignedData(byte[] content, CodeSignerConfig signerConfig) throws SignatureException;
+    byte[] generateSignedData(byte[] content, CodeSignConfig signConfig) throws CodeSignException;
 }

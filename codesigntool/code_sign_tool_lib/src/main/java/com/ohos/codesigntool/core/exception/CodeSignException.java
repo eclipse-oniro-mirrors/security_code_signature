@@ -16,30 +16,30 @@
 package com.ohos.codesigntool.core.exception;
 
 /**
- * Class of exception indicate to verify cerificate failly.
+ * CodeSign exception.
  *
  * @since 2023/06/05
  */
-public class VerifyCertificateChainException extends Exception {
+public class CodeSignException extends Exception {
 
-    private static final long serialVersionUID = 3585168089603199506L;
+    private static final long serialVersionUID = -281871003709431259L;
 
     /**
-     * exception indicate to verify certificate failed.
+     * CodeSignException
      *
      * @param message msg
      */
-    public VerifyCertificateChainException(String message) {
+    public CodeSignException(String message) {
         super(message);
     }
 
     /**
-     * exception indicate to verify certificate failed.
+     * CodeSignException
      *
      * @param message msg
      * @param cause cause
      */
-    public VerifyCertificateChainException(String message, Throwable cause) {
+    public CodeSignException(String message, Throwable cause) {
         super(message, cause);
     }
 }

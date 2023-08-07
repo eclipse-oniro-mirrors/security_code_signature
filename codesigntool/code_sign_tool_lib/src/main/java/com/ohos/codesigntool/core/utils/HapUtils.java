@@ -42,13 +42,11 @@ public class HapUtils {
     /**
      * Represents the end-of-file.
      */
-    public static final int EOF = -1;
     private static final Logger LOGGER = LogManager.getLogger(HapUtils.class);
     private static final String COMPRESS_NATIVE_LIBS_OPTION = "compressNativeLibs";
     private static final List<String> HAP_CONFIG_FILES = new ArrayList<String>();
     private static final String HAP_FA_CONFIG_JSON_FILE = "config.json";
     private static final String HAP_STAGE_MODULE_JSON_FILE = "module.json";
-    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     static {
         HAP_CONFIG_FILES.add(HAP_FA_CONFIG_JSON_FILE);
@@ -56,38 +54,6 @@ public class HapUtils {
     }
 
     private HapUtils() {
-    }
-
-    /**
-     * Translation inputStream to byte array
-     *
-     * @param input inputStream data
-     * @param size inputStream size
-     * @return byte array value of parsing result
-     * @throws IOException io error
-     */
-    public static byte[] toByteArray(final InputStream input, final int size) throws IOException {
-        if (size < 0) {
-            throw new IllegalArgumentException("Size must be equal or greater than zero: " + size);
-        }
-
-        if (size == 0) {
-            return EMPTY_BYTE_ARRAY;
-        }
-
-        final byte[] data = new byte[size];
-        int offset = 0;
-        int read;
-
-        while (offset < size && (read = input.read(data, offset, size - offset)) != EOF) {
-            offset += read;
-        }
-
-        if (offset != size) {
-            throw new IOException("Unexpected read size. current: " + offset + ", expected: " + size);
-        }
-
-        return data;
     }
 
     /**
@@ -105,7 +71,8 @@ public class HapUtils {
                     continue;
                 }
                 try (InputStream data = inputJar.getInputStream(entry)) {
-                    String jsonString = new String(toByteArray(data, (int) entry.getSize()), StandardCharsets.UTF_8);
+                    String jsonString = new String(
+                        InputStreamUtils.toByteArray(data, (int) entry.getSize()), StandardCharsets.UTF_8);
                     return checkCompressNativeLibs(jsonString);
                 }
             }
