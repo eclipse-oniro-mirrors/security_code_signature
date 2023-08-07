@@ -17,6 +17,7 @@
 use hilog_rust::{info, error, hilog, HiLogLabel, LogType};
 use std::ffi::{c_char, CString};
 
+mod cert_chain_utils;
 mod cert_utils;
 mod cs_hisysevent;
 mod file_utils;
