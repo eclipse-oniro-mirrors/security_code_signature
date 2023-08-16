@@ -18,7 +18,7 @@ package com.ohos.test.signclient.core.signtool;
 import com.ohos.codesigntool.core.exception.FsVerityDigestException;
 import com.ohos.codesigntool.core.fsverity.FsVerityGenerator;
 import com.ohos.codesigntool.core.utils.CmsUtils;
-import com.ohos.codesigntool.core.utils.InputStreamUtils;
+import com.ohos.codesigntool.core.utils.HapUtils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -122,7 +122,7 @@ public class CodeSignVerify {
         for (String name : entryNames) {
             JarEntry inEntry = hap.getJarEntry(name);
             try (InputStream data = hap.getInputStream(inEntry)) {
-                byte[] signDigest = InputStreamUtils.toByteArray(data, (int) inEntry.getSize());
+                byte[] signDigest = HapUtils.toByteArray(data, (int) inEntry.getSize());
                 mapSignData.put(name, signDigest);
             }
         }
