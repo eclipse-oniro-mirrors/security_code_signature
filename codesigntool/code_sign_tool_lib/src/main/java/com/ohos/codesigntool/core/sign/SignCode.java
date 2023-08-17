@@ -65,7 +65,7 @@ public class SignCode {
     /**
      * provide code sign functions to sign a hap
      *
-     * @param signConfig configuration of signer
+     * @param signConfig configuration of sign
      */
     public SignCode(CodeSignConfig signConfig) {
         this.signConfig = signConfig;
@@ -223,8 +223,8 @@ public class SignCode {
 
     private byte[] generateSignature(byte[] signedData) throws CodeSignException {
         if (!(signConfig instanceof RemoteCodeSignConfig)) {
-            if (signConfig.getCertificates().isEmpty()) {
-                throw new CodeSignException("No certificates configured for signer");
+            if (signConfig.getX509CertList().isEmpty()) {
+                throw new CodeSignException("No certificates configured for sign");
             }
         }
         return SignedDataGenerator.BC.generateSignedData(signedData, signConfig);

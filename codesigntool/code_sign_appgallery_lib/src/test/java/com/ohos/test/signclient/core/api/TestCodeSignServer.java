@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.ohos.codesigntool.core.api.CodeSignServer;
 import com.ohos.codesigntool.core.response.DataFromAppGallaryServer;
 import com.ohos.codesigntool.core.response.DataFromSignCenterServer;
+import com.ohos.codesigntool.core.utils.CertUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,16 +36,11 @@ import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.AlgorithmParameterSpec;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -77,14 +73,14 @@ public class TestCodeSignServer implements CodeSignServer {
 
     @Override
     public String getSignature(byte[] data, String signatureAlg) {
-        List<X509Certificate> certList = getPublicCerts(CERTPATH);
-        if (certList == null) {
+        List<X509Certificate> publicCertList = CertUtils.getCertChainsFromFile(CERTPATH);
+        if (publicCertList == null) {
             LOGGER.error("public certs is null!");
             return "";
         }
         String[] certchain;
         try {
-            certchain = getCertchain(certList);
+            certchain = getCertchain(publicCertList);
         } catch (CertificateEncodingException e) {
             LOGGER.error("get certchain failed!", e);
             return "";
@@ -121,64 +117,56 @@ public class TestCodeSignServer implements CodeSignServer {
         return certchain;
     }
 
-    private byte[] getSignature(byte[] data, String signatureAlg, AlgorithmParameterSpec second) {
+    private byte[] getSignature(byte[] data, String signAlgName, AlgorithmParameterSpec algParamValue) {
         LOGGER.info("Compute signature by {}", this.getClass().getName());
-        byte[] signatureBytes = null;
+        byte[] signBytes = null;
+        try {
+            PrivateKey privateKey = getPrivateKeyFromKeyStore();
+            if (privateKey == null) {
+                return signBytes;
+            }
+            signBytes = getSignature(data, signAlgName, privateKey, algParamValue);
+        } catch (InvalidAlgorithmParameterException
+                | InvalidKeyException
+                | NoSuchAlgorithmException
+                | NoSuchProviderException
+                | SignatureException e) {
+            LOGGER.error("get Signature failed!", e);
+        }
+        return signBytes;
+    }
 
-        KeyStore keyStore;
+    private PrivateKey getPrivateKeyFromKeyStore() {
+        PrivateKey privateKey = null;
         try (FileInputStream fileStream = new FileInputStream(KEYSTORE)) {
-            keyStore = KeyStore.getInstance("JKS");
+            KeyStore keyStore = KeyStore.getInstance("JKS");
             keyStore.load(fileStream, KEYSTORE_CODE.toCharArray());
             Object obj = keyStore.getKey(KEYALIAS, KEYALIAS_CODE.toCharArray());
             if (!(obj instanceof PrivateKey)) {
                 LOGGER.error("key from keystore can not be converted to PrivateKey");
-                return signatureBytes;
+                return null;
             }
-            PrivateKey privateKey = (PrivateKey) obj;
-            Signature signature = Signature.getInstance(signatureAlg, "BC");
-            signature.initSign(privateKey);
-            if (second != null) {
-                signature.setParameter(second);
-            }
-            signature.update(data);
-            signatureBytes = signature.sign();
-        } catch (KeyStoreException
+            privateKey = (PrivateKey) obj;
+        } catch (CertificateException
+                | IOException
+                | KeyStoreException
                 | NoSuchAlgorithmException
-                | CertificateException
-                | UnrecoverableKeyException
-                | InvalidKeyException
-                | SignatureException
-                | InvalidAlgorithmParameterException
-                | NoSuchProviderException
-                | IOException e) {
-            LOGGER.error("get Signature failed!", e);
+                | UnrecoverableKeyException e) {
+            LOGGER.error("get private key from keystore failed!", e);
         }
-        return signatureBytes;
+        return privateKey;
     }
 
-    private List<X509Certificate> getPublicCerts(String publicCertsFile) {
-        List<X509Certificate> certs = null;
-        CertificateFactory cf;
-        try (FileInputStream fileStream = new FileInputStream(publicCertsFile)) {
-            cf = CertificateFactory.getInstance("X.509");
-            Collection<? extends Certificate> certificates = cf.generateCertificates(fileStream);
-            if (certificates == null) {
-                return certs;
-            }
-
-            certs = new ArrayList<X509Certificate>();
-            for (Certificate cert : certificates) {
-                if (cert instanceof X509Certificate) {
-                    certs.add((X509Certificate) cert);
-                }
-            }
-
-            if (!certs.isEmpty()) {
-                Collections.reverse(certs);
-            }
-        } catch (CertificateException | IOException e) {
-            LOGGER.error("Get public certs failed!", e);
+    private byte[] getSignature(byte[] data, String signAlgName, PrivateKey privateKey,
+            AlgorithmParameterSpec algParamValue) throws NoSuchProviderException,
+            NoSuchAlgorithmException, InvalidKeyException,
+            InvalidAlgorithmParameterException, SignatureException {
+        Signature sign = Signature.getInstance(signAlgName, "BC");
+        sign.initSign(privateKey);
+        if (algParamValue != null) {
+            sign.setParameter(algParamValue);
         }
-        return certs;
+        sign.update(data);
+        return sign.sign();
     }
 }

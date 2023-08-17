@@ -40,47 +40,47 @@ public class RemoteCodeSignConfig extends CodeSignConfig {
             return null;
         }
         String responseData = this.getServer().getSignature(data, signatureAlg);
-        byte[] signatureBytes = getSignatureFromServer(responseData);
-        if (signatureBytes != null && signatureBytes.length > 0) {
-            LOGGER.info("Get signature success!");
+        byte[] signBytes = getSignFromServer(responseData);
+        if (signBytes != null && signBytes.length > 0) {
+            LOGGER.info("Get signature data success!");
         } else {
-            LOGGER.error("Get signature failed!");
+            LOGGER.error("Get signature data failed!");
             return null;
         }
-        return signatureBytes;
+        return signBytes;
     }
 
     /**
-     * parse data replied from server and get signature
+     * parse response data from server and return the decrypted signature data.
      *
-     * @param responseData data replied from server
+     * @param responseData response data from server
      * @return binary data of signature
      */
-    public byte[] getSignatureFromServer(String responseData) {
+    public byte[] getSignFromServer(String responseData) {
         if (isStringDataInvalid(responseData)) {
             LOGGER.error("Get invalid response from signature server!");
             return ArrayUtils.EMPTY_BYTE_ARRAY;
         }
         DataFromAppGallaryServer dataFromAppGallaryServer =
             new Gson().fromJson(responseData, DataFromAppGallaryServer.class);
-        if (dataFromAppGallaryServer == null || !checkSignaturesIsSuc(dataFromAppGallaryServer)) {
-            LOGGER.error("responseJson is illegals!");
+        if (dataFromAppGallaryServer == null || !isSignSuccess(dataFromAppGallaryServer)) {
+            LOGGER.error("ResponseJson is illegals!");
             return ArrayUtils.EMPTY_BYTE_ARRAY;
         }
 
         DataFromSignCenterServer signCenterData =
             dataFromAppGallaryServer.getDataFromSignCenterServer();
         if (signCenterData == null) {
-            LOGGER.error("Get response data error!");
+            LOGGER.error("Get response data from sign center server error!");
             return ArrayUtils.EMPTY_BYTE_ARRAY;
         }
 
-        if (!getCertificatesFromResponseData(signCenterData)) {
-            LOGGER.error("Get certificate list data error!");
+        if (!refreshCertListByResponseData(signCenterData)) {
+            LOGGER.error("Refresh certificate list data failed!");
             return ArrayUtils.EMPTY_BYTE_ARRAY;
         }
 
-        getCrlFromResponseData(signCenterData);
+        refreshCrlListByResponseData(signCenterData);
 
         String encodeSignedData = signCenterData.getSignedData();
         if (isStringDataInvalid(encodeSignedData)) {
@@ -90,10 +90,10 @@ public class RemoteCodeSignConfig extends CodeSignConfig {
         return Base64.getUrlDecoder().decode(encodeSignedData);
     }
 
-    private boolean checkSignaturesIsSuc(DataFromAppGallaryServer dataFromAppGallaryServer) {
+    private boolean isSignSuccess(DataFromAppGallaryServer dataFromAppGallaryServer) {
         if (!"success".equals(dataFromAppGallaryServer.getCodeSignature())) {
             if (dataFromAppGallaryServer.getMessage() != null) {
-                LOGGER.error("Get signedData failed: {}", dataFromAppGallaryServer.getMessage());
+                LOGGER.error("Get code signature failed: {}", dataFromAppGallaryServer.getMessage());
             }
             return false;
         }

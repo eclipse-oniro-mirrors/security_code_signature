@@ -48,25 +48,25 @@ public class CodeSignConfig {
     private static final Logger LOGGER = LogManager.getLogger(CodeSignConfig.class);
 
     /**
-     * certificate chain used for sign hap
+     * list of x509 certificate used for sign hap
      *
      */
-    private List<X509Certificate> certificates;
+    private List<X509Certificate> x509CertList;
 
     /**
      * certificate revocation list return from server
      *
      */
-    private List<X509CRL> x509CRLs;
+    private List<X509CRL> x509CRLList;
 
     /**
-     * Signature Algorithms used for sign hap
+     * list of signature Algorithm used for sign hap
      *
      */
-    private List<SignAlgorithm> signatureAlgorithms;
+    private List<SignAlgorithm> signAlgList;
 
     /**
-     * parameters for sign hap
+     * map of signature param for sign hap
      *
      */
     private Map<String, String> signParamMap = new HashMap<String, String>();
@@ -78,11 +78,11 @@ public class CodeSignConfig {
     private CodeSignServer server = null;
 
     /**
-     * input signature parameters
+     * fill signature parameters
      *
      * @param params input paramters for sign hap
      */
-    public void fillParameters(Map<String, String> params) {
+    public void setSignParamsMap(Map<String, String> params) {
         this.signParamMap = params;
     }
 
@@ -136,36 +136,36 @@ public class CodeSignConfig {
     }
 
     /**
-     * Get crl from object of json.
+     * refresh crl list by object of json.
      *
      * @param data input object of DataFromSignCenterServer.
      */
-    protected void getCrlFromResponseData(DataFromSignCenterServer data) {
+    protected void refreshCrlListByResponseData(DataFromSignCenterServer data) {
         String encodeCRLData = data.getCrl();
         if (isStringDataInvalid(encodeCRLData)) {
-            this.x509CRLs = null;
+            this.x509CRLList = null;
             LOGGER.warn("Get CRL data is null!");
         } else {
-            this.x509CRLs = new ArrayList<>();
-            this.x509CRLs.add(CertUtils.getX509CRLByBase64EncodedString(encodeCRLData));
+            this.x509CRLList = new ArrayList<>();
+            this.x509CRLList.add(CertUtils.getX509CRLByBase64EncodedString(encodeCRLData));
         }
     }
 
     /**
-     * get certificates from object of json.
+     * refresh cert list by object of json.
      *
      * @param data input object of DataFromSignCenterServer.
      * @return true, if get certificates successfully.
      */
-    protected boolean getCertificatesFromResponseData(DataFromSignCenterServer data) {
+    protected boolean refreshCertListByResponseData(DataFromSignCenterServer data) {
         if (data.getCertchain() == null || data.getCertchain().length == 0) {
             LOGGER.error("cert chain array is empty!");
             return false;
         }
 
-        this.certificates = new ArrayList<>();
-        for (String certificate : data.getCertchain()) {
-            this.certificates.add(CertUtils.getX509CertByBase64EncodedString(certificate));
+        this.x509CertList = new ArrayList<>();
+        for (String cert : data.getCertchain()) {
+            this.x509CertList.add(CertUtils.getX509CertByBase64EncodedString(cert));
         }
         return true;
     }
@@ -180,44 +180,44 @@ public class CodeSignConfig {
         return (stringData == null) || StringUtils.isEmpty(stringData);
     }
 
-    public List<X509Certificate> getCertificates() {
-        return certificates;
+    public void setSignAlgList(List<SignAlgorithm> signAlgList) {
+        this.signAlgList = signAlgList;
     }
 
-    public void setCertificates(List<X509Certificate> certificates) {
-        this.certificates = certificates;
+    public List<SignAlgorithm> getSignAlgList() {
+        return signAlgList;
     }
 
-    public List<X509CRL> getX509CRLs() {
-        return x509CRLs;
+    public void setX509CertList(List<X509Certificate> x509CertList) {
+        this.x509CertList = x509CertList;
     }
 
-    public void setX509CRLs(List<X509CRL> x509CRLs) {
-        this.x509CRLs = x509CRLs;
+    public List<X509Certificate> getX509CertList() {
+        return x509CertList;
     }
 
-    public List<SignAlgorithm> getSignAlgorithms() {
-        return signatureAlgorithms;
+    public void setX509CRLList(List<X509CRL> x509CRLList) {
+        this.x509CRLList = x509CRLList;
     }
 
-    public void setSignAlgorithms(List<SignAlgorithm> signatureAlgorithms) {
-        this.signatureAlgorithms = signatureAlgorithms;
-    }
-
-    public Map<String, String> getSignParamMap() {
-        return signParamMap;
+    public List<X509CRL> getX509CRLList() {
+        return x509CRLList;
     }
 
     public void setSignParamMap(Map<String, String> signParamMap) {
         this.signParamMap = signParamMap;
     }
 
-    public CodeSignServer getServer() {
-        return server;
+    public Map<String, String> getSignParamMap() {
+        return signParamMap;
     }
 
     public void setServer(CodeSignServer server) {
         this.server = server;
+    }
+
+    public CodeSignServer getServer() {
+        return server;
     }
 }
 

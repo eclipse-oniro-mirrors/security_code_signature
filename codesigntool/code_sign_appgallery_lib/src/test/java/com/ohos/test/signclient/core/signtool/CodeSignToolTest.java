@@ -147,7 +147,7 @@ public class CodeSignToolTest {
         Params param = new Params();
         param.addParam(ParamConstants.PARAM_BASIC_INPUT_FILE, "invalid");
         param.addParam(ParamConstants.PARAM_BASIC_OUTPUT_PATH, tmpOutputPath);
-        param.addParam(ParamConstants.PARAM_BASIC_SIGANTURE_ALG, DEFAULT_SIGN_ALG);
+        param.addParam(ParamConstants.PARAM_BASIC_SIGN_ALG, DEFAULT_SIGN_ALG);
 
         String[] params = param.toArray();
         TestCodeSignServer server = new TestCodeSignServer();
@@ -211,7 +211,6 @@ public class CodeSignToolTest {
         return new MultiSignCodeTask(inputFile, tmpOutputPath, countDownLatch);
     }
 
-
     private void testSignCode(File unsignedHap, boolean fill) throws Exception {
         if (fill) {
             fillHapFile(unsignedHap);
@@ -220,7 +219,7 @@ public class CodeSignToolTest {
         Params param = new Params();
         param.addParam(ParamConstants.PARAM_BASIC_INPUT_FILE, unsignedHap.getPath());
         param.addParam(ParamConstants.PARAM_BASIC_OUTPUT_PATH, tmpOutputPath);
-        param.addParam(ParamConstants.PARAM_BASIC_SIGANTURE_ALG, DEFAULT_SIGN_ALG);
+        param.addParam(ParamConstants.PARAM_BASIC_SIGN_ALG, DEFAULT_SIGN_ALG);
 
         String[] params = param.toArray();
         TestCodeSignServer server = new TestCodeSignServer();
@@ -247,7 +246,7 @@ public class CodeSignToolTest {
         Params param = new Params();
         param.addParam(ParamConstants.PARAM_BASIC_INPUT_FILE, unsignedHap.getPath());
         param.addParam(ParamConstants.PARAM_BASIC_OUTPUT_PATH, tmpOutputPath);
-        param.addParam(ParamConstants.PARAM_BASIC_SIGANTURE_ALG, DEFAULT_SIGN_ALG);
+        param.addParam(ParamConstants.PARAM_BASIC_SIGN_ALG, DEFAULT_SIGN_ALG);
         param.addParam(ParamConstants.PARAM_OUTPUT_MEKLE_TREE, OUTPUT_MERKLE_TREE);
 
         String[] params = param.toArray();
@@ -300,7 +299,7 @@ public class CodeSignToolTest {
         Params param = new Params();
         param.addParam(ParamConstants.PARAM_BASIC_INPUT_FILE, unsignedHap.getPath());
         param.addParam(ParamConstants.PARAM_BASIC_OUTPUT_PATH, tmpOutputPath);
-        param.addParam(ParamConstants.PARAM_BASIC_SIGANTURE_ALG, ParamConstants.SIG_ALGORITHM_SHA256_RSA);
+        param.addParam(ParamConstants.PARAM_BASIC_SIGN_ALG, ParamConstants.SIG_ALGORITHM_SHA256_RSA);
         String[] params = param.toArray();
         TestCodeSignServer server = new TestCodeSignServer();
         Assert.assertFalse("sign using unsupported algorithm", CodeSignTool.signCode(server, params));
@@ -394,7 +393,7 @@ public class CodeSignToolTest {
                 TestCodeSignServer server = new TestCodeSignServer();
                 params.addParam(ParamConstants.PARAM_BASIC_INPUT_FILE, inputFile.getPath());
                 params.addParam(ParamConstants.PARAM_BASIC_OUTPUT_PATH, outputPath);
-                params.addParam(ParamConstants.PARAM_BASIC_SIGANTURE_ALG, DEFAULT_SIGN_ALG);
+                params.addParam(ParamConstants.PARAM_BASIC_SIGN_ALG, DEFAULT_SIGN_ALG);
                 CodeSignVerify codeSignVerify = new CodeSignVerify();
                 return (CodeSignTool.signCode(server, params.toArray()) &
                     codeSignVerify.verifyCode(inputFile.getPath(), spliceFilePath(outputPath, inputFile.getName())));

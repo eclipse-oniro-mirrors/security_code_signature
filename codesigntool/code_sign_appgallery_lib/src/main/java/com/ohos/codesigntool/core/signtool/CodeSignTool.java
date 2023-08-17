@@ -38,9 +38,9 @@ public class CodeSignTool {
      * @return true, if sign successfully.
      */
     public static boolean signCode(CodeSignServer server, String[] params) {
-        CodeSignProvider signProvider = new RemoteCodeSignProvider();
-        signProvider.setCodeSignServer(server);
-        return signProvider.sign(params);
+        CodeSignProvider codeSignProvider = new RemoteCodeSignProvider();
+        codeSignProvider.setCodeSignServer(server);
+        return codeSignProvider.sign(params);
     }
 
     /**

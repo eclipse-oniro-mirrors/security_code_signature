@@ -66,9 +66,9 @@ import java.util.List;
  */
 public class BcSignedDataGenerator implements SignedDataGenerator {
     private static final Logger LOGGER = LogManager.getLogger(BcSignedDataGenerator.class);
-    private static final SignatureAlgorithmIdentifierFinder SIGN_ALG_FINDER =
+    private static final SignatureAlgorithmIdentifierFinder SIGN_ALG_ID_FINDER =
         new DefaultSignatureAlgorithmIdentifierFinder();
-    private static final DigestAlgorithmIdentifierFinder DIGEST_ALG_FINDER =
+    private static final DigestAlgorithmIdentifierFinder DIGEST_ALG_ID_FINDER =
         new DefaultDigestAlgorithmIdentifierFinder();
 
     @Override
@@ -82,8 +82,8 @@ public class BcSignedDataGenerator implements SignedDataGenerator {
             new ASN1Integer(1),
             pairDigestAndSignInfo.getKey(),
             new ContentInfo(PKCSObjectIdentifiers.data, null),
-            createBerSetFromLst(signConfig.getCertificates()),
-            createBerSetFromLst(signConfig.getX509CRLs()),
+            createBerSetFromLst(signConfig.getX509CertList()),
+            createBerSetFromLst(signConfig.getX509CRLList()),
             pairDigestAndSignInfo.getValue());
         return encodingUnsignedData(content, signedData);
     }
@@ -92,11 +92,11 @@ public class BcSignedDataGenerator implements SignedDataGenerator {
             throws CodeSignException {
         ASN1EncodableVector signInfoVector = new ASN1EncodableVector();
         ASN1EncodableVector digestVector = new ASN1EncodableVector();
-        for (SignAlgorithm signAlgorithm : signConfig.getSignAlgorithms()) {
-            SignerInfo signerInfo = createSignInfo(signAlgorithm, content, signConfig);
-            signInfoVector.add(signerInfo);
-            digestVector.add(signerInfo.getDigestAlgorithm());
-            LOGGER.info("Create a signer info successfully.");
+        for (SignAlgorithm signAlgorithm : signConfig.getSignAlgList()) {
+            SignerInfo signInfo = createSignInfo(signAlgorithm, content, signConfig);
+            signInfoVector.add(signInfo);
+            digestVector.add(signInfo.getDigestAlgorithm());
+            LOGGER.info("Create a sign info successfully.");
         }
         return Pair.create(new DERSet(digestVector), new DERSet(signInfoVector));
     }
@@ -115,10 +115,10 @@ public class BcSignedDataGenerator implements SignedDataGenerator {
         if (signBytes == null) {
             throw new CodeSignException("get signature failed");
         }
-        if (signConfig.getCertificates().isEmpty()) {
-            throw new CodeSignException("No certificates configured for signer");
+        if (signConfig.getX509CertList().isEmpty()) {
+            throw new CodeSignException("No certificates configured for sign");
         }
-        X509Certificate cert = signConfig.getCertificates().get(0);
+        X509Certificate cert = signConfig.getX509CertList().get(0);
         if (!verifySignFromServer(cert.getPublicKey(), signBytes, signPair, codeAuthed)) {
             throw new CodeSignException("verifySignatureFromServer failed");
         }
@@ -126,9 +126,9 @@ public class BcSignedDataGenerator implements SignedDataGenerator {
         return new SignerInfo(
             new ASN1Integer(1),
             new IssuerAndSerialNumber(certificateHolder.getIssuer(), certificateHolder.getSerialNumber()),
-            DIGEST_ALG_FINDER.find(hashAlgorithm.getHashAlgorithm()),
+            DIGEST_ALG_ID_FINDER.find(hashAlgorithm.getHashAlgorithm()),
             authed,
-            SIGN_ALG_FINDER.find(signPair.getKey()),
+            SIGN_ALG_ID_FINDER.find(signPair.getKey()),
             new DEROctetString(signBytes),
             null);
     }
@@ -170,7 +170,7 @@ public class BcSignedDataGenerator implements SignedDataGenerator {
         try {
             certificateHolder = new JcaX509CertificateHolder(cert);
         } catch (CertificateEncodingException e) {
-            throw new CodeSignException("Create signer info failed", e);
+            throw new CodeSignException("Create sign info failed", e);
         }
         return certificateHolder;
     }

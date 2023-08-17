@@ -27,6 +27,7 @@ import com.ohos.codesigntool.core.utils.CertUtils;
 import com.ohos.codesigntool.core.utils.FileUtils;
 import com.ohos.codesigntool.core.utils.ParamConstants;
 import com.ohos.codesigntool.core.utils.ParamProcessUtil;
+import com.ohos.codesigntool.core.utils.Pair;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -42,6 +43,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,25 +55,34 @@ import java.util.Set;
  */
 public abstract class CodeSignProvider {
     private static final Logger LOGGER = LogManager.getLogger(CodeSignProvider.class);
-    private static final List<String> VALID_SIGN_ALG_NAME = new ArrayList<String>();
-    private static final String SIGNATURE_FILE_SUFFIX = ".sig";
+    private static final Set<String> SIGN_ALG_SUPPORT_LIST = new HashSet<>();
+    private static final Set<String> SIGN_PARAMS_NEED_LIST = new HashSet<>();
+    private static final Set<String> SIGN_PARAMS_CHECK_LIST = new HashSet<>();
+    private static final String SIGN_FILE_SUFFIX = ".sig";
 
     static {
-        VALID_SIGN_ALG_NAME.add(ParamConstants.SIG_ALGORITHM_SHA256_ECDSA);
+        SIGN_ALG_SUPPORT_LIST.add(ParamConstants.SIG_ALGORITHM_SHA256_ECDSA);
+        SIGN_PARAMS_NEED_LIST.add(ParamConstants.PARAM_BASIC_SIGN_ALG);
+        SIGN_PARAMS_NEED_LIST.add(ParamConstants.PARAM_BASIC_INPUT_FILE);
+        SIGN_PARAMS_NEED_LIST.add(ParamConstants.PARAM_BASIC_OUTPUT_PATH);
+        SIGN_PARAMS_NEED_LIST.add(ParamConstants.PARAM_OUTPUT_MEKLE_TREE);
+        SIGN_PARAMS_CHECK_LIST.add(ParamConstants.PARAM_BASIC_SIGN_ALG);
+        SIGN_PARAMS_CHECK_LIST.add(ParamConstants.PARAM_BASIC_INPUT_FILE);
+        SIGN_PARAMS_CHECK_LIST.add(ParamConstants.PARAM_BASIC_OUTPUT_PATH);
         if (Security.getProvider("BC") == null) {
             Security.addProvider(new BouncyCastleProvider());
         }
     }
 
     /**
-     * parameters input by signer
+     * parameters input by sign
      */
-    protected Map<String, String> inputParams = new HashMap<String, String>();
+    protected List<Pair<String, String>> inputParamsList = new ArrayList<>();
 
     /**
      * parameters only use in signing
      */
-    protected Map<String, String> signParams = new HashMap<String, String>();
+    protected Map<String, String> signParams = new HashMap<>();
 
     /**
      * interface of sign server
@@ -88,7 +99,7 @@ public abstract class CodeSignProvider {
     }
 
     /**
-     * Get certificate chain used to sign.
+     * Get public certificate chain used to sign.
      *
      * @return list of x509 certificates.
      */
@@ -109,28 +120,41 @@ public abstract class CodeSignProvider {
 
 
     /**
-     * Create SignerConfig by certificate chain and certificate revocation list.
+     * Create SignConfig by certificate chain and certificate revocation list.
      *
-     * @param certificates certificate chain
+     * @param x509CertList certificate chain
      * @param crl certificate revocation list
-     * @return Object of SignerConfig
+     * @return Object of SignConfig
      * @throws InvalidKeyException on error when the key is invalid.
      */
-    public CodeSignConfig createSignerConfigs(List<X509Certificate> certificates, X509CRL crl)
+    public CodeSignConfig createSignConfigs(List<X509Certificate> x509CertList, X509CRL crl)
             throws InvalidKeyException {
         CodeSignConfig signConfig = new CodeSignConfig();
-        signConfig.fillParameters(this.signParams);
-        signConfig.setCertificates(certificates);
+        initSignConfigs(signConfig, x509CertList, crl);
+        return signConfig;
+    }
 
-        List<SignAlgorithm> signatureAlgorithms = new ArrayList<>();
-        signatureAlgorithms.add(
-            ParamProcessUtil.getSignAlgorithm(this.signParams.get(ParamConstants.PARAM_BASIC_SIGANTURE_ALG)));
-        signConfig.setSignAlgorithms(signatureAlgorithms);
+    /**
+     * Init SignConfig by certificate chain and certificate revocation list.
+     *
+     * @param signConfig sign Config
+     * @param x509CertList certificate chain
+     * @param crl certificate revocation list
+     * @throws InvalidKeyException on error when the key is invalid.
+     */
+    public void initSignConfigs(CodeSignConfig signConfig, List<X509Certificate> x509CertList, X509CRL crl)
+            throws InvalidKeyException {
+        signConfig.setSignParamsMap(this.signParams);
+        signConfig.setX509CertList(x509CertList);
+
+        List<SignAlgorithm> signAlgList = new ArrayList<>();
+        signAlgList.add(
+            ParamProcessUtil.getSignAlgorithm(this.signParams.get(ParamConstants.PARAM_BASIC_SIGN_ALG)));
+        signConfig.setSignAlgList(signAlgList);
 
         if (crl != null) {
-            signConfig.setX509CRLs(Collections.singletonList(crl));
+            signConfig.setX509CRLList(Collections.singletonList(crl));
         }
-        return signConfig;
     }
 
     /**
@@ -154,13 +178,13 @@ public abstract class CodeSignProvider {
             if (!outputPath.endsWith(File.separator)) {
                 outputPath += File.separator;
             }
-            String outputFile = outputPath + input.getName() + SIGNATURE_FILE_SUFFIX;
+            String outputFile = outputPath + input.getName() + SIGN_FILE_SUFFIX;
             output = new File(outputFile);
             // 5. check whether store tree
             String outTreeSwitch = signParams.get(ParamConstants.PARAM_OUTPUT_MEKLE_TREE);
             boolean storeTree = (outTreeSwitch != null) && (outTreeSwitch.equals("true"));
             // 6. sign code
-            CodeSignConfig signConfig = createSignerConfigs(publicCerts, getCrl());
+            CodeSignConfig signConfig = createSignConfigs(publicCerts, getCrl());
             SignCode signCode = new SignCode(signConfig);
             signCode.signCode(input, output, storeTree);
         } catch (CodeSignException | IOException | InvalidKeyException |
@@ -174,17 +198,6 @@ public abstract class CodeSignProvider {
     private void printErrorLog(Exception exception) {
         if (exception != null) {
             LOGGER.error("code-sign-tool: error: {}", exception.getMessage(), exception);
-        }
-    }
-
-    /**
-     * check output signature path
-     *
-     * @throws MissingParamsException Exception occurs when the outputted file path is not entered.
-     */
-    protected void checkOutputPath() throws MissingParamsException {
-        if (!signParams.containsKey(ParamConstants.PARAM_BASIC_OUTPUT_PATH)) {
-            throw new MissingParamsException("Missing parameter: " + ParamConstants.PARAM_BASIC_OUTPUT_PATH);
         }
     }
 
@@ -211,38 +224,32 @@ public abstract class CodeSignProvider {
             if (!params[i].startsWith("-")) {
                 continue;
             }
-            String paramName = params[i].substring(1);
-            String paramValue = params[i + 1];
-            inputParams.put(paramName, paramValue);
+            inputParamsList.add(Pair.create(params[i].substring(1), params[i + 1]));
         }
-
-        String[] paramFields = {
-                ParamConstants.PARAM_BASIC_SIGANTURE_ALG,
-                ParamConstants.PARAM_BASIC_INPUT_FILE,
-                ParamConstants.PARAM_BASIC_OUTPUT_PATH,
-                ParamConstants.PARAM_OUTPUT_MEKLE_TREE
-        };
-        Set<String> paramSet = ParamProcessUtil.initParamField(paramFields);
-
-        for (Map.Entry<String, String> entry : inputParams.entrySet()) {
-            if (paramSet.contains(entry.getKey())) {
-                signParams.put(entry.getKey(), inputParams.get(entry.getKey()));
+        for (Pair<String, String> pairParam : inputParamsList) {
+            if (SIGN_PARAMS_NEED_LIST.contains(pairParam.getKey())) {
+                signParams.put(pairParam.getKey(), pairParam.getValue());
             }
         }
 
-        checkSignatureAlg();
-        checkInputFile();
-        checkOutputPath();
+        checkInputParamsComplete();
     }
 
     /**
-     * check input hap file
+     * Check whether the input parameters are complete
      *
-     * @throws MissingParamsException Exception occurs when unsigned file is not entered.
+     * @throws MissingParamsException Exception occurs when input parameters is not entered.
+     * @throws InvalidParamsException Exception occurs when input parameters is invalid.
      */
-    protected void checkInputFile() throws MissingParamsException {
-        if (!signParams.containsKey(ParamConstants.PARAM_BASIC_INPUT_FILE)) {
-            throw new MissingParamsException("Missing parameter: " + ParamConstants.PARAM_BASIC_INPUT_FILE);
+    private void checkInputParamsComplete()
+            throws MissingParamsException, InvalidParamsException {
+        for (String param : SIGN_PARAMS_CHECK_LIST) {
+            if (!signParams.containsKey(param)) {
+                throw new MissingParamsException("Missing parameter: " + param);
+            }
+            if (param.equals(ParamConstants.PARAM_BASIC_SIGN_ALG)) {
+                checkSignAlg();
+            }
         }
     }
 
@@ -252,15 +259,10 @@ public abstract class CodeSignProvider {
      * @throws MissingParamsException Exception occurs when the name of sign algorithm is not entered.
      * @throws InvalidParamsException Exception occurs when the inputted sign algorithm is invalid.
      */
-    private void checkSignatureAlg() throws MissingParamsException, InvalidParamsException {
-        if (!signParams.containsKey(ParamConstants.PARAM_BASIC_SIGANTURE_ALG)) {
-            LOGGER.error("Missing parameter : " + ParamConstants.PARAM_BASIC_SIGANTURE_ALG);
-            throw new MissingParamsException("Missing parameter: " + ParamConstants.PARAM_BASIC_SIGANTURE_ALG);
-        }
-
-        String signAlg = signParams.get(ParamConstants.PARAM_BASIC_SIGANTURE_ALG).trim();
-        for (String validAlg : VALID_SIGN_ALG_NAME) {
-            if (validAlg.equalsIgnoreCase(signAlg)) {
+    private void checkSignAlg() throws MissingParamsException, InvalidParamsException {
+        String signAlg = signParams.get(ParamConstants.PARAM_BASIC_SIGN_ALG);
+        for (String supportAlg : SIGN_ALG_SUPPORT_LIST) {
+            if (supportAlg.equalsIgnoreCase(signAlg)) {
                 return;
             }
         }

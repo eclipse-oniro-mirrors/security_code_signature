@@ -120,7 +120,7 @@ public class ParamConstants {
     /**
      * Algorithm name of signatures.
      */
-    public static final String PARAM_BASIC_SIGANTURE_ALG = "signAlg";
+    public static final String PARAM_BASIC_SIGN_ALG = "signAlg";
 
     /**
      * Flag indicates whether profile is signed.

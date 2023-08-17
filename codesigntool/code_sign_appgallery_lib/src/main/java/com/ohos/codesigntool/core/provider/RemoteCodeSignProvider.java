@@ -17,17 +17,10 @@ package com.ohos.codesigntool.core.provider;
 
 import com.ohos.codesigntool.core.config.CodeSignConfig;
 import com.ohos.codesigntool.core.config.RemoteCodeSignConfig;
-import com.ohos.codesigntool.core.exception.InvalidParamsException;
-import com.ohos.codesigntool.core.exception.MissingParamsException;
-import com.ohos.codesigntool.core.sign.SignAlgorithm;
-import com.ohos.codesigntool.core.utils.ParamConstants;
-import com.ohos.codesigntool.core.utils.ParamProcessUtil;
 
 import java.security.InvalidKeyException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,28 +30,15 @@ import java.util.List;
  */
 public class RemoteCodeSignProvider extends CodeSignProvider {
     @Override
-    public void checkParams(String[] params) throws InvalidParamsException, MissingParamsException {
-        super.checkRemoteSignParams(params);
-    }
-
-    @Override
     public X509CRL getCrl() {
         return null;
     }
 
     @Override
-    public CodeSignConfig createSignerConfigs(List<X509Certificate> certificates, X509CRL crl)
-        throws InvalidKeyException {
+    public CodeSignConfig createSignConfigs(List<X509Certificate> x509CertList, X509CRL crl)
+            throws InvalidKeyException {
         CodeSignConfig signConfig = new RemoteCodeSignConfig();
-        signConfig.setCertificates(certificates);
-        signConfig.fillParameters(this.signParams);
-        if (crl != null) {
-            signConfig.setX509CRLs(Collections.singletonList(crl));
-        }
-        List<SignAlgorithm> signAlgorithms = new ArrayList<SignAlgorithm>();
-        signAlgorithms.add(
-            ParamProcessUtil.getSignAlgorithm(this.signParams.get(ParamConstants.PARAM_BASIC_SIGANTURE_ALG)));
-        signConfig.setSignAlgorithms(signAlgorithms);
+        initSignConfigs(signConfig, x509CertList, crl);
         signConfig.setServer(this.server);
         return signConfig;
     }

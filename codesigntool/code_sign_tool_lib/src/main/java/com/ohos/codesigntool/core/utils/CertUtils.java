@@ -56,16 +56,16 @@ public class CertUtils {
      * @return list of certificate chain
      */
     public static List<X509Certificate> getCertChainsFromFile(String certFilePath) {
-        List<X509Certificate> certs = null;
+        List<X509Certificate> x509CertList = null;
         try (FileInputStream fileStream = FileUtils.open(new File(certFilePath));) {
-            certs = getX509Certificates(getX509CertificateFactory(), fileStream);
+            x509CertList = getX509Certificates(getX509CertificateFactory(), fileStream);
         } catch (IOException e) {
             LOGGER.error("Certificate file exception: " + e.getMessage());
             return Collections.emptyList();
         }
-        sortCertChain(certs);
-        verifyCertChain(certs);
-        return certs;
+        sortCertChain(x509CertList);
+        verifyCertChain(x509CertList);
+        return x509CertList;
     }
 
     private static List<X509Certificate> getX509Certificates(
@@ -79,13 +79,13 @@ public class CertUtils {
         if (certificates == null || certificates.size() == 0) {
             return Collections.emptyList();
         }
-        List<X509Certificate> certs = new ArrayList<>();
+        List<X509Certificate> x509CertList = new ArrayList<>();
         for (Certificate certificate : certificates) {
             if (certificate instanceof X509Certificate) {
-                certs.add((X509Certificate) certificate);
+                x509CertList.add((X509Certificate) certificate);
             }
         }
-        return certs;
+        return x509CertList;
     }
 
     private static void verifyCertChain(List<X509Certificate> certs) {

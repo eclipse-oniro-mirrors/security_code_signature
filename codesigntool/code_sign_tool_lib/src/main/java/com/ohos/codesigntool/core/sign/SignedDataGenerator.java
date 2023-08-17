@@ -33,10 +33,10 @@ public interface SignedDataGenerator {
     SignedDataGenerator BC = new BcSignedDataGenerator();
 
     /**
-     * Generate signature data with specific content and signer configuration.
+     * Generate signature data with specific content and sign configuration.
      *
      * @param content unsigned file digest content.
-     * @param signConfig signer configurations.
+     * @param signConfig sign configurations.
      * @return signed data.
      * @throws CodeSignException if error.
      */
