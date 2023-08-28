@@ -19,6 +19,11 @@
             "project":"vendor_hihope",
             "path":"vendor/hihope",
             "pr_url":"https://gitee.com/openharmony/vendor_hihope/pulls/920"
+        },
+        {
+            "project":"kernel_linux_config",
+            "path":"kernel/linux/config",
+            "pr_url":"https://gitee.com/openharmony/kernel_linux_config/pulls/353"
         }
     ]
 }
