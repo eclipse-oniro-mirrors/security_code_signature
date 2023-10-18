@@ -108,6 +108,46 @@ pub fn load_pem_cert_from_json_file(file_path: &str, member_names: &[&str]) -> V
     cert_vec.join("\n").into_bytes()
 }
 
+fn fabricate_name(subject: &str) -> String {
+    let mut common_name = String::new();
+    let mut orgnazition = String::new();
+    let mut email = String::new();
+    let mut ret = String::new();
+
+    let parts: Vec<&str> = subject.split(',').collect();
+    for part in parts {
+        let inner: Vec<&str> = part.split('=').collect();
+        if inner.len() < 2 {
+            continue;
+        }
+        let inner_trimmed: Vec<&str> = inner.iter().map(|s| s.trim()).collect();
+        if inner_trimmed[0] == "CN" {
+            common_name = inner_trimmed[1].into();
+        } else if inner_trimmed[0] == "O" {
+            orgnazition = inner_trimmed[1].into();
+        } else if inner_trimmed[0] == "E" {
+            email = inner_trimmed[1].into();
+        }
+    }
+    if !common_name.is_empty() && !orgnazition.is_empty() {
+        if common_name.len() >= 6
+            && orgnazition.len() >= 6
+            && common_name[0..6] == orgnazition[0..6]
+        {
+            ret = common_name;
+        } else {
+            ret = orgnazition + ": " + &common_name;
+        }
+    } else if !common_name.is_empty() {
+        ret = common_name;
+    } else if !orgnazition.is_empty() {
+        ret = orgnazition;
+    } else if !email.is_empty() {
+        ret = email;
+    }
+    ret
+}
+
 /// load cert path from json file
 pub fn load_cert_path_from_json_file(cert_paths: &mut Vec<TrustAppSource>, file_path: &str) {
     let value = match JsonValue::from_file(file_path) {
@@ -165,8 +205,14 @@ pub fn load_cert_path_from_json_file(cert_paths: &mut Vec<TrustAppSource>, file_
             Err(_) => continue,
         };
 
-        let signing_cstring = CString::new(signing.as_str()).expect("app-signing-cert is invalid");
-        let issuer_cstring = CString::new(issuer.as_str()).expect("issuer-ca is invalid");
+        let f_signing = fabricate_name(signing);
+        let f_issuer = fabricate_name(issuer);
+        if f_signing.is_empty() || f_issuer.is_empty() {
+            continue;
+        }
+
+        let signing_cstring = CString::new(f_signing.as_str()).expect("app-signing-cert is invalid");
+        let issuer_cstring = CString::new(f_issuer.as_str()).expect("issuer-ca is invalid");
         cert_paths.push(TrustAppSource {
             signing: signing_cstring,
             issuer: issuer_cstring,
