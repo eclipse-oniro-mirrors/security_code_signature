@@ -22,6 +22,7 @@
 #include <unistd.h>
 
 #include "code_sign_utils.h"
+#include "code_sign_block.h"
 
 namespace OHOS {
 namespace Security {
@@ -42,6 +43,7 @@ struct cert_chain_info {
 
 static const uint32_t MAX_CERT_CHAIN = 3;
 static const std::string TMP_BASE_PATH = "/data/service/el1/public/bms/bundle_manager_service/tmp";
+static const std::string TEST_APP_DTAT_DIR = "/data/app/el1/bundle/public/com.example.codesignaturetest";
 static const std::string APP_BASE_PATH = "/data/app/el1/bundle/public/tmp";
 static const string DEV_NAME = "/dev/code_sign";
 static const string SUBJECT = "Huawei: HarmonyOS Application Code Signature";
@@ -380,6 +382,110 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0013, TestSize.Level0)
     buffer.CopyFrom((const uint8_t *)invalid.c_str(), invalid.length());
     int ret = CodeSignUtils::ParseOwnerIdFromSignature(buffer, ownerID);
     EXPECT_EQ(ret, CS_ERR_OPENSSL_PKCS7);
+}
+
+/**
+ * @tc.name: CodeSignUtilsTest_0014
+ * @tc.desc: Parse code signature for hap successfully
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0014, TestSize.Level0)
+{
+    std::string hapRealPath = APP_BASE_PATH + "/demo_with_multi_lib/demo_with_code_sign_block.hap";
+    EntryMap entryMap;
+
+    CodeSignBlock codeSignBlock;
+    int32_t ret = codeSignBlock.ParseCodeSignBlock(hapRealPath, entryMap, FILE_SELF);
+    EXPECT_EQ(ret, CS_SUCCESS);
+
+    std::string targetFile;
+    struct code_sign_enable_arg arg = {0};
+
+    ret = codeSignBlock.GetOneFileAndCodeSignInfo(targetFile, arg);
+    EXPECT_EQ(ret, CS_SUCCESS);
+    EXPECT_EQ(arg.version, 1);
+    EXPECT_EQ(arg.cs_version, 1);
+    EXPECT_EQ(arg.hash_algorithm, 1);
+    EXPECT_EQ(arg.block_size, 0x1000);
+    EXPECT_EQ(arg.sig_size, 0x862);
+    EXPECT_EQ(arg.data_size, 0x5000);
+    EXPECT_EQ(arg.salt_size, 0);
+    EXPECT_EQ(arg.flags, 1);
+    EXPECT_EQ(arg.tree_offset, 0x10c000);
+
+    ret = codeSignBlock.GetOneFileAndCodeSignInfo(targetFile, arg);
+    EXPECT_EQ(ret, CS_SUCCESS_END);
+}
+
+/**
+ * @tc.name: CodeSignUtilsTest_0015
+ * @tc.desc: parse code signature for native libs successfully
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0015, TestSize.Level0)
+{
+    std::string hapRealPath = APP_BASE_PATH + "/demo_with_multi_lib/demo_with_code_sign_block.hap";
+    EntryMap entryMap;
+    std::string filePath1("libs/arm64-v8a/libc++_shared.so");
+    std::string targetPath1 = TEST_APP_DTAT_DIR + "libs/arm64/libc++_shared.so";
+    entryMap.emplace(filePath1, targetPath1);
+    std::string filePath2("libs/arm64-v8a/libentry.so");
+    std::string targetPath2 = TEST_APP_DTAT_DIR + "libs/arm64/libentry.so";
+    entryMap.emplace(filePath2, targetPath2);
+
+    CodeSignBlock codeSignBlock;
+    int32_t ret = codeSignBlock.ParseCodeSignBlock(hapRealPath, entryMap, FILE_ENTRY_ONLY);
+    EXPECT_EQ(ret, CS_SUCCESS);
+
+    int32_t count = 0;
+    do {
+        std::string targetFile;
+        struct code_sign_enable_arg arg = {0};
+        ret = codeSignBlock.GetOneFileAndCodeSignInfo(targetFile, arg);
+        if (ret != CS_SUCCESS_END) {
+            EXPECT_EQ(ret, CS_SUCCESS);
+            EXPECT_EQ(arg.version, 1);
+            EXPECT_EQ(arg.cs_version, 1);
+            EXPECT_EQ(arg.hash_algorithm, 1);
+            EXPECT_EQ(arg.block_size, 0x1000);
+            EXPECT_EQ(arg.salt_size, 0);
+            EXPECT_EQ(arg.flags, 0);
+            EXPECT_EQ(arg.tree_offset, 0);
+            count++;
+            continue;
+        }
+    } while (ret == CS_SUCCESS);
+    EXPECT_EQ(count, 0x2);
+}
+
+/**
+ * @tc.name: CodeSignUtilsTest_0016
+ * @tc.desc: enable code signature for app
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0016, TestSize.Level0)
+{
+    std::string hapRealPath = APP_BASE_PATH + "/demo_with_multi_lib/demo_with_code_sign_block.hap";
+    EntryMap entryMap;
+
+    int32_t ret = CodeSignUtils::EnforceCodeSignForApp(hapRealPath, entryMap, FILE_SELF);
+    EXPECT_EQ(ret, CS_SUCCESS);
+
+    std::string filePath1("libs/arm64-v8a/libc++_shared.so");
+    std::string targetPath1 = TEST_APP_DTAT_DIR + "libs/arm64/libc++_shared.so";
+    entryMap.emplace(filePath1, targetPath1);
+    std::string filePath2("libs/arm64-v8a/libentry.so");
+    std::string targetPath2 = TEST_APP_DTAT_DIR + "libs/arm64/libentry.so";
+    entryMap.emplace(filePath2, targetPath2);
+
+    ret = CodeSignUtils::EnforceCodeSignForApp(hapRealPath, entryMap, FILE_ENTRY_ONLY);
+    EXPECT_EQ(ret, CS_ERR_TARGET_FILE_PATH);
+
+    ret = CodeSignUtils::EnforceCodeSignForApp(hapRealPath, entryMap, FILE_ALL);
+    EXPECT_EQ(ret, CS_ERR_TARGET_FILE_PATH);
 }
 }  // namespace CodeSign
 }  // namespace Security

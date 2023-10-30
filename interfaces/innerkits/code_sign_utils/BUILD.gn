@@ -20,6 +20,7 @@ config("public_code_sign_utils_configs") {
 
 ohos_shared_library("libcode_sign_utils") {
   sources = [
+    "${code_signature_root_dir}/utils/src/code_sign_block.cpp",
     "${code_signature_root_dir}/utils/src/file_helper.cpp",
     "src/code_sign_utils.cpp",
     "src/stat_utils.cpp",
@@ -37,6 +38,7 @@ ohos_shared_library("libcode_sign_utils") {
 
   external_deps = [
     "ability_base:extractortool",
+    "appverify:libhapverify",
     "c_utils:utils",
     "hilog:libhilog",
     "hisysevent:libhisysevent",

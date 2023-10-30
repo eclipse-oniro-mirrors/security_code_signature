@@ -37,6 +37,7 @@
 #include "log.h"
 #include "stat_utils.h"
 #include "signer_info.h"
+#include "code_sign_block.h"
 
 namespace OHOS {
 namespace Security {
@@ -139,26 +140,17 @@ int32_t CodeSignUtils::EnforceCodeSignForFile(const std::string &path, const Byt
     return EnforceCodeSignForFile(path, signature.GetBuffer(), signature.GetSize());
 }
 
-int32_t CodeSignUtils::EnforceCodeSignForFile(const std::string &path, const uint8_t *signature,
-    const uint32_t size)
+int32_t CodeSignUtils::EnableCodeSignForFile(const std::string &path, const struct code_sign_enable_arg &arg)
 {
-    LOG_INFO(LABEL, "Start to enforce");
-    if ((signature == nullptr) || (size == 0)) {
-        return CS_ERR_NO_SIGNATURE;
-    }
-
-    std::string realPath;
-    NOT_SATISFIED_RETURN(OHOS::PathToRealPath(path, realPath), CS_ERR_FILE_PATH,
-        "Get real path failed, path = %{public}s", path.c_str());
-
-    int fd = open(realPath.c_str(), O_RDONLY);
+    int32_t ret;
+    int32_t error;
+    int32_t fd = open(path.c_str(), O_RDONLY);
     if (fd < 0) {
         LOG_ERROR(LABEL, "Open file failed, path = %{public}s, errno = <%{public}d, %{public}s>",
-            realPath.c_str(), errno, strerror(errno));
+            path.c_str(), errno, strerror(errno));
         return CS_ERR_FILE_OPEN;
     }
 
-    int32_t ret;
     do {
         ret = IsFsVerityEnabled(fd);
         if (ret == CS_SUCCESS) {
@@ -168,17 +160,12 @@ int32_t CodeSignUtils::EnforceCodeSignForFile(const std::string &path, const uin
             break;
         }
 
-        struct fsverity_enable_arg arg = {};
-        arg.version = 1;    // version of fs-verity, must be 1
-        arg.hash_algorithm = DEFAULT_HASH_ALGORITHEM;
-        arg.block_size = HASH_PAGE_SIZE;
-        arg.salt_ptr = 0;
-        arg.salt_size = 0;
-        arg.sig_size = size;
-        arg.sig_ptr = reinterpret_cast<uintptr_t>(signature);
-
         StartTrace(HITRACE_TAG_ACCESS_CONTROL, CODE_SIGN_ENABLE_START);
-        int error = ioctl(fd, FS_IOC_ENABLE_VERITY, &arg);
+        if (!arg.cs_version) {
+            error = ioctl(fd, FS_IOC_ENABLE_VERITY, &arg);
+        } else {
+            error = ioctl(fd, FS_IOC_ENABLE_CODE_SIGN, &arg);
+        }
         FinishTrace(HITRACE_TAG_ACCESS_CONTROL);
         if (error < 0) {
             LOG_ERROR(LABEL, "Enable fs-verity failed, errno = <%{public}d, %{public}s>",
@@ -197,6 +184,91 @@ int32_t CodeSignUtils::EnforceCodeSignForFile(const std::string &path, const uin
 int CodeSignUtils::ParseOwnerIdFromSignature(const ByteBuffer &sigbuffer, std::string &ownerID)
 {
     return SignerInfo::ParseOwnerIdFromSignature(sigbuffer, ownerID);
+}
+
+int32_t CodeSignUtils::EnforceCodeSignForFile(const std::string &path, const uint8_t *signature,
+    const uint32_t size)
+{
+    std::string realPath;
+
+    if (signature == nullptr || size == 0) {
+        return CS_ERR_NO_SIGNATURE;
+    }
+    if (!OHOS::PathToRealPath(path, realPath)) {
+        return CS_ERR_FILE_PATH;
+    }
+
+    struct code_sign_enable_arg arg = {0};
+    arg.version = 1; // version of fs-verity, must be 1
+    arg.hash_algorithm = DEFAULT_HASH_ALGORITHEM;
+    arg.block_size = HASH_PAGE_SIZE;
+    arg.sig_size = size;
+    arg.sig_ptr = reinterpret_cast<uintptr_t>(signature);
+    return EnableCodeSignForFile(realPath, arg);
+}
+
+void CodeSignUtils::ShowCodeSignInfo(const std::string &path, const struct code_sign_enable_arg &arg)
+{
+    uint8_t *salt = reinterpret_cast<uint8_t *>(arg.salt_ptr);
+    uint8_t rootHash[64] = {0};
+    uint8_t *rootHashPtr = rootHash;
+    if (arg.flags & CodeSignBlock::CSB_SIGN_INFO_MERKLE_TREE) {
+        rootHashPtr = reinterpret_cast<uint8_t *>(arg.root_hash_ptr);
+    }
+
+    LOG_DEBUG(LABEL, "{ "
+        "file:%{public}s version:%{public}d hash_algorithm:%{public}d block_size:%{public}d sig_size:%{public}d "
+        "data_size:%{public}lld salt_size:%{public}d salt:[%{public}d, ..., %{public}d, ..., %{public}d] "
+        "flags:%{public}d tree_offset:%{public}lld root_hash:[%{public}d, %{public}d, %{public}d, ..., %{public}d, "
+        "..., %{public}d] }",
+        path.c_str(), arg.cs_version, arg.hash_algorithm, arg.block_size, arg.sig_size,
+        arg.data_size, arg.salt_size, salt[0], salt[16], salt[31], arg.flags, arg.tree_offset, // 16, 31 data index
+        rootHashPtr[0], rootHashPtr[1], rootHashPtr[2], rootHashPtr[32], rootHashPtr[63]); // 2, 32, 63 data index
+}
+
+int32_t CodeSignUtils::EnforceCodeSignForApp(const std::string &path, const EntryMap &entryPathMap, FileType type)
+{
+    int32_t ret;
+    std::string realPath;
+
+    if (!OHOS::PathToRealPath(path, realPath)) {
+        return CS_ERR_FILE_PATH;
+    }
+
+    if (type >= FILE_TYPE_MAX) {
+        return CS_ERR_PARAM_INVALID;
+    }
+
+    ret = IsSupportFsVerity(realPath);
+    if (ret != CS_SUCCESS) {
+        return ret;
+    }
+
+    CodeSignBlock codeSignBlock;
+    ret = codeSignBlock.ParseCodeSignBlock(realPath, entryPathMap, type);
+    if (ret != CS_SUCCESS) {
+        return ret;
+    }
+
+    do {
+        std::string targetFile;
+        struct code_sign_enable_arg arg = {0};
+        ret = codeSignBlock.GetOneFileAndCodeSignInfo(targetFile, arg);
+        if (ret == CS_SUCCESS_END) {
+            ret = CS_SUCCESS;
+            break;
+        } else if (ret != CS_SUCCESS) {
+            return ret;
+        }
+
+        ShowCodeSignInfo(targetFile, arg);
+
+        if (!CheckFilePathValid(targetFile, Constants::ENABLE_APP_BASE_PATH)) {
+            return CS_ERR_TARGET_FILE_PATH;
+        }
+        ret = EnableCodeSignForFile(targetFile, arg);
+    } while (ret == CS_SUCCESS);
+    return ret;
 }
 }
 }

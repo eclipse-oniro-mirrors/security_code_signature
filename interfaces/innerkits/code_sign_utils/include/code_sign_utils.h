@@ -21,6 +21,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <unordered_map>
+#include <linux/fsverity.h>
 #include "byte_buffer.h"
 #include "errcode.h"
 
@@ -28,6 +29,13 @@ namespace OHOS {
 namespace Security {
 namespace CodeSign {
 using EntryMap = std::unordered_map<std::string, std::string>;
+
+typedef enum {
+    FILE_ALL,
+    FILE_SELF,
+    FILE_ENTRY_ONLY,
+    FILE_TYPE_MAX,
+} FileType;
 
 class CodeSignUtils {
 public:
@@ -38,6 +46,16 @@ public:
      * @return err code, see err_code.h
      */
     static int32_t EnforceCodeSignForApp(const EntryMap &entryPath, const std::string &signatureFile);
+
+    /**
+     * @brief Enforce code signature for app
+     * @param path hap real path on disk
+     * @param entryPath map from entryname in hap to real path on disk
+     * @param type signature file type
+     * @return err code, see err_code.h
+     */
+    static int32_t EnforceCodeSignForApp(const std::string &path, const EntryMap &entryPathMap, FileType type);
+
     /**
      * @brief Enforce code signature for file with signature
      * @param path file path
@@ -46,6 +64,7 @@ public:
      * @return err code, see err_code.h
      */
     static int32_t EnforceCodeSignForFile(const std::string &path, const uint8_t *signature, const uint32_t len);
+
     /**
      * @brief Enforce code signature for file with signature
      * @param path file path
@@ -63,6 +82,8 @@ public:
 private:
     static int32_t IsSupportFsVerity(const std::string &path);
     static int32_t IsFsVerityEnabled(int fd);
+    static int32_t EnableCodeSignForFile(const std::string &path, const struct code_sign_enable_arg &arg);
+    static void ShowCodeSignInfo(const std::string &path, const struct code_sign_enable_arg &arg);
 };
 }
 }
