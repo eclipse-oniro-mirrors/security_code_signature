@@ -34,7 +34,8 @@
         "eventhandler",
         "build_framework",
         "access_token",
-        "ylong_json"
+        "ylong_json",
+        "appverify"
       ],
       "third_party": [
         "openssl",
