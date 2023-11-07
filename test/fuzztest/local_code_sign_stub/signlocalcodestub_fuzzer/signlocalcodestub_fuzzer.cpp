@@ -41,7 +41,6 @@ namespace OHOS {
         SetSelfTokenID(tokenId);
     }
 
-
     bool SignLocalCodeStubFuzzTest(const uint8_t *data, size_t size)
     {
         if ((data == nullptr) || (size == 0)) {
