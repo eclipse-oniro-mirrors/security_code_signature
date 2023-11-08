@@ -183,7 +183,7 @@ int32_t CodeSignBlock::GetCodeSignBlockBuffer(const std::string &path, ReadBuffe
     int32_t ret = Verify::ParseHapSignatureInfo(path, signatureInfo_);
     if (ret != Verify::VERIFY_SUCCESS) {
         LOG_ERROR(LABEL, "find code sign block buffer failed. errno = %{public}d ", ret);
-        return CS_ERR_FILE_INVALID;
+        return CS_CODE_SIGN_NOT_EXISTS;
     }
 
     for (const auto &value : signatureInfo_.optionBlocks) {
@@ -197,7 +197,7 @@ int32_t CodeSignBlock::GetCodeSignBlockBuffer(const std::string &path, ReadBuffe
     }
 
     if ((blobBuffer == nullptr) || (blobSize <= sizeof(PropertyBlobHeader))) {
-        return CS_ERR_NO_SIGNATURE;
+        return CS_CODE_SIGN_NOT_EXISTS;
     }
 
     size_t length = 0;

@@ -59,7 +59,7 @@
             <option name="push" value="demo_with_multi_lib/pkcs7_error/file/libentry_06.so.fsv-sig -> /data/service/el1/public/bms/bundle_manager_service/tmp/demo_with_multi_lib/pkcs7_error/file" src="res"/>
             <option name="push" value="demo_with_multi_lib/pkcs7_error/file/libentry_07.so.fsv-sig -> /data/service/el1/public/bms/bundle_manager_service/tmp/demo_with_multi_lib/pkcs7_error/file" src="res"/>
             <option name="push" value="demo_with_multi_lib/entry-default-signed-release.hap ->  /data/app/el1/bundle/public/tmp/demo_with_multi_lib" src="res"/>
-            <option name="push" value="demo_with_multi_lib/entry-default-signed-debug.hap ->  /data/app/el1/bundle/public/tmp/demo_without_lib" src="res"/>
+            <option name="push" value="demo_with_multi_lib/entry-default-signed-debug.hap ->  /data/app/el1/bundle/public/tmp/demo_with_multi_lib" src="res"/>
         </preparer>
         <cleaner>
             <option name="shell" value="rm -rf /data/service/el1/public/bms/bundle_manager_service/tmp"/>
@@ -114,6 +114,49 @@
             <option name="push" value="demo_cert/cert_path/valid_cert_path.json -> /data/test/tmp" src="res"/>
             <option name="push" value="demo_cert/cert_path/invalid_structure_cert_path.json -> /data/test/tmp" src="res"/>
             <option name="push" value="demo_cert/cert_path/empty_cert_path.json -> /data/test/tmp" src="res"/>
+        </preparer>
+        <cleaner>
+            <option name="shell" value="rm -rf /data/test/tmp"/>
+        </cleaner>
+    </target>
+    <target name="enable_verity_ioctl_unittest">
+        <preparer>
+            <option name="shell" value="mkdir -p /data/test/tmp/file_4K"/>
+            <option name="shell" value="mkdir -p /data/test/tmp/file_4K_less"/>
+            <option name="shell" value="mkdir -p /data/test/tmp/file_4K_greater"/>
+            <option name="shell" value="mkdir -p /data/test/tmp/file_4M"/>
+            <option name="shell" value="mkdir -p /data/test/tmp/file_4M_less"/>
+            <option name="shell" value="mkdir -p /data/test/tmp/file_4M_greater"/>
+            <option name="push" value="demo_verity/file_4K/file_4K -> /data/test/tmp/file_4K" src="res"/>
+            <option name="push" value="demo_verity/file_4K/file_4K.tree -> /data/test/tmp/file_4K" src="res"/>
+            <option name="push" value="demo_verity/file_4K/file_4K.hash -> /data/test/tmp/file_4K" src="res"/>
+            <option name="push" value="demo_verity/file_4K/file_4K_no_tree.sig -> /data/test/tmp/file_4K" src="res"/>
+            <option name="push" value="demo_verity/file_4K/file_4K_inside_tree.sig -> /data/test/tmp/file_4K" src="res"/>
+            <option name="push" value="demo_verity/file_4K_less/file_4K_less -> /data/test/tmp/file_4K_less" src="res"/>
+            <option name="push" value="demo_verity/file_4K_less/file_4K_less.tree -> /data/test/tmp/file_4K_less" src="res"/>
+            <option name="push" value="demo_verity/file_4K_less/file_4K_less.hash -> /data/test/tmp/file_4K_less" src="res"/>
+            <option name="push" value="demo_verity/file_4K_less/file_4K_less_no_tree.sig -> /data/test/tmp/file_4K_less" src="res"/>
+            <option name="push" value="demo_verity/file_4K_less/file_4K_less_inside_tree.sig -> /data/test/tmp/file_4K_less" src="res"/>
+            <option name="push" value="demo_verity/file_4K_greater/file_4K_greater -> /data/test/tmp/file_4K_greater" src="res"/>
+            <option name="push" value="demo_verity/file_4K_greater/file_4K_greater.tree -> /data/test/tmp/file_4K_greater" src="res"/>
+            <option name="push" value="demo_verity/file_4K_greater/file_4K_greater.hash -> /data/test/tmp/file_4K_greater" src="res"/>
+            <option name="push" value="demo_verity/file_4K_greater/file_4K_greater_no_tree.sig -> /data/test/tmp/file_4K_greater" src="res"/>
+            <option name="push" value="demo_verity/file_4K_greater/file_4K_greater_inside_tree.sig -> /data/test/tmp/file_4K_greater" src="res"/>
+            <option name="push" value="demo_verity/file_4M/file_4M -> /data/test/tmp/file_4M" src="res"/>
+            <option name="push" value="demo_verity/file_4M/file_4M.tree -> /data/test/tmp/file_4M" src="res"/>
+            <option name="push" value="demo_verity/file_4M/file_4M.hash -> /data/test/tmp/file_4M" src="res"/>
+            <option name="push" value="demo_verity/file_4M/file_4M_no_tree.sig -> /data/test/tmp/file_4M" src="res"/>
+            <option name="push" value="demo_verity/file_4M/file_4M_inside_tree.sig -> /data/test/tmp/file_4M" src="res"/>
+            <option name="push" value="demo_verity/file_4M_less/file_4M_less -> /data/test/tmp/file_4M_less" src="res"/>
+            <option name="push" value="demo_verity/file_4M_less/file_4M_less.tree -> /data/test/tmp/file_4M_less" src="res"/>
+            <option name="push" value="demo_verity/file_4M_less/file_4M_less.hash -> /data/test/tmp/file_4M_less" src="res"/>
+            <option name="push" value="demo_verity/file_4M_less/file_4M_less_no_tree.sig -> /data/test/tmp/file_4M_less" src="res"/>
+            <option name="push" value="demo_verity/file_4M_less/file_4M_less_inside_tree.sig -> /data/test/tmp/file_4M_less" src="res"/>
+            <option name="push" value="demo_verity/file_4M_greater/file_4M_greater -> /data/test/tmp/file_4M_greater" src="res"/>
+            <option name="push" value="demo_verity/file_4M_greater/file_4M_greater.tree -> /data/test/tmp/file_4M_greater" src="res"/>
+            <option name="push" value="demo_verity/file_4M_greater/file_4M_greater.hash -> /data/test/tmp/file_4M_greater" src="res"/>
+            <option name="push" value="demo_verity/file_4M_greater/file_4M_greater_no_tree.sig -> /data/test/tmp/file_4M_greater" src="res"/>
+            <option name="push" value="demo_verity/file_4M_greater/file_4M_greater_inside_tree.sig -> /data/test/tmp/file_4M_greater" src="res"/>
         </preparer>
         <cleaner>
             <option name="shell" value="rm -rf /data/test/tmp"/>

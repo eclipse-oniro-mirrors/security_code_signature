@@ -23,6 +23,7 @@
 
 #include "code_sign_utils.h"
 #include "code_sign_block.h"
+#include "enable_key_utils.h"
 
 namespace OHOS {
 namespace Security {
@@ -30,22 +31,9 @@ namespace CodeSign {
 using namespace testing::ext;
 using namespace std;
 
-struct cert_chain_info {
-    uint32_t signing_length;
-    uint32_t issuer_length;
-    uint64_t signing;
-    uint64_t issuer;
-    uint32_t max_cert_chain;
-    uint8_t reserved[36];
-};
-
-#define WRITE_CERT_CHAIN _IOW('k', 1, cert_chain_info)
-
-static const uint32_t MAX_CERT_CHAIN = 3;
 static const std::string TMP_BASE_PATH = "/data/service/el1/public/bms/bundle_manager_service/tmp";
 static const std::string TEST_APP_DTAT_DIR = "/data/app/el1/bundle/public/com.example.codesignaturetest";
 static const std::string APP_BASE_PATH = "/data/app/el1/bundle/public/tmp";
-static const string DEV_NAME = "/dev/code_sign";
 static const string SUBJECT = "Huawei: HarmonyOS Application Code Signature";
 static const string ISSUER = "Huawei CBG Software Signing Service CA Test";
 static const string OH_SUBJECT = "OpenHarmony Application Release";
@@ -127,28 +115,15 @@ class CodeSignUtilsTest : public testing::Test {
 public:
     CodeSignUtilsTest() {};
     virtual ~CodeSignUtilsTest() {};
-    static void SetUpTestCase() {};
+    static void SetUpTestCase()
+    {
+        EXPECT_EQ(EnableTestKey(SUBJECT.c_str(), ISSUER.c_str()), 0);
+        EXPECT_EQ(EnableTestKey(OH_SUBJECT.c_str(), OH_ISSUER.c_str()), 0);
+    };
     static void TearDownTestCase() {};
     void SetUp() {};
     void TearDown() {};
 };
-
-static bool CallIoctl(const char *signing, const char *issuer, uint32_t max_cert_chain)
-{
-    int fd = open(DEV_NAME.c_str(), O_WRONLY);
-    EXPECT_GE(fd, 0);
-
-    cert_chain_info arg = { 0 };
-    arg.signing = reinterpret_cast<uint64_t>(signing);
-    arg.issuer = reinterpret_cast<uint64_t>(issuer);
-    arg.signing_length = strlen(signing) + 1;
-    arg.issuer_length = strlen(issuer) + 1;
-    arg.max_cert_chain = max_cert_chain;
-    int ret = ioctl(fd, WRITE_CERT_CHAIN, &arg);
-
-    close(fd);
-    return ret;
-}
 
 static bool ReadSignatureFromFile(const std::string &path, ByteBuffer &data)
 {
@@ -341,14 +316,11 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0010, TestSize.Level0)
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0011, TestSize.Level0)
 {
-    int ret = CallIoctl(SUBJECT.c_str(), ISSUER.c_str(), MAX_CERT_CHAIN);
-    EXPECT_EQ(ret, 0);
-
     ByteBuffer buffer;
     bool flag = ReadSignatureFromFile(g_filesigEnablePath, buffer);
     EXPECT_EQ(flag, true);
 
-    ret = CodeSignUtils::EnforceCodeSignForFile(g_fileEnableSuc, buffer);
+    int32_t ret = CodeSignUtils::EnforceCodeSignForFile(g_fileEnableSuc, buffer);
     EXPECT_EQ(ret, CS_SUCCESS);
 }
 
@@ -360,10 +332,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0011, TestSize.Level0)
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0012, TestSize.Level0)
 {
-    int ret = CallIoctl(SUBJECT.c_str(), ISSUER.c_str(), MAX_CERT_CHAIN);
-    EXPECT_EQ(ret, 0);
-
-    ret = CodeSignUtils::EnforceCodeSignForApp(g_hapWithoutLibRetSuc, g_sigWithoutLibRetSucPath);
+    int32_t ret = CodeSignUtils::EnforceCodeSignForApp(g_hapWithoutLibRetSuc, g_sigWithoutLibRetSucPath);
     EXPECT_EQ(ret, CS_SUCCESS);
 
     ret = CodeSignUtils::EnforceCodeSignForApp(g_hapWithMultiLibRetSuc, g_sigWithMultiLibRetSucPath);
@@ -500,9 +469,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0017, TestSize.Level0)
 {
     std::string hapRealPath = APP_BASE_PATH + "/demo_with_multi_lib/entry-default-signed-debug.hap";
     EntryMap entryMap;
-    int ret = CallIoctl(OH_SUBJECT.c_str(), OH_ISSUER.c_str(), MAX_CERT_CHAIN);
-    EXPECT_EQ(ret, 0);
-    ret = CodeSignUtils::EnforceCodeSignForAppWithOwnerId("DEBUG_LIB_ID", hapRealPath, entryMap, FILE_SELF);
+    int32_t ret = CodeSignUtils::EnforceCodeSignForAppWithOwnerId("DEBUG_LIB_ID", hapRealPath, entryMap, FILE_SELF);
     EXPECT_EQ(ret, CS_SUCCESS);
 }
 
@@ -516,9 +483,8 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0018, TestSize.Level0)
 {
     std::string hapRealPath = APP_BASE_PATH + "/demo_with_multi_lib/entry-default-signed-release.hap";
     EntryMap entryMap;
-    int ret = CallIoctl(OH_SUBJECT.c_str(), OH_ISSUER.c_str(), MAX_CERT_CHAIN);
-    EXPECT_EQ(ret, 0);
-    ret = CodeSignUtils::EnforceCodeSignForAppWithOwnerId("test-app-identifier", hapRealPath, entryMap, FILE_SELF);
+    int32_t ret = CodeSignUtils::EnforceCodeSignForAppWithOwnerId("test-app-identifier",
+        hapRealPath, entryMap, FILE_SELF);
     EXPECT_EQ(ret, CS_SUCCESS);
 }
 
@@ -532,9 +498,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0019, TestSize.Level0)
 {
     std::string hapRealPath = APP_BASE_PATH + "/demo_with_multi_lib/entry-default-signed-debug.hap";
     EntryMap entryMap;
-    int ret = CallIoctl(OH_SUBJECT.c_str(), OH_ISSUER.c_str(), MAX_CERT_CHAIN);
-    EXPECT_EQ(ret, 0);
-    ret = CodeSignUtils::EnforceCodeSignForAppWithOwnerId("INVALID_ID", hapRealPath, entryMap, FILE_SELF);
+    int32_t ret = CodeSignUtils::EnforceCodeSignForAppWithOwnerId("INVALID_ID", hapRealPath, entryMap, FILE_SELF);
     EXPECT_EQ(ret, CS_ERR_INVALID_OWNER_ID);
 }
 
@@ -548,9 +512,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0020, TestSize.Level0)
 {
     std::string hapRealPath = APP_BASE_PATH + "/demo_with_multi_lib/entry-default-signed-release.hap";
     EntryMap entryMap;
-    int ret = CallIoctl(OH_SUBJECT.c_str(), OH_ISSUER.c_str(), MAX_CERT_CHAIN);
-    EXPECT_EQ(ret, 0);
-    ret = CodeSignUtils::EnforceCodeSignForAppWithOwnerId("INVALID_ID", hapRealPath, entryMap, FILE_SELF);
+    int32_t ret = CodeSignUtils::EnforceCodeSignForAppWithOwnerId("INVALID_ID", hapRealPath, entryMap, FILE_SELF);
     EXPECT_EQ(ret, CS_ERR_INVALID_OWNER_ID);
 }
 }  // namespace CodeSign
