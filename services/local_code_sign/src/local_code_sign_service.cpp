@@ -29,6 +29,7 @@ namespace CodeSign {
 const std::string DEFAULT_HASH_ALGORITHM = "sha256";
 const std::string TASK_ID = "unload";
 constexpr int32_t DELAY_TIME = 180000;
+constexpr uint32_t MAX_OWNER_ID_LEN = 32; // owner id in signature should not exceed 32 bytes
 
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<LocalCodeSignService>::GetInstance().get());
@@ -116,6 +117,10 @@ int32_t LocalCodeSignService::InitLocalCertificate(ByteBuffer &cert)
 int32_t LocalCodeSignService::SignLocalCode(const std::string &ownerID, const std::string &filePath,
                                             ByteBuffer &signature)
 {
+    if (ownerID.length() > MAX_OWNER_ID_LEN) {
+        LOG_ERROR(LABEL, "ownerID len %{public}u should not exceed %{public}u", ownerID.length(), MAX_OWNER_ID_LEN);
+        return CS_ERR_INVALID_OWNER_ID;
+    }
     ByteBuffer digest;
     std::string realPath;
     if (!OHOS::PathToRealPath(filePath, realPath)) {
