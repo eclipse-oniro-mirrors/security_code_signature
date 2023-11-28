@@ -56,14 +56,14 @@ static int GetXpmRegion(struct XpmRegionArea &area)
         return -1;
     }
 
-    char xpm_region[XPM_PROC_LENGTH] = {0};
-    int ret = read(fd, xpm_region, sizeof(xpm_region));
+    char xpmRegion[XPM_PROC_LENGTH] = {0};
+    int ret = read(fd, xpmRegion, sizeof(xpmRegion));
     if (ret < 0) {
         LOG_ERROR(LABEL, "read xpm proc file failed(%{public}s)", strerror(errno));
         return -1;
     }
 
-    ret = sscanf_s(xpm_region, "%llx-%llx", &area.start, &area.end);
+    ret = sscanf_s(xpmRegion, "%llx-%llx", &area.start, &area.end);
     if (ret < 0) {
         LOG_ERROR(LABEL, "sscanf xpm region string failed(%{public}s)", strerror(errno));
         return -1;
