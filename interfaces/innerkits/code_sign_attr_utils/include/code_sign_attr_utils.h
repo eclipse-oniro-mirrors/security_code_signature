@@ -30,7 +30,7 @@ extern "C" {
 #define OWNERID_SHARED_TAG "SHARED_LIB_ID"
 #define OWNERID_COMPAT_TAG "COMPAT_LIB_ID"
 
-enum file_ownerid_type {
+enum FileOwneridType {
     FILE_OWNERID_UNINT = 0,
     FILE_OWNERID_SYSTEM,
     FILE_OWNERID_APP,
@@ -41,7 +41,7 @@ enum file_ownerid_type {
 };
 
 /* process and file ownerid types need to correspond to each other */
-enum process_ownerid_type {
+enum ProcessOwneridType {
     PROCESS_OWNERID_UNINIT = FILE_OWNERID_UNINT,
     PROCESS_OWNERID_SYSTEM = FILE_OWNERID_SYSTEM,
     PROCESS_OWNERID_APP    = FILE_OWNERID_APP,
