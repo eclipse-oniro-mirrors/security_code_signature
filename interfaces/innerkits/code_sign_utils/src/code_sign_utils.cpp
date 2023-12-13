@@ -14,7 +14,8 @@
  */
 
 #include "code_sign_utils.h"
-
+#include <fstream>
+#include <string>
 #include <asm/unistd.h>
 #include <cstdlib>
 #include <cstdint>
@@ -321,7 +322,19 @@ int32_t CodeSignUtils::RemoveKeyInProfile(const std::string &bundleName)
 bool CodeSignUtils::isSupportOHCodeSign()
 {
 #ifdef SUPPORT_OH_CODE_SIGN
-    return true;
+    std::ifstream file(Constants::XPM_DEBUG_FS_MODE_PATH);
+    if (!file.is_open()) {
+        return false;
+    }
+
+    std::string content;
+    file >> content;
+    file.close();
+    
+    if (content == Constants::SUPPORT_OH_SDK_CODE_SIGN) {
+        return true;
+    }
+    return false;
 #else
     return false;
 #endif

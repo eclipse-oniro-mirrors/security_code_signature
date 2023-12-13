@@ -25,6 +25,8 @@ namespace Constants {
 const std::string FSV_SIG_SUFFIX = ".fsv-sig";
 const std::string ENABLE_SIGNATURE_FILE_BASE_PATH = "/data/service/el1/public/bms/bundle_manager_service";
 const std::string ENABLE_APP_BASE_PATH = "/data/app/el1/bundle/public";
+const std::string XPM_DEBUG_FS_MODE_PATH = "/proc/sys/kernel/xpm/xpm_mode";
+const std::string SUPPORT_OH_SDK_CODE_SIGN = "1";
 }
 }
 }
