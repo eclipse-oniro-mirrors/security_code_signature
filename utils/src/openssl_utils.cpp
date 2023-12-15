@@ -40,7 +40,7 @@ X509 *LoadCertFromBuffer(const uint8_t *buffer, const uint32_t size)
     }
     X509 *cert = d2i_X509_bio(mem, nullptr);
     if (cert == nullptr) {
-        ErrLogWithOpenSSLMsg("Certificate is invalid.");
+        ERR_LOG_WITH_OPEN_SSL_MSG("Certificate is invalid.");
     }
     BIO_free(mem);
     return cert;

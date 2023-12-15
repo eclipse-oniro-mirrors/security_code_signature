@@ -67,7 +67,7 @@ bool PKCS7Data::GetPKCS7Data(ByteBuffer &pkcs7Data)
             break;
         }
         if (!i2d_PKCS7_bio(bio, p7_)) {
-            ErrLogWithOpenSSLMsg("Encode pkcs7 data failed.");
+            ERR_LOG_WITH_OPEN_SSL_MSG("Encode pkcs7 data failed.");
             break;
         }
         uint8_t *tmp = nullptr;

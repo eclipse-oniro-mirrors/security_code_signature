@@ -17,10 +17,6 @@
 
 #include "errcode.h"
 #include "log.h"
-#include "openssl/asn1.h"
-#include "openssl/evp.h"
-#include "openssl/pem.h"
-#include "openssl/x509.h"
 #include "openssl_utils.h"
 #include "pkcs7_data.h"
 #include "securec.h"

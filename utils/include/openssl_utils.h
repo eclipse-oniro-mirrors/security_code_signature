@@ -30,7 +30,7 @@ constexpr int OPENSSL_ERR_MESSAGE_MAX_LEN = 1024;
 
 void GetOpensslErrorMessage();
 
-#define ErrLogWithOpenSSLMsg(msg) do { \
+#define ERR_LOG_WITH_OPEN_SSL_MSG(msg) do { \
     LOG_ERROR(LABEL, "%{public}s", msg); \
     GetOpensslErrorMessage(); \
 } while (0)
