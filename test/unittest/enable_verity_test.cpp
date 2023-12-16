@@ -311,7 +311,8 @@ static void EnableExpandedTamperFile(const std::string &filePath,
     bool (*tamperFileFunc)(const std::string &filePath))
 {
     struct code_sign_enable_arg arg = {};
-    ByteBuffer signature, rootHash;
+    ByteBuffer signature;
+    ByteBuffer rootHash;
     FillCommonArgs(filePath, true, &arg, signature);
     FillOptional(filePath, &arg, rootHash);
 
@@ -423,7 +424,8 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0004, TestSize.Level0)
         LOG_INFO(LABEL, "Test on file path = %{public}s", filePath.c_str());
 
         struct code_sign_enable_arg arg = {};
-        ByteBuffer signature, rootHash;
+        ByteBuffer signature;
+        ByteBuffer rootHash;
         FillCommonArgs(filePath, true, &arg, signature);
         FillOptional(filePath, &arg, rootHash);
         std::string expandFilePath = MakeExpandTreeFile(filePath, &arg);
@@ -443,7 +445,8 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0005, TestSize.Level0)
 {
     std::string filePath = TEST_DEFAULT_FILE;
     struct code_sign_enable_arg arg = {};
-    ByteBuffer signature, rootHash;
+    ByteBuffer signature;
+    ByteBuffer rootHash;
     FillCommonArgs(filePath, true, &arg, signature);
     FillOptional(filePath, &arg, rootHash);
     std::string expandFilePath = MakeExpandTreeFile(filePath, &arg);
@@ -470,7 +473,8 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0006, TestSize.Level0)
 {
     std::string filePath = TEST_DEFAULT_FILE;
     struct code_sign_enable_arg arg = {};
-    ByteBuffer signature, rootHash;
+    ByteBuffer signature;
+    ByteBuffer rootHash;
     FillCommonArgs(filePath, true, &arg, signature);
     FillOptional(filePath, &arg, rootHash);
     std::string expandFilePath = MakeExpandTreeFile(filePath, &arg);
@@ -510,7 +514,8 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0008, TestSize.Level0)
     }
     std::string filePath = TEST_DEFAULT_FILE;
     struct code_sign_enable_arg arg = {};
-    ByteBuffer signature, rootHash;
+    ByteBuffer signature;
+    ByteBuffer rootHash;
     FillCommonArgs(filePath, true, &arg, signature);
     FillOptional(filePath, &arg, rootHash);
     std::string expandFilePath = MakeExpandTreeFile(filePath, &arg);
@@ -541,7 +546,8 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0009, TestSize.Level0)
     }
     std::string filePath = TEST_DEFAULT_FILE;
     struct code_sign_enable_arg arg = {};
-    ByteBuffer signature, rootHash;
+    ByteBuffer signature;
+    ByteBuffer rootHash;
     FillCommonArgs(filePath, true, &arg, signature);
     FillOptional(filePath, &arg, rootHash);
     std::string expandFilePath = MakeExpandTreeFile(filePath, &arg);
@@ -570,7 +576,8 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0010, TestSize.Level0)
     }
     std::string filePath = TEST_FILES_DIR + "elf/elf";
     struct code_sign_enable_arg arg = {};
-    ByteBuffer signature, rootHash;
+    ByteBuffer signature;
+    ByteBuffer rootHash;
     FillCommonArgs(filePath, true, &arg, signature);
     FillOptional(filePath, &arg, rootHash);
     std::string expandFilePath = MakeExpandTreeFile(filePath, &arg);
@@ -605,7 +612,8 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0011, TestSize.Level0)
     }
     std::string filePath = TEST_FILES_DIR + "elf/elf";
     struct code_sign_enable_arg arg = {};
-    ByteBuffer signature, rootHash;
+    ByteBuffer signature;
+    ByteBuffer rootHash;
     FillCommonArgs(filePath, true, &arg, signature);
     FillOptional(filePath, &arg, rootHash);
     std::string expandFilePath = MakeExpandTreeFile(filePath, &arg);

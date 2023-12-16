@@ -46,7 +46,7 @@ bool SignerInfo::InitSignerInfo(const std::string &ownerID, X509 *cert, const EV
     carrySigningTime_ = carrySigningTime;
     p7info_ = PKCS7_SIGNER_INFO_new();
     if (p7info_ == nullptr) {
-        ErrLogWithOpenSSLMsg("Create pkcs7 signer info failed");
+        ERR_LOG_WITH_OPEN_SSL_MSG("Create pkcs7 signer info failed");
         return false;
     }
     bool ret = false;
@@ -82,14 +82,14 @@ bool SignerInfo::InitSignerInfo(const std::string &ownerID, X509 *cert, const EV
         }
 
         if (!AddAttrsToSignerInfo(ownerID, contentData)) {
-            ErrLogWithOpenSSLMsg("Add attributes to signer info failed");
+            ERR_LOG_WITH_OPEN_SSL_MSG("Add attributes to signer info failed");
             break;
         }
         ret = true;
     } while (0);
     if (!ret) {
         PKCS7_SIGNER_INFO_free(p7info_);
-        ErrLogWithOpenSSLMsg("Init pkcs7 signer info failed");
+        ERR_LOG_WITH_OPEN_SSL_MSG("Init pkcs7 signer info failed");
     }
     return ret;
 }
@@ -124,7 +124,7 @@ bool SignerInfo::AddAttrsToSignerInfo(const std::string &ownerID, const ByteBuff
         return false;
     }
     if (!PKCS7_add1_attrib_digest(p7info_, digest.GetBuffer(), digest.GetSize())) {
-        ErrLogWithOpenSSLMsg("PKCS7_add1_attrib_digest fail");
+        ERR_LOG_WITH_OPEN_SSL_MSG("PKCS7_add1_attrib_digest fail");
         return false;
     }
     return true;
@@ -195,7 +195,7 @@ bool SignerInfo::ComputeDigest(const ByteBuffer &data, ByteBuffer &digest)
         ret = true;
     } while (0);
     if (!ret) {
-        ErrLogWithOpenSSLMsg("Compute digest failed.");
+        ERR_LOG_WITH_OPEN_SSL_MSG("Compute digest failed.");
     } else if (!digest.CopyFrom(mdBuffer, mdLen)) {
         ret = false;
     }
@@ -236,7 +236,7 @@ int SignerInfo::AddOwnerID(const std::string &ownerID)
     int ret = PKCS7_add_signed_attribute(p7info_, nid, V_ASN1_UTF8STRING, ownerIDAsn1);
     if (ret == 0) {
         ASN1_STRING_free(ownerIDAsn1);
-        ErrLogWithOpenSSLMsg("PKCS7_add_signed_attribute failed");
+        ERR_LOG_WITH_OPEN_SSL_MSG("PKCS7_add_signed_attribute failed");
         return CS_ERR_OPENSSL_PKCS7;
     }
 
@@ -253,13 +253,13 @@ int SignerInfo::ParseOwnerIdFromSignature(const ByteBuffer &sigbuffer, std::stri
 
     BIO *bio = BIO_new_mem_buf(sigbuffer.GetBuffer(), sigbuffer.GetSize());
     if (bio == nullptr) {
-        ErrLogWithOpenSSLMsg("BIO_new_mem_buf failed");
+        ERR_LOG_WITH_OPEN_SSL_MSG("BIO_new_mem_buf failed");
         return CS_ERR_OPENSSL_BIO;
     }
     PKCS7 *p7 = d2i_PKCS7_bio(bio, nullptr);
     if (p7 == nullptr) {
         BIO_free(bio);
-        ErrLogWithOpenSSLMsg("d2i_PKCS7_bio failed");
+        ERR_LOG_WITH_OPEN_SSL_MSG("d2i_PKCS7_bio failed");
         return CS_ERR_OPENSSL_PKCS7;
     }
 
@@ -267,7 +267,7 @@ int SignerInfo::ParseOwnerIdFromSignature(const ByteBuffer &sigbuffer, std::stri
     if (signerInfosk == nullptr) {
         BIO_free(bio);
         PKCS7_free(p7);
-        ErrLogWithOpenSSLMsg("PKCS7_get_signer_info failed");
+        ERR_LOG_WITH_OPEN_SSL_MSG("PKCS7_get_signer_info failed");
         return CS_ERR_OPENSSL_PKCS7;
     }
     for (int i = 0; i < sk_PKCS7_SIGNER_INFO_num(signerInfosk); i++) {

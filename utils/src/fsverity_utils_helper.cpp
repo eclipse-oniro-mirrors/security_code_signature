@@ -27,7 +27,7 @@ namespace Security {
 namespace CodeSign {
 static constexpr int MAX_DIGEST_SIZE = 64; // size of sha512
 static constexpr int FSVERITY_HASH_PAGE_SIZE = 4096;
-static const char *FSVERITY_DIGEST_MAGIC = "FSVerity";
+static const char *g_fsverityDigestMagic = "FSVerity";
 static constexpr uint32_t FSVERITY_DIGEST_MAGIC_LENGTH = 8;
 
 FsverityUtilsHelper &FsverityUtilsHelper::GetInstance()
@@ -56,7 +56,7 @@ void FsverityUtilsHelper::ErrorMsgLogCallback(const char *msg)
 bool FsverityUtilsHelper::FormatDigest(libfsverity_digest *digest, uint8_t *buffer)
 {
     struct fsverity_formatted_digest *ret = reinterpret_cast<struct fsverity_formatted_digest *>(buffer);
-    if (memcpy_s(ret->magic, FSVERITY_DIGEST_MAGIC_LENGTH, FSVERITY_DIGEST_MAGIC,
+    if (memcpy_s(ret->magic, FSVERITY_DIGEST_MAGIC_LENGTH, g_fsverityDigestMagic,
         FSVERITY_DIGEST_MAGIC_LENGTH) != EOK) {
         return false;
     }
