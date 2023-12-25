@@ -105,10 +105,15 @@ public:
      */
     static int32_t RemoveKeyInProfile(const std::string &bundleName);
     /**
-     * @brief inteface for get support_openharmony_ca state
+     * @brief Whether enabling code signing for app compiled by oh-sdk
      * @return return ture if support oh-sdk code sign
      */
     static bool isSupportOHCodeSign();
+    /**
+     * @brief Check if code signing is permissive
+     * @return return ture if in permissive mode
+     */
+    static bool InPermissiveMode();
 private:
     static int32_t IsSupportFsVerity(const std::string &path);
     static int32_t IsFsVerityEnabled(int fd);

@@ -23,7 +23,9 @@
 
 #include "code_sign_utils.h"
 #include "code_sign_block.h"
+#include "directory_ex.h"
 #include "enable_key_utils.h"
+#include "xpm_common.h"
 
 namespace OHOS {
 namespace Security {
@@ -112,6 +114,8 @@ static const EntryMap g_hapSigNotExist = {
     {"sigNotExist", APP_BASE_PATH + "/demo_without_lib/demo_without_lib.hap"},
 };
 
+static bool g_isPermissive = false;
+
 class CodeSignUtilsTest : public testing::Test {
 public:
     CodeSignUtilsTest() {};
@@ -120,8 +124,17 @@ public:
     {
         EXPECT_EQ(EnableTestKey(SUBJECT.c_str(), ISSUER.c_str()), 0);
         EXPECT_EQ(EnableTestKey(OH_SUBJECT.c_str(), OH_ISSUER.c_str()), 0);
+        g_isPermissive = CodeSignUtils::InPermissiveMode();
+        if (g_isPermissive) {
+            SaveStringToFile(XPM_DEBUG_FS_MODE_PATH, ENFORCE_MODE);
+        }
     };
-    static void TearDownTestCase() {};
+    static void TearDownTestCase()
+    {
+        if (g_isPermissive) {
+            SaveStringToFile(XPM_DEBUG_FS_MODE_PATH, PERMISSIVE_MODE);
+        }
+    };
     void SetUp() {};
     void TearDown() {};
 };
@@ -442,20 +455,8 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0016, TestSize.Level0)
 {
     std::string hapRealPath = APP_BASE_PATH + "/demo_with_multi_lib/demo_with_code_sign_block.hap";
     EntryMap entryMap;
-    std::string profileEnablePath = PROFILE_BASE_PATH + "/demo_cert/pkcs7/verify_test_profile.p7b";
-    ByteBuffer buffer;
-    bool flag = ReadSignatureFromFile(profileEnablePath, buffer);
-    EXPECT_EQ(flag, true);
-
-    string bundlName = "CodeSignUtilsTest";
-    int32_t ret = CodeSignUtils::EnableKeyInProfile(bundlName, buffer);
-    EXPECT_EQ(ret, CS_SUCCESS);
-
     CodeSignUtils utils;
-    ret = utils.EnforceCodeSignForApp(hapRealPath, entryMap, FILE_SELF);
-    EXPECT_EQ(ret, CS_SUCCESS);
-
-    ret = CodeSignUtils::RemoveKeyInProfile(bundlName);
+    int32_t ret = utils.EnforceCodeSignForApp(hapRealPath, entryMap, FILE_SELF);
     EXPECT_EQ(ret, CS_SUCCESS);
 
     std::string filePath1("libs/arm64-v8a/libc++_shared.so");
@@ -565,7 +566,7 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0021, TestSize.Level0)
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0022, TestSize.Level0)
 {
-    std::string profileEnablePath = PROFILE_BASE_PATH + "/demo_cert/pkcs7/verify_test_profile.p7b";
+    std::string profileEnablePath = PROFILE_BASE_PATH + "/demo_cert/pkcs7/add_and_remove_profile.p7b";
     ByteBuffer buffer;
     bool flag = ReadSignatureFromFile(profileEnablePath, buffer);
     EXPECT_EQ(flag, true);
@@ -574,8 +575,14 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0022, TestSize.Level0)
     int32_t ret = CodeSignUtils::EnableKeyInProfile(bundlName, buffer);
     EXPECT_EQ(ret, CS_SUCCESS);
 
+    std::string pathOnDisk = "/data/service/el0/profiles/developer/CodeSignUtilsTest/profile.p7b";
+    std::string realPath;
+    EXPECT_EQ(OHOS::PathToRealPath(pathOnDisk, realPath), true);
+
     ret = CodeSignUtils::RemoveKeyInProfile(bundlName);
     EXPECT_EQ(ret, CS_SUCCESS);
+
+    EXPECT_EQ(OHOS::PathToRealPath(pathOnDisk, realPath), false);
 }
 
 /**
@@ -607,6 +614,43 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0023, TestSize.Level0)
     entryMap.clear();
     ret = utils.EnforceCodeSignForApp(hapRealPath, entryMap, FILE_ALL);
     EXPECT_EQ(ret, CS_SUCCESS);
+}
+
+/**
+ * @tc.name: CodeSignUtilsTest_0024
+ * @tc.desc: success without signature in permissive mode
+ * @tc.type: Func
+ * @tc.require: I8R8V7
+ */
+HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0024, TestSize.Level0)
+{
+    if (!SaveStringToFile(XPM_DEBUG_FS_MODE_PATH, PERMISSIVE_MODE)) {
+        return;
+    }
+    EntryMap entryMap;
+    CodeSignUtils utils;
+    std::string hapRealPath = APP_BASE_PATH + "/demo_without_lib/demo_without_lib.hap";
+    int32_t ret = utils.EnforceCodeSignForApp(hapRealPath, entryMap, FILE_SELF);
+    EXPECT_EQ(ret, CS_SUCCESS);
+    SaveStringToFile(XPM_DEBUG_FS_MODE_PATH, ENFORCE_MODE);
+}
+
+/**
+ * @tc.name: CodeSignUtilsTest_0025
+ * @tc.desc: failed without signature in enforcing mode
+ * @tc.type: Func
+ * @tc.require: I8R8V7
+ */
+HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0025, TestSize.Level0)
+{
+    if (CodeSignUtils::InPermissiveMode()) {
+        return;
+    }
+    std::string hapRealPath = APP_BASE_PATH + "/demo_without_lib/demo_without_lib.hap";
+    EntryMap entryMap;
+    CodeSignUtils utils;
+    int32_t ret = utils.EnforceCodeSignForApp(hapRealPath, entryMap, FILE_SELF);
+    EXPECT_EQ(ret, CS_CODE_SIGN_NOT_EXISTS);
 }
 }  // namespace CodeSign
 }  // namespace Security
