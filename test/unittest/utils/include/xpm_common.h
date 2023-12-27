@@ -34,13 +34,16 @@ const std::string SELINUX_MODE_PATH = "/sys/fs/selinux/enforce";
 const std::string PERMISSIVE_MODE = "0";
 const std::string ENFORCE_MODE = "1";
 
-inline void SaveStringToFile(const std::string &filePath,
+inline bool SaveStringToFile(const std::string &filePath,
     const std::string &value)
 {
-    std::fstream fout;
-    fout.open(filePath, std::ios::out);
+    std::fstream fout(filePath, std::ios::out);
+    if (!fout.is_open()) {
+        return false;
+    }
     fout << value;
     fout.close();
+    return true;
 }
 
 bool AllocXpmRegion();

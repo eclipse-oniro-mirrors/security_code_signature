@@ -247,9 +247,10 @@ int32_t CodeSignUtils::EnforceCodeSignForAppWithOwnerId(const std::string &owner
     ret = codeSignBlock.ParseCodeSignBlock(realPath, storedEntryMap_, type);
     storedEntryMap_.clear();
     if (ret != CS_SUCCESS) {
-        if (ret != CS_CODE_SIGN_NOT_EXISTS) {
-            ReportParseCodeSig(realPath, ret);
+        if ((ret == CS_CODE_SIGN_NOT_EXISTS) && InPermissiveMode()) {
+            return CS_SUCCESS;
         }
+        ReportParseCodeSig(realPath, ret);
         return ret;
     }
     CodeSignEnableMultiTask multiTask;
@@ -320,9 +321,11 @@ int32_t CodeSignUtils::RemoveKeyInProfile(const std::string &bundleName)
         LABEL, "Remove key in profile failed. errno = <%{public}d, %{public}s>", errno, strerror(errno));
     return CS_ERR_PROFILE;
 }
-bool CodeSignUtils::isSupportOHCodeSign()
+
+bool CodeSignUtils::InPermissiveMode()
 {
-#ifdef SUPPORT_OH_CODE_SIGN
+#ifdef SUPPORT_PERMISSIVE_MODE
+    // defaults to on if file does not exsit
     std::ifstream file(Constants::XPM_DEBUG_FS_MODE_PATH);
     if (!file.is_open()) {
         return false;
@@ -331,11 +334,21 @@ bool CodeSignUtils::isSupportOHCodeSign()
     std::string content;
     file >> content;
     file.close();
-    
-    if (content == Constants::SUPPORT_OH_SDK_CODE_SIGN) {
+
+    if (content == Constants::PERMISSIVE_CODE_SIGN_MODE) {
+        LOG_DEBUG(LABEL, "Permissive mode is on.");
         return true;
     }
     return false;
+#else
+    return false;
+#endif
+}
+
+bool CodeSignUtils::isSupportOHCodeSign()
+{
+#ifdef SUPPORT_OH_CODE_SIGN
+    return !InPermissiveMode();
 #else
     return false;
 #endif
