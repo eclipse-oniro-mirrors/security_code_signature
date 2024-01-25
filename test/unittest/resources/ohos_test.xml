@@ -42,6 +42,8 @@
             <option name="push" value="demo_with_multi_lib/libs/arm64-v8a/libc++_shared.so.fsv-sig -> /data/service/el1/public/bms/bundle_manager_service/tmp/demo_with_multi_lib/libs/arm64-v8a" src="res"/>
             <option name="push" value="demo_with_multi_lib/libs/arm64-v8a/libentry.so ->  /data/app/el1/bundle/public/tmp/demo_with_multi_lib/libs/arm64-v8a" src="res"/>
             <option name="push" value="demo_with_multi_lib/libs/arm64-v8a/libentry.so.fsv-sig -> /data/service/el1/public/bms/bundle_manager_service/tmp/demo_with_multi_lib/libs/arm64-v8a" src="res"/>
+            <option name="push" value="demo_with_multi_lib/libs/arm64-v8a/code_sign_block/libc++_shared.so ->  /data/app/el1/bundle/public/tmp/demo_with_multi_lib/libs/arm64-v8a/code_sign_block" src="res"/>
+            <option name="push" value="demo_with_multi_lib/libs/arm64-v8a/code_sign_block/libentry.so ->  /data/app/el1/bundle/public/tmp/demo_with_multi_lib/libs/arm64-v8a/code_sign_block" src="res"/>
             <option name="push" value="demo_with_multi_lib_error/demo_with_multi_lib.hap ->  /data/app/el1/bundle/public/tmp/demo_with_multi_lib_error" src="res"/>
             <option name="push" value="demo_with_multi_lib_error/libs/arm64-v8a/libc++_shared.so ->  /data/app/el1/bundle/public/tmp/demo_with_multi_lib_error/libs/arm64-v8a" src="res"/>
             <option name="push" value="demo_with_multi_lib_error/libs/arm64-v8a/libentry.so ->  /data/app/el1/bundle/public/tmp/demo_with_multi_lib_error/libs/arm64-v8a" src="res"/>
