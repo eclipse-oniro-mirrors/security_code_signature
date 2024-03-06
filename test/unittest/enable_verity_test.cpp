@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -155,7 +155,7 @@ static bool ReadDataFromFile(const std::string &path, ByteBuffer &data)
     size_t ret = fread(data.GetBuffer(), 1, fileSize, file);
     (void)fclose(file);
     if (ret < fileSize) {
-        LOG_ERROR(LABEL, "Read size (%{public}zu) < file size", ret);
+        LOG_ERROR("Read size (%{public}zu) < file size", ret);
         return false;
     }
     return true;
@@ -209,7 +209,7 @@ static bool ExpandFile(const std::string &srcPath, const std::string &expandData
             (void)fclose(fout);
             return false;
         }
-        LOG_ERROR(LABEL, "write padding = %{public}zu", writeSize);
+        LOG_ERROR("write padding = %{public}zu", writeSize);
         totalSize += writeSize;
     }
     CopyData(expandDataFile, fout);
@@ -281,7 +281,7 @@ int32_t EnableVerityOnOneFile(const std::string filePath,
 
     int error = ioctl(fd, FS_IOC_ENABLE_CODE_SIGN, arg);
     if (error < 0) {
-        LOG_ERROR(LABEL, "Enable fs-verity failed, errno = <%{public}d, %{public}s>",
+        LOG_ERROR("Enable fs-verity failed, errno = <%{public}d, %{public}s>",
             errno, strerror(errno));
         ret = errno;
     }
@@ -373,7 +373,7 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0001, TestSize.Level0)
 {
     for (int i = 0; i < TEST_FILE_NUM; i++) {
         std::string filePath = TEST_FILES_DIR + TEST_FILES_LIST[i];
-        LOG_INFO(LABEL, "Test on file path = %{public}s", filePath.c_str());
+        LOG_INFO("Test on file path = %{public}s", filePath.c_str());
         struct code_sign_enable_arg arg = {};
         ByteBuffer signature;
         FillCommonArgs(filePath, false, &arg, signature);
@@ -450,7 +450,7 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0004, TestSize.Level0)
 {
     for (int i = 0; i < TEST_FILE_NUM; i++) {
         std::string filePath = TEST_FILES_DIR + TEST_FILES_LIST[i];
-        LOG_INFO(LABEL, "Test on file path = %{public}s", filePath.c_str());
+        LOG_INFO("Test on file path = %{public}s", filePath.c_str());
 
         struct code_sign_enable_arg arg = {};
         ByteBuffer signature;

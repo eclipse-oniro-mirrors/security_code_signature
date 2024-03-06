@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -54,12 +54,12 @@ private:
         bool Open(const char *path)
         {
             if (fd_ > 0) {
-                LOG_ERROR(LABEL, "File is already opened.");
+                LOG_ERROR("File is already opened.");
                 return false;
             }
             fd_ = open(path, O_RDONLY);
             if (fd_ <= 0) {
-                LOG_ERROR(LABEL, "Open file failed, path = %{public}s, errno = <%{public}d, %{public}s>",
+                LOG_ERROR("Open file failed, path = %{public}s, errno = <%{public}d, %{public}s>",
                     path, errno, strerror(errno));
                 return false;
             }
@@ -70,7 +70,7 @@ private:
         {
             struct stat st;
             if (fstat(fd_, &st) != 0) {
-                LOG_ERROR(LABEL, "Stat file failed, errno = <%{public}d, %{public}s>",
+                LOG_ERROR("Stat file failed, errno = <%{public}d, %{public}s>",
                     errno, strerror(errno));
                 return false;
             }

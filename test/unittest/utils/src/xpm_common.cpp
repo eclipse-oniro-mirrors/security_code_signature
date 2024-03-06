@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,7 +44,7 @@ constexpr unsigned long XPM_PROC_LENGTH = 50;
 static int GetXpmRegion(struct XpmRegionArea &area)
 {
     if (InitXpmRegion() != 0) {
-        LOG_ERROR(LABEL, "init xpm region failed");
+        LOG_ERROR("init xpm region failed");
         return -1;
     }
 
@@ -52,20 +52,20 @@ static int GetXpmRegion(struct XpmRegionArea &area)
     std::string path = XPM_PROC_PREFIX_PATH + std::to_string(pid) + XPM_PROC_SUFFIX_PATH;
     int fd = open(path.c_str(), O_RDWR);
     if (fd < 0) {
-        LOG_ERROR(LABEL, "open xpm proc file failed(%{public}s)", strerror(errno));
+        LOG_ERROR("open xpm proc file failed(%{public}s)", strerror(errno));
         return -1;
     }
 
     char xpmRegion[XPM_PROC_LENGTH] = {0};
     int ret = read(fd, xpmRegion, sizeof(xpmRegion));
     if (ret < 0) {
-        LOG_ERROR(LABEL, "read xpm proc file failed(%{public}s)", strerror(errno));
+        LOG_ERROR("read xpm proc file failed(%{public}s)", strerror(errno));
         return -1;
     }
 
     ret = sscanf_s(xpmRegion, "%llx-%llx", &area.start, &area.end);
     if (ret < 0) {
-        LOG_ERROR(LABEL, "sscanf xpm region string failed(%{public}s)", strerror(errno));
+        LOG_ERROR("sscanf xpm region string failed(%{public}s)", strerror(errno));
         return -1;
     }
 

@@ -50,7 +50,7 @@ void FsverityUtilsHelper::Init()
 
 void FsverityUtilsHelper::ErrorMsgLogCallback(const char *msg)
 {
-    LOG_ERROR(LABEL, "fsverity_utils error = %{public}s", msg);
+    LOG_ERROR("fsverity_utils error = %{public}s", msg);
 }
 
 bool FsverityUtilsHelper::FormatDigest(libfsverity_digest *digest, uint8_t *buffer)
@@ -85,7 +85,7 @@ bool FsverityUtilsHelper::ComputeDigest(const char *path, struct libfsverity_dig
     }
     // compute digest by fsverity-utils and use callback to read data in file
     if (libfsverity_compute_digest(&reader, FileReader::ReadFileCallback, &tree_params, digest)) {
-        LOG_ERROR(LABEL, "Compute digest failed.");
+        LOG_ERROR("Compute digest failed.");
         return false;
     }
     return true;
@@ -93,7 +93,7 @@ bool FsverityUtilsHelper::ComputeDigest(const char *path, struct libfsverity_dig
 
 bool FsverityUtilsHelper::GenerateFormattedDigest(const char *path, ByteBuffer &digestBuffer)
 {
-    LOG_INFO(LABEL, "GenerateFormattedDigest called.");
+    LOG_INFO("GenerateFormattedDigest called.");
     struct libfsverity_digest *digest = nullptr;
     if (!ComputeDigest(path, &digest)) {
         return false;

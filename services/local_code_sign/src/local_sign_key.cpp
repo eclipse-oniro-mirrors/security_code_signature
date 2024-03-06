@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -83,7 +83,7 @@ bool LocalSignKey::InitKey()
             return false;
         }
     } else if (ret != HKS_SUCCESS) {
-        LOG_ERROR(LABEL, "HksKeyExist fail, ret is %{public}d!", ret);
+        LOG_ERROR("HksKeyExist fail, ret is %{public}d!", ret);
         return false;
     }
     return true;
@@ -100,7 +100,7 @@ const ByteBuffer *LocalSignKey::GetSignCert()
     }
     cert_ = new (std::nothrow) ByteBuffer();
     if (cert_ == nullptr) {
-        LOG_ERROR(LABEL, "Alloc memory for cert blob failed.");
+        LOG_ERROR("Alloc memory for cert blob failed.");
         return nullptr;
     }
     // get cert chain with 4 certs. the first is sign cert
@@ -118,7 +118,7 @@ const HksCertChain *LocalSignKey::GetCertChain()
     }
     certChain_ = QueryCertChain();
     if (certChain_ == nullptr) {
-        LOG_ERROR(LABEL, "QueryCertChain failed.");
+        LOG_ERROR("QueryCertChain failed.");
         return nullptr;
     }
     return certChain_;
@@ -140,7 +140,7 @@ HksCertChain *LocalSignKey::QueryCertChain()
     // get cert chain by huks attest
     int32_t ret = HksAttestKey(&LOCAL_SIGN_KEY_ALIAS, paramSet.GetParamSet(), certChain);
     if (ret != HKS_SUCCESS) {
-        LOG_ERROR(LABEL, "HksAttestKey fail, ret is %{public}d!", ret);
+        LOG_ERROR("HksAttestKey fail, ret is %{public}d!", ret);
         return nullptr;
     }
     return certChain;
@@ -183,7 +183,7 @@ bool LocalSignKey::GenerateKey()
     }
     int32_t ret = HksGenerateKey(&LOCAL_SIGN_KEY_ALIAS, paramSet.GetParamSet(), nullptr);
     if (ret != HKS_SUCCESS) {
-        LOG_ERROR(LABEL, "HksGenerateKey failed, ret is %{public}d!", ret);
+        LOG_ERROR("HksGenerateKey failed, ret is %{public}d!", ret);
         return false;
     }
     return true;
@@ -200,7 +200,7 @@ bool LocalSignKey::GetSignParamSet(HUKSParamSet &paramSet)
 bool LocalSignKey::Sign(const ByteBuffer &data, ByteBuffer &signature)
 {
     if (data.GetSize() > MAX_SIGN_SIZE) {
-        LOG_ERROR(LABEL, "Data to sign is too long");
+        LOG_ERROR("Data to sign is too long");
         return false;
     }
     struct HksBlob inData = {
@@ -234,7 +234,7 @@ bool LocalSignKey::SignByHUKS(const struct HksBlob *inData, struct HksBlob *outD
     struct HksBlob handle = { sizeof(uint64_t), tmpHandle };
     int32_t ret = HksInit(&LOCAL_SIGN_KEY_ALIAS, paramSet.GetParamSet(), &handle, nullptr);
     if (ret != HKS_SUCCESS) {
-        LOG_ERROR(LABEL, "HksInit failed");
+        LOG_ERROR("HksInit failed");
         return false;
     }
 
@@ -245,12 +245,12 @@ bool LocalSignKey::SignByHUKS(const struct HksBlob *inData, struct HksBlob *outD
     };
     tmpOutData.data = static_cast<uint8_t *>(malloc(tmpOutData.size));
     if (tmpOutData.data == nullptr) {
-        LOG_ERROR(LABEL, "Alloc memory for blob failed.");
+        LOG_ERROR("Alloc memory for blob failed.");
         return false;
     }
     ret = HksUpdate(&handle, paramSet.GetParamSet(), inData, &tmpOutData);
     if (ret != HKS_SUCCESS) {
-        LOG_ERROR(LABEL, "HksUpdate Failed.");
+        LOG_ERROR("HksUpdate Failed.");
         free(tmpOutData.data);
         return CS_ERR_PARAM_INVALID;
     }
@@ -260,7 +260,7 @@ bool LocalSignKey::SignByHUKS(const struct HksBlob *inData, struct HksBlob *outD
     ret = HksFinish(&handle, paramSet.GetParamSet(), &tmpOutData, outData);
     free(tmpOutData.data);
     if (ret != HKS_SUCCESS) {
-        LOG_ERROR(LABEL, "HksFinish Failed.");
+        LOG_ERROR("HksFinish Failed.");
         return false;
     }
     return true;

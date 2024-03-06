@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -88,7 +88,7 @@ bool PKCS7Data::AddSignerInfo(PKCS7_SIGNER_INFO *p7i)
 {
     if (!PKCS7_add_signer(p7_, p7i)) {
         PKCS7_SIGNER_INFO_free(p7i);
-        LOG_ERROR(LABEL, "Add signer to pkcs7 failed");
+        LOG_ERROR("Add signer to pkcs7 failed");
         return false;
     }
     return true;

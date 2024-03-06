@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,18 +48,18 @@ private:
         {
             int32_t ret = HksInitParamSet(&paramSet);
             if (ret != HKS_SUCCESS) {
-                LOG_ERROR(LABEL, "HksInitParamSet failed");
+                LOG_ERROR("HksInitParamSet failed");
                 return false;
             }
             ret = HksAddParams(paramSet, tmpParams, paramCount);
             if (ret != HKS_SUCCESS) {
-                LOG_ERROR(LABEL, "HksAddParams failed");
+                LOG_ERROR("HksAddParams failed");
                 return false;
             }
 
             ret = HksBuildParamSet(&paramSet);
             if (ret != HKS_SUCCESS) {
-                LOG_ERROR(LABEL, "HksBuildParamSet failed");
+                LOG_ERROR("HksBuildParamSet failed");
                 return false;
             }
             return true;

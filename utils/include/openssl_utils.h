@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,7 +31,7 @@ constexpr int OPENSSL_ERR_MESSAGE_MAX_LEN = 1024;
 void GetOpensslErrorMessage();
 
 #define ERR_LOG_WITH_OPEN_SSL_MSG(msg) do { \
-    LOG_ERROR(LABEL, "%{public}s", msg); \
+    LOG_ERROR("%{public}s", msg); \
     GetOpensslErrorMessage(); \
 } while (0)
 

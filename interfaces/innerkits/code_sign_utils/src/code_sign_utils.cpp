@@ -49,7 +49,7 @@ constexpr uint32_t HASH_PAGE_SIZE = 4096;
 
 #define NOT_SATISFIED_RETURN(CONDITION, ERROR_CODE, LOG_MESSAGE, ...) do { \
     if (!(CONDITION)) { \
-        LOG_ERROR(LABEL, LOG_MESSAGE, ##__VA_ARGS__); \
+        LOG_ERROR(LOG_MESSAGE, ##__VA_ARGS__); \
         return (ERROR_CODE); \
     } \
 } while (0)
@@ -57,7 +57,7 @@ constexpr uint32_t HASH_PAGE_SIZE = 4096;
 int32_t CodeSignUtils::EnforceCodeSignForApp(const EntryMap &entryPath,
     const std::string &signatureFile)
 {
-    LOG_INFO(LABEL, "Start to enforce");
+    LOG_INFO("Start to enforce");
     // no files to enable, return directly
     if (entryPath.empty()) {
         return CS_SUCCESS;
@@ -82,7 +82,7 @@ int32_t CodeSignUtils::EnforceCodeSignForApp(const EntryMap &entryPath,
     for (const auto &pathPair: entryPath) {
         const std::string &entryName = pathPair.first;
         const std::string &targetFile = pathPair.second;
-        LOG_DEBUG(LABEL, "Enable entry %{public}s, path = %{public}s", entryName.c_str(), targetFile.c_str());
+        LOG_DEBUG("Enable entry %{public}s, path = %{public}s", entryName.c_str(), targetFile.c_str());
         NOT_SATISFIED_RETURN(CheckFilePathValid(targetFile, Constants::ENABLE_APP_BASE_PATH),
             CS_ERR_FILE_PATH, "App file is invalid.");
 
@@ -103,7 +103,7 @@ int32_t CodeSignUtils::EnforceCodeSignForApp(const EntryMap &entryPath,
             return ret;
         }
     }
-    LOG_INFO(LABEL, "Enforcing app complete");
+    LOG_INFO("Enforcing app complete");
     return CS_SUCCESS;
 }
 
@@ -111,14 +111,14 @@ int32_t CodeSignUtils::IsSupportFsVerity(const std::string &path)
 {
     struct statx stat = {};
     if (Statx(AT_FDCWD, path.c_str(), 0, STATX_ALL, &stat) != 0) {
-        LOG_ERROR(LABEL, "Get attributes failed, errno = <%{public}d, %{public}s>",
+        LOG_ERROR("Get attributes failed, errno = <%{public}d, %{public}s>",
             errno, strerror(errno));
         return CS_ERR_FILE_INVALID;
     }
     if (stat.stx_attributes_mask & STATX_ATTR_VERITY) {
         return CS_SUCCESS;
     }
-    LOG_INFO(LABEL, "Fs-verity is not supported.");
+    LOG_INFO("Fs-verity is not supported.");
     return CS_ERR_FSVREITY_NOT_SUPPORTED;
 }
 
@@ -127,7 +127,7 @@ int32_t CodeSignUtils::IsFsVerityEnabled(int fd)
     unsigned int flags;
     int ret = ioctl(fd, FS_IOC_GETFLAGS, &flags);
     if (ret < 0) {
-        LOG_ERROR(LABEL, "Get verity flags by ioctl failed. errno = <%{public}d, %{public}s>",
+        LOG_ERROR("Get verity flags by ioctl failed. errno = <%{public}d, %{public}s>",
             errno, strerror(errno));
         return CS_ERR_FILE_INVALID;
     }
@@ -148,7 +148,7 @@ int32_t CodeSignUtils::EnableCodeSignForFile(const std::string &path, const stru
     int32_t error;
     int32_t fd = open(path.c_str(), O_RDONLY);
     if (fd < 0) {
-        LOG_ERROR(LABEL, "Open file failed, path = %{public}s, errno = <%{public}d, %{public}s>",
+        LOG_ERROR("Open file failed, path = %{public}s, errno = <%{public}d, %{public}s>",
             path.c_str(), errno, strerror(errno));
         return CS_ERR_FILE_OPEN;
     }
@@ -156,7 +156,7 @@ int32_t CodeSignUtils::EnableCodeSignForFile(const std::string &path, const stru
     do {
         ret = IsFsVerityEnabled(fd);
         if (ret == CS_SUCCESS) {
-            LOG_INFO(LABEL, "Fs-verity has been enabled.");
+            LOG_INFO("Fs-verity has been enabled.");
             break;
         } else if (ret == CS_ERR_FILE_INVALID) {
             break;
@@ -170,7 +170,7 @@ int32_t CodeSignUtils::EnableCodeSignForFile(const std::string &path, const stru
         }
         FinishTrace(HITRACE_TAG_ACCESS_CONTROL);
         if (error < 0) {
-            LOG_ERROR(LABEL, "Enable fs-verity failed, errno = <%{public}d, %{public}s>",
+            LOG_ERROR("Enable fs-verity failed, errno = <%{public}d, %{public}s>",
                 errno, strerror(errno));
             ReportEnableError(path, errno);
             ret = CS_ERR_ENABLE;
@@ -179,7 +179,7 @@ int32_t CodeSignUtils::EnableCodeSignForFile(const std::string &path, const stru
         ret = CS_SUCCESS;
     } while (0);
     close(fd);
-    LOG_INFO(LABEL, "Enforcing file complete and ret = %{public}d", ret);
+    LOG_INFO("Enforcing file complete and ret = %{public}d", ret);
     return ret;
 }
 
@@ -212,7 +212,7 @@ int32_t CodeSignUtils::EnforceCodeSignForFile(const std::string &path, const uin
 int32_t CodeSignUtils::EnforceCodeSignForAppWithOwnerId(const std::string &ownerId, const std::string &path,
     const EntryMap &entryPathMap, FileType type)
 {
-    LOG_INFO(LABEL, "Start to enforce codesign FileType:%{public}d, entryPathMap size:%{public}u, path = %{public}s",
+    LOG_INFO("Start to enforce codesign FileType:%{public}d, entryPathMap size:%{public}u, path = %{public}s",
         type, static_cast<uint32_t>(entryPathMap.size()), path.c_str());
     if (type == FILE_ENTRY_ADD || type == FILE_ENTRY_ONLY || type == FILE_ALL) {
         {
@@ -220,7 +220,7 @@ int32_t CodeSignUtils::EnforceCodeSignForAppWithOwnerId(const std::string &owner
             storedEntryMap_.insert(entryPathMap.begin(), entryPathMap.end());
         }
         if (type == FILE_ENTRY_ADD) {
-            LOG_DEBUG(LABEL, "Add entryPathMap complete");
+            LOG_DEBUG("Add entryPathMap complete");
             return CS_SUCCESS;
         }
     } else if (type >= FILE_TYPE_MAX) {
@@ -251,7 +251,7 @@ int32_t CodeSignUtils::ProcessCodeSignBlock(const std::string &ownerId, const st
 int32_t CodeSignUtils::HandleCodeSignBlockFailure(const std::string &realPath, int32_t ret)
 {
     if ((ret == CS_CODE_SIGN_NOT_EXISTS) && InPermissiveMode()) {
-        LOG_DEBUG(LABEL, "Code sign not exists");
+        LOG_DEBUG("Code sign not exists");
         return CS_SUCCESS;
     }
     ReportParseCodeSig(realPath, ret);
@@ -269,8 +269,7 @@ int32_t CodeSignUtils::EnableKeyInProfile(const std::string &bundleName, const B
     if (ret == CS_SUCCESS) {
         return ret;
     }
-    LOG_ERROR(
-        LABEL, "Enable key in profile failed. errno = <%{public}d, %{public}s>", errno, strerror(errno));
+    LOG_ERROR("Enable key in profile failed. errno = <%{public}d, %{public}s>", errno, strerror(errno));
     return CS_ERR_PROFILE;
 }
 
@@ -280,8 +279,7 @@ int32_t CodeSignUtils::RemoveKeyInProfile(const std::string &bundleName)
     if (ret == CS_SUCCESS) {
         return ret;
     }
-    LOG_ERROR(
-        LABEL, "Remove key in profile failed. errno = <%{public}d, %{public}s>", errno, strerror(errno));
+    LOG_ERROR("Remove key in profile failed. errno = <%{public}d, %{public}s>", errno, strerror(errno));
     return CS_ERR_PROFILE;
 }
 
@@ -299,7 +297,7 @@ bool CodeSignUtils::InPermissiveMode()
     file.close();
 
     if (content == Constants::PERMISSIVE_CODE_SIGN_MODE) {
-        LOG_DEBUG(LABEL, "Permissive mode is on.");
+        LOG_DEBUG("Permissive mode is on.");
         return true;
     }
     return false;
