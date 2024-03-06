@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,7 +48,7 @@ bool CodeSignEnableMultiTask::ExecuteEnableCodeSignTask(int32_t &taskRet, const 
     SortTaskData();
 
     for (uint32_t i = 0; i < enableData_.size(); i++) {
-        LOG_DEBUG(LABEL, "index: %{public}d, name:%{public}s, %{public}lld",
+        LOG_DEBUG("index: %{public}d, name:%{public}s, %{public}lld",
             i, enableData_[i].first.c_str(), enableData_[i].second.data_size);
         ExecuteEnableCodeSignTask(i, taskRet, ownerId, path, func);
     }
@@ -72,7 +72,7 @@ void CodeSignEnableMultiTask::ExecuteEnableCodeSignTask(uint32_t &index, int32_t
     const std::string &ownerId, const std::string &path, CallbackFunc &func)
 {
     auto enableCodeSignTask = [this, index, &ownerId, &path, &func, &taskRet]() {
-        LOG_DEBUG(LABEL, "ExecuteEnableCodeSignTask task called");
+        LOG_DEBUG("ExecuteEnableCodeSignTask task called");
         {
             std::unique_lock<std::mutex> lock(cvLock_);
             if (taskRet != CS_SUCCESS) {
@@ -90,7 +90,7 @@ void CodeSignEnableMultiTask::ExecuteEnableCodeSignTask(uint32_t &index, int32_t
         if (ret == CS_SUCCESS) {
             ret = func(this->enableData_[index].first, this->enableData_[index].second);
         }
-        LOG_DEBUG(LABEL, "Task return info index: %{public}d, ret: %{public}d", index, ret);
+        LOG_DEBUG("Task return info index: %{public}d, ret: %{public}d", index, ret);
 
         std::unique_lock<std::mutex> lock(cvLock_);
         if (taskRet == CS_SUCCESS) {
@@ -118,11 +118,11 @@ int32_t CodeSignEnableMultiTask::CheckOwnerId(const std::string &path, const std
     ret = SignerInfo::ParseOwnerIdFromSignature(sigBuffer, retId);
     if (ret != CS_SUCCESS) {
         ReportInvalidOwner(path, ownerId, "invalid");
-        LOG_ERROR(LABEL, "get ownerId from signature failed, ret %{public}d", ret);
+        LOG_ERROR("get ownerId from signature failed, ret %{public}d", ret);
     } else if (retId != ownerId) {
         ret = CS_ERR_INVALID_OWNER_ID;
         ReportInvalidOwner(path, ownerId, retId);
-        LOG_ERROR(LABEL, "invalid ownerId retId %{public}s ownerId %{public}s", retId.c_str(), ownerId.c_str());
+        LOG_ERROR("invalid ownerId retId %{public}s ownerId %{public}s", retId.c_str(), ownerId.c_str());
     }
     return ret;
 }

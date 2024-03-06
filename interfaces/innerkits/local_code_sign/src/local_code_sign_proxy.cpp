@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -54,17 +54,17 @@ int32_t LocalCodeSignProxy::SignLocalCode(const std::string &ownerID, const std:
         return CS_ERR_REMOTE_CONNECTION;
     }
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        LOG_ERROR(LABEL, "Write interface token failed.");
+        LOG_ERROR("Write interface token failed.");
         return CS_ERR_IPC_WRITE_DATA;
     }
     if (!data.WriteString(filePath)) {
-        LOG_ERROR(LABEL, "Write string failed.");
+        LOG_ERROR("Write string failed.");
         return CS_ERR_IPC_WRITE_DATA;
     }
     
     if (!ownerID.empty()) {
         if (!data.WriteString(ownerID)) {
-            LOG_ERROR(LABEL, "Write ownerID string failed.");
+            LOG_ERROR("Write ownerID string failed.");
             return CS_ERR_IPC_WRITE_DATA;
         }
     }
@@ -89,7 +89,7 @@ int32_t LocalCodeSignProxy::ReadResultFromReply(MessageParcel &reply, ByteBuffer
         return CS_ERR_IPC_READ_DATA;
     }
     if (size > MAX_REPLY_BUFFER_SIZE) {
-        LOG_ERROR(LABEL, "Invalid reply data size.");
+        LOG_ERROR("Invalid reply data size.");
         return CS_ERR_IPC_MSG_INVALID;
     }
     const uint8_t *outData = reply.ReadBuffer(size);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,7 +29,7 @@ bool CheckFilePathValid(const std::string &path, const std::string &baseRealPath
 {
     std::string realPath;
     if (!OHOS::PathToRealPath(path, realPath)) {
-        LOG_INFO(LABEL, "Get real path failed, path = %{public}s", path.c_str());
+        LOG_INFO("Get real path failed, path = %{public}s", path.c_str());
         return false;
     }
     return (realPath.size() > baseRealPath.size()) &&

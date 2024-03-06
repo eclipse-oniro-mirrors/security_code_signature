@@ -45,7 +45,7 @@ uint64_t GetFileSize(int32_t fd)
 {
     struct stat st;
     if (fstat(fd, &st) != 0) {
-        LOG_ERROR(LABEL, "Stat file failed, errno = <%{public}d, %{public}s>",
+        LOG_ERROR("Stat file failed, errno = <%{public}d, %{public}s>",
             errno, strerror(errno));
         return 0;
     }

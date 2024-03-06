@@ -69,7 +69,7 @@ int32_t CodeSignHelper::ExecuteMultiTask(int32_t ret, const std::string &ownerId
 {
     bool waitStatus = multiTask_.ExecuteEnableCodeSignTask(ret, ownerId, path, func);
     if (!waitStatus) {
-        LOG_ERROR(LABEL, "enable code sign timeout");
+        LOG_ERROR("enable code sign timeout");
         return CS_ERR_ENABLE_TIMEOUT;
     }
     return ret;
@@ -84,7 +84,7 @@ void CodeSignHelper::ShowCodeSignInfo(const std::string &path, const struct code
         rootHashPtr = reinterpret_cast<uint8_t *>(arg.root_hash_ptr);
     }
 
-    LOG_DEBUG(LABEL, "{ "
+    LOG_DEBUG("{ "
         "file:%{public}s version:%{public}d hash_algorithm:%{public}d block_size:%{public}d sig_size:%{public}d "
         "data_size:%{public}lld salt_size:%{public}d salt:[%{public}d, ..., %{public}d, ..., %{public}d] "
         "flags:%{public}d tree_offset:%{public}lld root_hash:[%{public}d, %{public}d, %{public}d, ..., %{public}d, "

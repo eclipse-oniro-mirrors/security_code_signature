@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,14 +30,14 @@ LocalCodeSignLoadCallback::LocalCodeSignLoadCallback()
 void LocalCodeSignLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
-    LOG_INFO(LABEL, "load local code sign SA success, systemAbilityId:%{public}d, remoteObject result:%{public}s",
+    LOG_INFO("load local code sign SA success, systemAbilityId:%{public}d, remoteObject result:%{public}s",
         systemAbilityId, (remoteObject != nullptr) ? "true" : "false");
     if (systemAbilityId != LOCAL_CODE_SIGN_SA_ID) {
-        LOG_ERROR(LABEL, "start systemabilityId is not codesignSAId!");
+        LOG_ERROR("start systemabilityId is not codesignSAId!");
         return;
     }
     if (remoteObject == nullptr) {
-        LOG_ERROR(LABEL, "remoteObject is nullptr");
+        LOG_ERROR("remoteObject is nullptr");
         return;
     }
     LocalCodeSignClient::GetInstance().FinishStartSA(remoteObject);
@@ -45,7 +45,7 @@ void LocalCodeSignLoadCallback::OnLoadSystemAbilitySuccess(
 
 void LocalCodeSignLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
-    LOG_ERROR(LABEL, "load local code sign SA failed, systemAbilityId: %{public}d", systemAbilityId);
+    LOG_ERROR("load local code sign SA failed, systemAbilityId: %{public}d", systemAbilityId);
     LocalCodeSignClient::GetInstance().FailStartSA();
 }
 }

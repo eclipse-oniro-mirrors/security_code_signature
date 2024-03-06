@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,7 +30,7 @@ bool ConstructDataToCertChain(struct HksCertChain **certChain)
 {
     *certChain = static_cast<struct HksCertChain *>(malloc(sizeof(struct HksCertChain)));
     if (*certChain == nullptr) {
-        LOG_ERROR(LABEL, "malloc fail");
+        LOG_ERROR("malloc fail");
         return false;
     }
     (*certChain)->certsCount = CERT_COUNT;
@@ -46,7 +46,7 @@ bool ConstructDataToCertChain(struct HksCertChain **certChain)
         (*certChain)->certs[i].size = CERT_DATA_SIZE;
         (*certChain)->certs[i].data = static_cast<uint8_t *>(malloc((*certChain)->certs[i].size));
         if ((*certChain)->certs[i].data == nullptr) {
-            LOG_ERROR(LABEL, "malloc fail");
+            LOG_ERROR("malloc fail");
             FreeCertChain(certChain, i);
             return false;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,7 @@ void GetOpensslErrorMessage()
     while ((retOpenssl = ERR_get_error()) != 0) {
         // error string is written no more than OPENSSL_ERR_MESSAGE_MAX_LEN in errOpenssl
         ERR_error_string_n(retOpenssl, errOpenssl, OPENSSL_ERR_MESSAGE_MAX_LEN);
-        LOG_ERROR(LABEL, "openssl err: %{public}lu, message: %{public}s", retOpenssl, errOpenssl);
+        LOG_ERROR("openssl err: %{public}lu, message: %{public}s", retOpenssl, errOpenssl);
     }
 }
 
@@ -35,7 +35,7 @@ X509 *LoadCertFromBuffer(const uint8_t *buffer, const uint32_t size)
 {
     BIO *mem = BIO_new_mem_buf(buffer, size);
     if (mem == nullptr) {
-        LOG_ERROR(LABEL, "Fail to create bio for cert.");
+        LOG_ERROR("Fail to create bio for cert.");
         return nullptr;
     }
     X509 *cert = d2i_X509_bio(mem, nullptr);

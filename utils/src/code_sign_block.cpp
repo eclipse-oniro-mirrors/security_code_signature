@@ -93,7 +93,7 @@ int32_t CodeSignBlock::GetOneFileAndCodeSignInfo(std::string &targetFile, struct
 int32_t CodeSignBlock::ParseNativeLibSignInfo(const EntryMap &entryMap)
 {
     auto soInfo = GetNativeLibSignInfo();
-    LOG_DEBUG(LABEL, "So info sectionNum:%{public}d, entryMap size:%{public}u",
+    LOG_DEBUG("So info sectionNum:%{public}d, entryMap size:%{public}u",
         soInfo->sectionNum, static_cast<uint32_t>(entryMap.size()));
     if ((soInfo->sectionNum == 0) && entryMap.empty()) {
         return CS_SUCCESS;
@@ -132,7 +132,7 @@ int32_t CodeSignBlock::ParseNativeLibSignInfo(const EntryMap &entryMap)
     } while (entryInfo < entryInfoEnd);
 
     if (entryMap.size() != signMap_.size() - signMapPreSize) {
-        LOG_DEBUG(LABEL, "signMap_ size:%{public}u, signMapPreSize:%{public}u",
+        LOG_DEBUG("signMap_ size:%{public}u, signMapPreSize:%{public}u",
             static_cast<uint32_t>(signMap_.size()), static_cast<uint32_t>(signMapPreSize));
         return CS_ERR_NO_SIGNATURE;
     }
@@ -197,7 +197,7 @@ int32_t CodeSignBlock::GetCodeSignBlockBuffer(const std::string &path, ReadBuffe
 
     int32_t ret = Verify::ParseHapSignatureInfo(path, signatureInfo_);
     if (ret != Verify::VERIFY_SUCCESS) {
-        LOG_ERROR(LABEL, "find code sign block buffer failed. errno = %{public}d ", ret);
+        LOG_ERROR("find code sign block buffer failed. errno = %{public}d ", ret);
         return CS_ERR_FILE_INVALID;
     }
 
@@ -244,7 +244,7 @@ int32_t CodeSignBlock::ParseCodeSignBlock(const std::string &realPath,
 
     ret = GetCodeSignBlockBuffer(realPath, codeSignBlock, codeSignSize);
     if (ret != CS_SUCCESS) {
-        LOG_ERROR(LABEL, "Get code sign block buffer failed. errno = %{public}d ", ret);
+        LOG_ERROR("Get code sign block buffer failed. errno = %{public}d ", ret);
         return ret;
     }
 

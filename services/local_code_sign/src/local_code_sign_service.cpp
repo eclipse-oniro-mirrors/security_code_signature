@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,18 +45,18 @@ LocalCodeSignService::~LocalCodeSignService()
 
 void LocalCodeSignService::OnStart()
 {
-    LOG_INFO(LABEL, "LocalCodeSignService OnStart");
+    LOG_INFO("LocalCodeSignService OnStart");
     if (state_ == ServiceRunningState::STATE_RUNNING) {
-        LOG_INFO(LABEL, "LocalCodeSignService has already started.");
+        LOG_INFO("LocalCodeSignService has already started.");
         return;
     }
     if (!Init()) {
-        LOG_ERROR(LABEL, "Init LocalCodeSignService failed.");
+        LOG_ERROR("Init LocalCodeSignService failed.");
         return;
     }
     bool ret = Publish(DelayedSingleton<LocalCodeSignService>::GetInstance().get());
     if (!ret) {
-        LOG_ERROR(LABEL, "Publish service failed.");
+        LOG_ERROR("Publish service failed.");
         return;
     }
     state_ = ServiceRunningState::STATE_RUNNING;
@@ -77,12 +77,12 @@ void LocalCodeSignService::DelayUnloadTask()
     auto task = [this]() {
         sptr<ISystemAbilityManager> samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (samgr == nullptr) {
-            LOG_ERROR(LABEL, "Get system ability mgr failed.");
+            LOG_ERROR("Get system ability mgr failed.");
             return;
         }
         int32_t ret = samgr->UnloadSystemAbility(LOCAL_CODE_SIGN_SA_ID);
         if (ret != ERR_OK) {
-            LOG_ERROR(LABEL, "Remove system ability failed.");
+            LOG_ERROR("Remove system ability failed.");
             return;
         }
     };
@@ -92,7 +92,7 @@ void LocalCodeSignService::DelayUnloadTask()
 
 void LocalCodeSignService::OnStop()
 {
-    LOG_INFO(LABEL, "LocalCodeSignService OnStop");
+    LOG_INFO("LocalCodeSignService OnStop");
     state_ = ServiceRunningState::STATE_NOT_START;
 }
 
@@ -100,12 +100,12 @@ int32_t LocalCodeSignService::InitLocalCertificate(ByteBuffer &cert)
 {
     LocalSignKey &key = LocalSignKey::GetInstance();
     if (!key.InitKey()) {
-        LOG_ERROR(LABEL, "Init key failed.");
+        LOG_ERROR("Init key failed.");
         return CS_ERR_HUKS_INIT_KEY;
     }
     const ByteBuffer *keyCert = key.GetSignCert();
     if (keyCert == nullptr) {
-        LOG_ERROR(LABEL, "Get cert failed.");
+        LOG_ERROR("Get cert failed.");
         return CS_ERR_HUKS_OBTAIN_CERT;
     }
     if (!cert.CopyFrom(keyCert->GetBuffer(), keyCert->GetSize())) {
@@ -118,17 +118,17 @@ int32_t LocalCodeSignService::SignLocalCode(const std::string &ownerID, const st
                                             ByteBuffer &signature)
 {
     if (ownerID.length() > MAX_OWNER_ID_LEN) {
-        LOG_ERROR(LABEL, "ownerID len %{public}u should not exceed %{public}u", ownerID.length(), MAX_OWNER_ID_LEN);
+        LOG_ERROR("ownerID len %{public}u should not exceed %{public}u", ownerID.length(), MAX_OWNER_ID_LEN);
         return CS_ERR_INVALID_OWNER_ID;
     }
     ByteBuffer digest;
     std::string realPath;
     if (!OHOS::PathToRealPath(filePath, realPath)) {
-        LOG_INFO(LABEL, "Get real path failed, path = %{public}s", filePath.c_str());
+        LOG_INFO("Get real path failed, path = %{public}s", filePath.c_str());
         return CS_ERR_FILE_PATH;
     }
     if (!FsverityUtilsHelper::GetInstance().GenerateFormattedDigest(realPath.c_str(), digest)) {
-        LOG_ERROR(LABEL, "Generate formatted fsverity digest failed.");
+        LOG_ERROR("Generate formatted fsverity digest failed.");
         return CS_ERR_COMPUTE_DIGEST;
     }
     return PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),

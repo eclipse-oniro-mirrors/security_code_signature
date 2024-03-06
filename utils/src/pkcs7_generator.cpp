@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,7 @@ namespace CodeSign {
 int32_t PKCS7Generator::GenerateSignature(const std::string &ownerID, SignKey &key, const char *hashAlg,
                                           const ByteBuffer &contentData, ByteBuffer &out)
 {
-    LOG_INFO(LABEL, "GenerateSignature called.");
+    LOG_INFO("GenerateSignature called.");
     int32_t ret = CS_ERR_OPENSSL_PKCS7;
     X509 *cert = nullptr;
     do {
@@ -68,7 +68,7 @@ int32_t PKCS7Generator::GenerateSignature(const std::string &ownerID, SignKey &k
     } while (0);
     X509_free(cert);
     if (ret != CS_SUCCESS) {
-        LOG_ERROR(LABEL, "Generate signature failed, ret = %{public}d", ret);
+        LOG_ERROR("Generate signature failed, ret = %{public}d", ret);
     }
     return ret;
 }
@@ -78,7 +78,7 @@ int32_t PKCS7Generator::SignData(SignKey &key, SignerInfo &signerInfo)
     uint32_t dataSize = 0;
     uint8_t *data = signerInfo.GetDataToSign(dataSize);
     if (data == nullptr) {
-        LOG_ERROR(LABEL, "GetDataToSign fail");
+        LOG_ERROR("GetDataToSign fail");
         return CS_ERR_OPENSSL_PKCS7;
     }
     ByteBuffer unsignedData;
@@ -90,7 +90,7 @@ int32_t PKCS7Generator::SignData(SignKey &key, SignerInfo &signerInfo)
         return CS_ERR_HUKS_SIGN;
     }
     if (!signerInfo.AddSignatureInSignerInfo(rawSignature)) {
-        LOG_ERROR(LABEL, "AddSignatureInSignerInfo fail");
+        LOG_ERROR("AddSignatureInSignerInfo fail");
         return CS_ERR_OPENSSL_PKCS7;
     }
     return CS_SUCCESS;
