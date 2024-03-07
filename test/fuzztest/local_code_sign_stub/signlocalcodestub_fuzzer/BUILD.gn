@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Copyright (c) 2023-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -52,22 +52,20 @@ ohos_fuzztest("SignLocalCodeStubFuzzTest") {
   ]
   public_configs = [ "${code_signature_root_dir}:common_public_config" ]
   configs = [ "${code_signature_root_dir}:common_utils_config" ]
-  deps += [
-    "${code_signature_root_dir}/utils:fsverity_sign_src_set",
-    "${fsverity_utils_dir}:libfsverity_utils",
-    "${openssl_dir}:libcrypto_shared",
-  ]
+  deps += [ "${code_signature_root_dir}/utils:fsverity_sign_src_set" ]
   external_deps += [
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
     "eventhandler:libeventhandler",
+    "fsverity-utils:libfsverity_utils",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "huks:libhukssdk",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "openssl:libcrypto_shared",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
