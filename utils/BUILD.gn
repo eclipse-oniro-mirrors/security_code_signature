@@ -31,12 +31,11 @@ ohos_source_set("fsverity_sign_src_set") {
   include_dirs = [ "include" ]
   public_configs = [ "${code_signature_root_dir}:common_public_config" ]
 
-  deps = [
-    "${fsverity_utils_dir}:libfsverity_utils",
-    "${openssl_dir}:libcrypto_shared",
+  external_deps = [
+    "fsverity-utils:libfsverity_utils",
+    "hilog:libhilog",
+    "openssl:libcrypto_shared",
   ]
-
-  external_deps = [ "hilog:libhilog" ]
   part_name = "code_signature"
   subsystem_name = "security"
 }

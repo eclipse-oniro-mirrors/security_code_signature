@@ -38,12 +38,11 @@
         "access_token",
         "ylong_json",
         "appverify",
-        "init"
-      ],
-      "third_party": [
+        "init",
         "openssl",
         "fsverity-utils"
-      ]
+      ],
+      "third_party": []
     },
     "build": {
       "sub_component": [
