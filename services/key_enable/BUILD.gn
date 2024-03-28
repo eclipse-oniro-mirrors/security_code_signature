@@ -61,7 +61,11 @@ ohos_rust_shared_ffi("key_enable_lib") {
 
 ohos_prebuilt_etc("trusted_cert_path") {
   if (code_signature_support_openharmony_ca) {
-    source = "config/openharmony/trusted_cert_path.json"
+    if (code_signature_support_oh_release_app) {
+      source = "config/openharmony/release/trusted_cert_path.json"
+    } else {
+      source = "config/openharmony/dev/trusted_cert_path.json"
+    }
   } else {
     source = "config/trusted_cert_path.json"
   }

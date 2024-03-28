@@ -18,7 +18,8 @@
     ],
     "features": [
       "code_signature_support_oh_code_sign",
-      "code_signature_enable_xpm_mode"
+      "code_signature_enable_xpm_mode",
+      "code_signature_support_oh_release_app"
     ],
     "adapted_system_type": [ "standard" ],
     "rom": "1024KB",
