@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -321,17 +321,21 @@ fn verify_udid(profile_json: &JsonValue) -> Result<(), String> {
     }
 }
 
-fn enable_key_in_profile_internal(
+fn validate_and_convert_inputs(
     bundle_name: *const c_char,
     profile: *const u8,
     profile_size: u32,
-) -> Result<(), ()> {
+) -> Result<(String, Vec<u8>), ()> {
     let _bundle_name = c_char_to_string(bundle_name);
     if _bundle_name.is_empty() {
         error!(LOG_LABEL, "invalid profile bundle name!");
         return Err(());
     }
     let profile_data = cbyte_buffer_to_vec(profile, profile_size);
+    Ok((_bundle_name, profile_data))
+}
+
+fn process_data(profile_data: &[u8]) -> Result<(String, String, u32), ()> {
     let store = match X509StoreBuilder::new() {
         Ok(store) => store.build(),
         Err(_) => {
@@ -339,33 +343,48 @@ fn enable_key_in_profile_internal(
             return Err(());
         }
     };
-    let pkcs7 = match Pkcs7::from_der(&profile_data) {
+
+    let pkcs7 = match Pkcs7::from_der(profile_data) {
         Ok(pk7) => pk7,
         Err(_) => {
-            error!(LOG_LABEL, "load profile to pkcs7 obj failed ");
+            error!(LOG_LABEL, "load profile to pkcs7 obj failed");
             return Err(());
         }
     };
-    let (subject, issuer, profile_type) =
-        match parse_pkcs7_data(&pkcs7, &store, Pkcs7Flags::NOVERIFY, false) {
-            Ok(tuple) => tuple,
-            Err(_) => {
-                error!(LOG_LABEL, "parse pkcs7 data error");
-                return Err(());
-            }
-        };
+
+    match parse_pkcs7_data(&pkcs7, &store, Pkcs7Flags::NOVERIFY, false) {
+        Ok(tuple) => Ok(tuple),
+        Err(_) => {
+            error!(LOG_LABEL, "parse pkcs7 data error");
+            Err(())
+        }
+    }
+}
+
+fn create_bundle_path(bundle_name: &str, profile_type: u32) -> Result<String, ()> {
     let bundle_path = match profile_type {
         value if value == DebugCertPathType::Developer as u32 => {
-            fmt_store_path(DEBUG_PROFILE_STORE_PREFIX, &_bundle_name)
+            fmt_store_path(DEBUG_PROFILE_STORE_PREFIX, bundle_name)
         }
         value if value == ReleaseCertPathType::Developer as u32 => {
-            fmt_store_path(PROFILE_STORE_PREFIX, &_bundle_name)
+            fmt_store_path(PROFILE_STORE_PREFIX, bundle_name)
         }
         _ => {
             error!(LOG_LABEL, "invalid profile type");
             return Err(());
         }
     };
+    Ok(bundle_path)
+}
+
+fn enable_key_in_profile_internal(
+    bundle_name: *const c_char,
+    profile: *const u8,
+    profile_size: u32,
+) -> Result<(), ()> {
+    let (_bundle_name, profile_data) = validate_and_convert_inputs(bundle_name, profile, profile_size)?;
+    let (subject, issuer, profile_type) = process_data(&profile_data)?;
+    let bundle_path = create_bundle_path(&_bundle_name, profile_type)?;
     info!(LOG_LABEL, "create bundle_path path {}!", @public(bundle_path));
     if !file_exists(&bundle_path) && create_file_path(&bundle_path).is_err() {
         error!(LOG_LABEL, "create bundle_path path {} failed!", @public(bundle_path));
@@ -417,28 +436,7 @@ fn remove_key_in_profile_internal(bundle_name: *const c_char) -> Result<(), ()> 
         return Err(());
     }
 
-    let store = match X509StoreBuilder::new() {
-        Ok(store) => store.build(),
-        Err(_) => {
-            error!(LOG_LABEL, "Failed to build X509 store");
-            return Err(());
-        }
-    };
-    let pkcs7 = match Pkcs7::from_der(&profile_data) {
-        Ok(pk7) => pk7,
-        Err(_) => {
-            error!(LOG_LABEL, "load profile to pkcs7 obj failed");
-            return Err(());
-        }
-    };
-    let (subject, issuer, profile_type) =
-        match parse_pkcs7_data(&pkcs7, &store, Pkcs7Flags::NOVERIFY, false) {
-            Ok(tuple) => tuple,
-            Err(_) => {
-                error!(LOG_LABEL, "parse pkcs7 data error");
-                return Err(());
-            }
-        };
+    let (subject, issuer, profile_type) = process_data(&profile_data)?;
     if delete_file_path(&bundle_path).is_err() {
         error!(LOG_LABEL, "remove profile data error!");
         return Err(());
