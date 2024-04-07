@@ -91,7 +91,7 @@ void FreeCertChain(struct HksCertChain **certChain, const uint32_t pos)
 bool FormattedCertChain(const HksCertChain *certChain, ByteBuffer &buffer)
 {
     uint32_t certsCount = certChain->certsCount;
-    int totalLen = sizeof(uint32_t);
+    uint32_t totalLen = sizeof(uint32_t);
     for (uint32_t i = 0; i < certsCount; i++) {
         totalLen += sizeof(uint32_t) + certChain->certs[i].size;
     }
@@ -100,7 +100,7 @@ bool FormattedCertChain(const HksCertChain *certChain, ByteBuffer &buffer)
     if (!buffer.PutData(0, CastToUint8Ptr(&certsCount), sizeof(uint32_t))) {
         return false;
     }
-    int pos = sizeof(uint32_t);
+    uint32_t pos = sizeof(uint32_t);
     for (uint32_t i = 0; i < certsCount; i++) {
         if (!buffer.PutData(pos, CastToUint8Ptr(&certChain->certs[i].size), sizeof(uint32_t))) {
             return false;
