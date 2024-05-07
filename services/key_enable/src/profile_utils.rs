@@ -241,8 +241,7 @@ pub fn add_profile_cert_path(
     if process_profile(false, &x509_store, cert_paths.get_profile_info().as_slice()).is_err() {
         return Err(ProfileError::AddCertPathError);
     }
-    if unsafe { IsDeveloperModeOn() }
-        && process_profile(true, &x509_store, cert_paths.get_debug_profile_info().as_slice()).is_err() {
+    if process_profile(true, &x509_store, cert_paths.get_debug_profile_info().as_slice()).is_err() {
         return Err(ProfileError::AddCertPathError);
     }
     Ok(())
