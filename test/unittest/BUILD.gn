@@ -254,6 +254,16 @@ ohos_unittest("jit_code_sign_unittest") {
   part_name = "code_signature"
 }
 
+ohos_unittest("key_enable_utils_unittest") {
+  module_out_path = "security/code_signature"
+  sources = [ "key_enable_utils_test.cpp" ]
+  include_dirs =
+      [ "${code_signature_root_dir}/services/key_enable/utils/include" ]
+  deps = [
+    "${code_signature_root_dir}/services/key_enable/utils:libkey_enable_utils",
+  ]
+}
+
 group("unittest_group") {
   testonly = true
   if (!defined(ohos_lite)) {
@@ -267,6 +277,9 @@ group("unittest_group") {
       ":rust_key_enable_unittest",
       ":sign_and_enforce_unittest",
     ]
+    if (code_signature_support_oh_code_sign) {
+      deps += [ ":key_enable_utils_unittest" ]
+    }
     if (jit_code_sign_enable) {
       deps += [ ":jit_code_sign_unittest" ]
     }

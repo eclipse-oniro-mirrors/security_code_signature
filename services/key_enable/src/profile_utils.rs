@@ -72,6 +72,7 @@ extern "C" {
     /// if developer state on return true
     pub fn IsDeveloperModeOn() -> bool;
     fn CodeSignGetUdid(udid: *mut u8) -> i32;
+    fn IsRdDevice() -> bool;
 }
 
 #[no_mangle]
@@ -272,8 +273,9 @@ fn process_profile(
             report_parse_profile_err(&path, HisyseventProfileError::VerifySigner as i32);
             continue;
         }
+        let check_udid = unsafe { !IsRdDevice() };
         let (subject, issuer, profile_type) =
-            match parse_pkcs7_data(&pkcs7, x509_store, Pkcs7Flags::empty(), true) {
+            match parse_pkcs7_data(&pkcs7, x509_store, Pkcs7Flags::empty(), check_udid) {
                 Ok(tuple) => tuple,
                 Err(_) => {
                     error!(LOG_LABEL, "Failed to parse profile file {}", @public(path));
