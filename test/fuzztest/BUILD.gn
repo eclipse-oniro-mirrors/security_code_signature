@@ -17,7 +17,7 @@ group("fuzztest_group") {
   testonly = true
   if (!defined(ohos_lite)) {
     deps = [
-      "local_code_sign_stub/initlocalcertificate_fuzzer:InitLocalCertificateStubFuzzTest",
+      "local_code_sign_stub/initlocalcertificatestub_fuzzer:InitLocalCertificateStubFuzzTest",
       "local_code_sign_stub/signlocalcodestub_fuzzer:SignLocalCodeStubFuzzTest",
     ]
   }
