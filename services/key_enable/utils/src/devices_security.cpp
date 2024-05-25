@@ -27,9 +27,9 @@
 
 constexpr int32_t VALUE_MAX_LEN = 64;
 constexpr int32_t CMDLINE_MAX_BUF_LEN = 4096;
-const std::string OEM_MODE = "const.boot.oemmode";
-const std::string OEM_MODE_RD = "rd";
-const std::string EFUSE_STATE_FILE = "/proc/cmdline";
+static const std::string OEM_MODE = "const.boot.oemmode";
+static const std::string OEM_MODE_RD = "rd";
+static const std::string EFUSE_STATE_FILE = "/proc/cmdline";
 
 using namespace OHOS::Security::CodeSign;
 
@@ -44,6 +44,7 @@ int32_t GetEfuseStatus()
     char *buf = static_cast<char *>(malloc(CMDLINE_MAX_BUF_LEN));
     if (buf == nullptr) {
         LOG_ERROR(LABEL, "alloc read buffer failed");
+        (void) close(fd);
         return DEVICE_MODE_ERROR;
     }
     (void)memset_s(buf, CMDLINE_MAX_BUF_LEN, 0, CMDLINE_MAX_BUF_LEN);
@@ -53,6 +54,8 @@ int32_t GetEfuseStatus()
     (void) close(fd);
     if (ret < 0) {
         LOG_ERROR(LABEL, "read %{public}s failed, %{public}s", EFUSE_STATE_FILE.c_str(), strerror(errno));
+        free(buf);
+        buf = nullptr;
         return deviceMode;
     }
 
