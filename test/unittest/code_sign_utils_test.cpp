@@ -19,7 +19,6 @@
 #include <gtest/gtest.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-#include <sys/utsname.h>
 #include <unistd.h>
 
 #include "code_sign_utils.h"
@@ -116,7 +115,6 @@ static const EntryMap g_hapSigNotExist = {
 };
 
 static bool g_isPermissive = false;
-static bool g_isKernelLinux = false;
 
 class CodeSignUtilsTest : public testing::Test {
 public:
@@ -129,10 +127,6 @@ public:
         g_isPermissive = CodeSignUtils::InPermissiveMode();
         if (g_isPermissive) {
             SaveStringToFile(XPM_DEBUG_FS_MODE_PATH, ENFORCE_MODE);
-        }
-        struct utsname uts;
-        if (uname(&uts) == 0 && strcmp(uts.sysname, "Linux") == 0) {
-            g_isKernelLinux = true;
         }
     };
     static void TearDownTestCase()
@@ -231,9 +225,6 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0004, TestSize.Level0)
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0005, TestSize.Level0)
 {
-    if (!g_isKernelLinux) {
-        return;
-    }
     int ret = CodeSignUtils::EnforceCodeSignForApp(
         g_wrongHapWithMultiLibRetFail, g_sigWithMultiLibRetSucPath);
     EXPECT_EQ(ret, CS_ERR_ENABLE);
@@ -247,9 +238,6 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0005, TestSize.Level0)
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0006, TestSize.Level0)
 {
-    if (!g_isKernelLinux) {
-        return;
-    }
     size_t num = g_HapWithoutLibSigPkcs7ErrorPath.size();
     int ret;
     // wrong hap signature
@@ -274,9 +262,6 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0006, TestSize.Level0)
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0007, TestSize.Level0)
 {
-    if (!g_isKernelLinux) {
-        return;
-    }
     ByteBuffer buffer;
     bool flag = ReadSignatureFromFile(g_filesigEnablePath, buffer);
     EXPECT_EQ(flag, true);
@@ -292,9 +277,6 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0007, TestSize.Level0)
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0008, TestSize.Level0)
 {
-    if (!g_isKernelLinux) {
-        return;
-    }
     size_t num = g_fileSigEnableFailPath.size();
     int ret;
     for (size_t i = 0; i < num; i++) {

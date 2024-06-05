@@ -24,7 +24,6 @@
 #include <string>
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <sys/utsname.h>
 #include <sys/ioctl.h>
 #include <linux/fs.h>
 #include <linux/fsverity.h>
@@ -67,7 +66,6 @@ const std::string DROP_CACHE_PROC_PATH = "/proc/sys/vm/drop_caches";
 const std::string DROP_ALL_CACHE_LEVEL = "3";
 
 static bool g_isXpmOn;
-static bool g_isKernelLinux = false;
 
 class EnableVerityTest : public testing::Test {
 public:
@@ -83,10 +81,6 @@ public:
         if (g_isXpmOn) {
             std::string realPath;
             g_isXpmOn = OHOS::PathToRealPath(XPM_DEBUG_FS_MODE_PATH, realPath);
-        }
-        struct utsname uts;
-        if (uname(&uts) == 0 && strcmp(uts.sysname, "Linux") == 0) {
-            g_isKernelLinux = true;
         }
     };
     static void TearDownTestCase()
@@ -393,9 +387,6 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0001, TestSize.Level0)
  */
 HWTEST_F(EnableVerityTest, EnableVerityTest_0002, TestSize.Level0)
 {
-    if (!g_isKernelLinux) {
-        return;
-    }
     std::string filePath = TEST_DEFAULT_FILE;
 
     struct code_sign_enable_arg arg = {};
@@ -472,9 +463,6 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0004, TestSize.Level0)
  */
 HWTEST_F(EnableVerityTest, EnableVerityTest_0005, TestSize.Level0)
 {
-    if (!g_isKernelLinux) {
-        return;
-    }
     std::string filePath = TEST_DEFAULT_FILE;
     struct code_sign_enable_arg arg = {};
     ByteBuffer signature;
@@ -503,9 +491,6 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0005, TestSize.Level0)
  */
 HWTEST_F(EnableVerityTest, EnableVerityTest_0006, TestSize.Level0)
 {
-    if (!g_isKernelLinux) {
-        return;
-    }
     std::string filePath = TEST_DEFAULT_FILE;
     struct code_sign_enable_arg arg = {};
     ByteBuffer signature;
@@ -578,7 +563,7 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0008, TestSize.Level0)
  */
 HWTEST_F(EnableVerityTest, EnableVerityTest_0009, TestSize.Level0)
 {
-    if (!g_isXpmOn || !g_isKernelLinux) {
+    if (!g_isXpmOn) {
         return;
     }
     std::string filePath = TEST_DEFAULT_FILE;
@@ -646,7 +631,7 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0010, TestSize.Level0)
  */
 HWTEST_F(EnableVerityTest, EnableVerityTest_0011, TestSize.Level0)
 {
-    if (!g_isXpmOn || !g_isKernelLinux) {
+    if (!g_isXpmOn) {
         return;
     }
     std::string filePath = TEST_FILES_DIR + "elf/elf";
