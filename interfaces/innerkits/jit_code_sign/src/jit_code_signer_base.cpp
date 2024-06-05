@@ -93,9 +93,8 @@ int32_t JitCodeSignerBase::PatchData(int offset, const Byte *const data, uint32_
         return CS_ERR_INVALID_DATA;
     }
     auto insnPtr = reinterpret_cast<const Instr *const>(data);
-    int ret = 0;
     for (uint32_t i = 0; i < size; i += INSTRUCTION_SIZE) {
-        ret = PatchInstruction(offset + i, *insnPtr);
+        int ret = PatchInstruction(offset + i, *insnPtr);
         if (ret != CS_SUCCESS) {
             return ret;
         }
