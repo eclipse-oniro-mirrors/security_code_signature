@@ -15,6 +15,7 @@
 
 #include "openssl_utils.h"
 
+#include <mutex>
 #include <openssl/pem.h>
 #include "log.h"
 
@@ -101,6 +102,8 @@ STACK_OF(X509) *MakeStackOfCerts(const std::vector<ByteBuffer> &certChain)
 int CreateNIDFromOID(const std::string &oid, const std::string &shortName,
     const std::string &longName)
 {
+    static std::mutex oidLock;
+    std::lock_guard<std::mutex> lock(oidLock);
     int nid = OBJ_txt2nid(oid.c_str());
     if (nid == NID_undef) {
         nid = OBJ_create(oid.c_str(), shortName.c_str(), longName.c_str());
