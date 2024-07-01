@@ -39,7 +39,10 @@ ohos_source_set("pac_sign_feature") {
     ":private_jit_code_sign_configs",
     "${code_signature_root_dir}:common_utils_config",
   ]
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "hilog:libhilog",
+  ]
   part_name = "code_signature"
   subsystem_name = "security"
 }
@@ -66,7 +69,10 @@ ohos_shared_library("libjit_code_sign") {
     "${code_signature_root_dir}:common_public_config",
   ]
   configs = [ "${code_signature_root_dir}:common_utils_config" ]
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "hilog:libhilog",
+  ]
   part_name = "code_signature"
   subsystem_name = "security"
 }
