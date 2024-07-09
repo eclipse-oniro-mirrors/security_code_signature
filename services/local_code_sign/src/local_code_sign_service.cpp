@@ -65,7 +65,7 @@ void LocalCodeSignService::OnStart()
 
 bool LocalCodeSignService::Init()
 {
-    auto runner = AppExecFwk::EventRunner::Create(TASK_ID);
+    auto runner = AppExecFwk::EventRunner::Create(TASK_ID, AppExecFwk::ThreadMode::FFRT);
     if (unloadHandler_ == nullptr) {
         unloadHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
     }
