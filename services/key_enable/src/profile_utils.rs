@@ -40,8 +40,10 @@ const LOG_LABEL: HiLogLabel = HiLogLabel {
     domain: 0xd005a06, // security domain
     tag: "CODE_SIGN",
 };
-const PROFILE_STORE_PREFIX: &str = "/data/service/el0/profiles/developer";
-const DEBUG_PROFILE_STORE_PREFIX: &str = "/data/service/el0/profiles/debug";
+const PROFILE_STORE_EL0_PREFIX: &str = "/data/service/el0/profiles/developer";
+const PROFILE_STORE_EL1_PREFIX: &str = "/data/service/el1/profiles/release";
+const DEBUG_PROFILE_STORE_EL0_PREFIX: &str = "/data/service/el0/profiles/debug";
+const DEBUG_PROFILE_STORE_EL1_PREFIX: &str = "/data/service/el1/profiles/debug";
 const PROFILE_STORE_TAIL: &str = "profile.p7b";
 const PROFILE_TYPE_KEY: &str = "type";
 const PROFILE_DEVICE_ID_TYPE_KEY: &str = "device-id-type";
@@ -217,11 +219,19 @@ fn format_x509_fabricate_name(name: &X509NameRef) -> String {
 
 fn get_profile_paths(is_debug: bool) -> Vec<String> {
     let mut paths = Vec::new();
-    let profile_paths = match is_debug {
-        false => PROFILE_STORE_PREFIX,
-        true => DEBUG_PROFILE_STORE_PREFIX,
+    let profile_prefixes = match is_debug {
+        false => vec![PROFILE_STORE_EL0_PREFIX, PROFILE_STORE_EL1_PREFIX],
+        true => vec![DEBUG_PROFILE_STORE_EL0_PREFIX, DEBUG_PROFILE_STORE_EL1_PREFIX],
     };
-    if let Ok(entries) = read_dir(profile_paths) {
+    for profile_prefix in profile_prefixes {
+        paths.extend(get_paths_from_prefix(profile_prefix));
+    }
+    paths
+}
+
+fn get_paths_from_prefix(prefix: &str) -> Vec<String> {
+    let mut paths = Vec::new();
+    if let Ok(entries) = read_dir(prefix) {
         for entry in entries.filter_map(Result::ok) {
             let path = entry.path();
             let filename = fmt_store_path(&path.to_string_lossy(), PROFILE_STORE_TAIL);
@@ -365,10 +375,10 @@ fn process_data(profile_data: &[u8]) -> Result<(String, String, u32), ()> {
 fn create_bundle_path(bundle_name: &str, profile_type: u32) -> Result<String, ()> {
     let bundle_path = match profile_type {
         value if value == DebugCertPathType::Developer as u32 => {
-            fmt_store_path(DEBUG_PROFILE_STORE_PREFIX, bundle_name)
+            fmt_store_path(DEBUG_PROFILE_STORE_EL1_PREFIX, bundle_name)
         }
         value if value == ReleaseCertPathType::Developer as u32 => {
-            fmt_store_path(PROFILE_STORE_PREFIX, bundle_name)
+            fmt_store_path(PROFILE_STORE_EL1_PREFIX, bundle_name)
         }
         _ => {
             error!(LOG_LABEL, "invalid profile type");
@@ -419,8 +429,8 @@ fn remove_key_in_profile_internal(bundle_name: *const c_char) -> Result<(), ()> 
         return Err(());
     }
 
-    let debug_bundle_path = fmt_store_path(DEBUG_PROFILE_STORE_PREFIX, &_bundle_name);
-    let release_bundle_path = fmt_store_path(PROFILE_STORE_PREFIX, &_bundle_name);
+    let debug_bundle_path = fmt_store_path(DEBUG_PROFILE_STORE_EL1_PREFIX, &_bundle_name);
+    let release_bundle_path = fmt_store_path(PROFILE_STORE_EL1_PREFIX, &_bundle_name);
 
     let bundle_path = if file_exists(&debug_bundle_path) {
         debug_bundle_path
