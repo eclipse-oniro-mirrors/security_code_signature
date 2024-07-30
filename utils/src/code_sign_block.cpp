@@ -101,6 +101,7 @@ int32_t CodeSignBlock::ParseNativeLibSignInfo(const EntryMap &entryMap)
         return CS_ERR_NO_SIGNATURE;
     }
 
+    std::lock_guard<std::mutex> guard(signMapMutex_);
     size_t signMapPreSize = signMap_.size();
     auto entryInfo = soInfo->info;
     auto entryInfoEnd = soInfo->info + soInfo->sectionNum;
@@ -142,6 +143,7 @@ int32_t CodeSignBlock::ParseNativeLibSignInfo(const EntryMap &entryMap)
 
 int32_t CodeSignBlock::ParseHapSignInfo(const std::string &path)
 {
+    std::lock_guard<std::mutex> guard(signMapMutex_);
     auto hapInfo = GetHapSignInfo();
     signMap_.emplace(path, reinterpret_cast<uintptr_t>(&hapInfo->signInfo));
     return CS_SUCCESS;
