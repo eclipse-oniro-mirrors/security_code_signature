@@ -35,7 +35,6 @@ namespace CodeSign {
 static const std::string AN_BASE_PATH = "/data/local/ark-cache/tmp/";
 static const std::string DEMO_AN_PATH2 = AN_BASE_PATH + "demo2.an";
 static const std::string DEFAULT_HASH_ALGORITHM = "sha256";
-extern int gCount;
 
 class LocalCodeSignUtilsMockTest : public testing::Test {
 public:
@@ -49,7 +48,7 @@ public:
 
 /**
  * @tc.name: LocalCodeSignUtilsMockTest_0001
- * @tc.desc: Sign local code successfully, owner ID is empty, and set gCount
+ * @tc.desc: Sign local code successfully, owner ID is empty, and set g_count.
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
@@ -64,22 +63,22 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0001, TestSize.L
     EXPECT_EQ(bRet, true);
 
     ByteBuffer signature;
-    gCount = 2;
+    g_count = ATTESTKEY;
     int ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
     EXPECT_EQ(ret, CS_SUCCESS);
 
-    gCount = 4;
+    g_count = INIT;
     ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
     EXPECT_EQ(ret, CS_SUCCESS);
 
-    gCount = 5;
+    g_count = UPDATE;
     ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
     EXPECT_EQ(ret, CS_SUCCESS);
 
-    gCount = 6;
+    g_count = FINISH;
     ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
     EXPECT_EQ(ret, CS_SUCCESS);
@@ -87,7 +86,7 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0001, TestSize.L
 
 /**
  * @tc.name: LocalCodeSignUtilsMockTest_0002
- * @tc.desc: Sign local code with owner ID successfully, and set gCount 
+ * @tc.desc: Sign local code with owner ID successfully, and set g_count.
  * @tc.type: Func
  * @tc.require: issueI88PPA
  */
@@ -102,22 +101,22 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0002, TestSize.L
     EXPECT_EQ(bRet, true);
 
     ByteBuffer signature;
-    gCount = 2;
+    g_count = ATTESTKEY;
     int ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
     EXPECT_EQ(ret, CS_SUCCESS);
 
-    gCount = 4;
+    g_count = INIT;
     ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
     EXPECT_EQ(ret, CS_SUCCESS);
 
-    gCount = 5;
+    g_count = UPDATE;
     ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
     EXPECT_EQ(ret, CS_SUCCESS);
 
-    gCount = 6;
+    g_count = FINISH;
     ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
     EXPECT_EQ(ret, CS_SUCCESS);
@@ -135,15 +134,15 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0003, TestSize.L
     LocalSignKey &key = LocalSignKey::GetInstance();
     key.SetChallenge(*challenge);
     bool bRet = key.InitKey();
-    EXPECT_EQ(ret, false);
+    EXPECT_EQ(bRet, false);
 
-    gCount = -1;
-    bool bRet = key.InitKey();
-    EXPECT_EQ(ret, false);
+    g_count = ERROR;
+    bRet = key.InitKey();
+    EXPECT_EQ(bRet, false);
 
-    gCount = 1;
-    bool bRet = key.InitKey();
-    EXPECT_EQ(ret, false);
+    g_count = KEYEXIST;
+    bRet = key.InitKey();
+    EXPECT_EQ(bRet, false);
 
     int32_t iRet = key.GetFormattedCertChain(*challenge);
     EXPECT_EQ(iRet, 0);

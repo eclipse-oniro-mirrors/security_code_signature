@@ -283,10 +283,10 @@ HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0015, TestSize.Level0)
     
     NativeTokenSet("local_code_sign");
     sptr<ISystemAbilityManager> samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NQ(samgr, nullptr);
+    EXPECT_NE(samgr, nullptr);
 
     ret = samgr->UnloadSystemAbility(LOCAL_CODE_SIGN_SA_ID);
-    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_NE(ret, ERR_OK);
     NativeTokenSet("compiler_service");
     LocalCodeSignKit::SignLocalCode(ownerID, DEMO_AN_PATH2, sig);
     NativeTokenReset(selfTokenId);

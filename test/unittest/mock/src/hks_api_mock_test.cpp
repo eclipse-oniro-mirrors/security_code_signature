@@ -20,15 +20,15 @@
 namespace OHOS {
 namespace Security {
 namespace CodeSign {
-int gCount = 0;
+int g_count = 0;
 int32_t HksKeyExist(const struct HksBlob *keyAlias, const struct HksParamSet *paramSet)
 {
     LOG_INFO("Mock HksKeyExist");
-    if(gCount == 1){
+    if (g_count == KEYEXIST) {
         return -1;
     }
-    if(gCount == 7){
-        return HKS_ERROR_NOT_EXTIST;
+    if (g_count == ERROR) {
+        return HKS_ERROR_NOT_EXIST;
     }
     return HKS_SUCCESS;
 }
@@ -37,7 +37,7 @@ int32_t HksAttestKey(const struct HksBlob *keyAlias, const struct HksParamSet *p
     struct HksCertChain *certChain)
 {
     LOG_INFO("Mock HksAttestKey");
-    if(gCount == 2){
+    if (g_count == ATTESTKEY) {
         return -1;
     }
 
@@ -53,7 +53,7 @@ int32_t HksGenerateKey(const struct HksBlob *keyAlias,
     const struct HksParamSet *paramSetIn, struct HksParamSet *paramSetOut)
 {
     LOG_INFO("Mock HksGenerateKey");
-    if(gCount == 3){
+    if (g_count == GENERATEKEY) {
         return -1;
     }
     return HKS_SUCCESS;
@@ -63,7 +63,7 @@ int32_t HksInit(const struct HksBlob *keyAlias, const struct HksParamSet *paramS
     struct HksBlob *handle, struct HksBlob *token)
 {
     LOG_INFO("Mock HksInit");
-    if(gCount == 4){
+    if (g_count == INIT) {
         return -1;
     }
     return HKS_SUCCESS;
@@ -74,7 +74,7 @@ int32_t HksUpdate(const struct HksBlob *handle, const struct HksParamSet *paramS
     const struct HksBlob *inData, struct HksBlob *outData)
 {
     LOG_INFO("Mock HksUpdate");
-    if(gCount == 5){
+    if (g_count == UPDATE) {
         return -1;
     }
     return HKS_SUCCESS;
@@ -84,7 +84,7 @@ int32_t HksFinish(const struct HksBlob *handle, const struct HksParamSet *paramS
     const struct HksBlob *inData, struct HksBlob *outData)
 {
     LOG_INFO("Mock HksFinish");
-    if(gCount == 6){
+    if (g_count == FINISH) {
         return -1;
     }
     return HKS_SUCCESS;
