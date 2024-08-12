@@ -21,6 +21,16 @@
 namespace OHOS {
 namespace Security {
 namespace CodeSign {
+extern int g_count;
+enum HksType {
+    KEYEXIST = 1,
+    ATTESTKEY = 2,
+    GENERATEKEY = 3,
+    INIT = 4,
+    UPDATE = 5,
+    FINISH = 6,
+    ERROR = 7,
+};
 int32_t HksKeyExist(const struct HksBlob *keyAlias, const struct HksParamSet *paramSet);
 
 int32_t HksAttestKey(const struct HksBlob *keyAlias,
