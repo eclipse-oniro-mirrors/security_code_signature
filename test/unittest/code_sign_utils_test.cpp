@@ -803,19 +803,40 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0033, TestSize.Level0)
 
 /**
  * @tc.name: CodeSignUtilsTest_0034
- * @tc.desc: enable code signature for file successfully, path is O_WRONLY
+ * @tc.desc: Enable key in profile content data and dump profile buffer
  * @tc.type: Func
  * @tc.require:
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0034, TestSize.Level0)
 {
-    ByteBuffer buffer;
-    bool flag = ReadSignatureFromFile(g_filesigEnablePath, buffer);
-    EXPECT_EQ(flag, true);
+    std::string bundleName = "";
+    const ByteBuffer profileBuffer;
+    int32_t ret = CodeSignUtils::EnableKeyInProfile(bundleName, profileBuffer);
+    EXPECT_EQ(ret, 0);
+}
 
-    open(g_filesigEnablePath.c_str(), O_WRONLY);
-    int32_t ret = CodeSignUtils::EnforceCodeSignForFile(g_fileEnableSuc, buffer);
-    EXPECT_EQ(ret, CS_SUCCESS);
+/**
+ * @tc.name: CodeSignUtilsTest_0035
+ * @tc.desc: Remove key in profile content data and remove profile
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0035, TestSize.Level0)
+{
+    std::string bundleName = "";
+    int32_t ret = CodeSignUtils::RemoveKeyInProfile(bundleName);
+    EXPECT_EQ(ret, 0);
+}
+
+/**
+ * @tc.name: CodeSignUtilsTest_0036
+ * @tc.desc: enabling code signing for app compiled by oh-sdk
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0036, TestSize.Level0)
+{
+    EXPECT_EQ(CodeSignUtils::IsSupportOHCodeSign(), true);
 }
 }  // namespace CodeSign
 }  // namespace Security

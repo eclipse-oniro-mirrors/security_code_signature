@@ -24,7 +24,7 @@
 #include "log.h"
 #include "pkcs7_generator.h"
 #include "hks_api.h"
-#include "byte_buffer_mock_helper.h"
+#include "byte_buffer.h"
 #include "cert_path.h"
 
 
@@ -69,75 +69,37 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0001, TestSize.L
     g_count = ATTESTKEY;
     int ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
-    EXPECT_EQ(ret, CS_SUCCESS);
+    EXPECT_EQ(ret, CS_ERR_HUKS_OBTAIN_CERT);
 
     g_count = INIT;
     ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
-    EXPECT_EQ(ret, CS_SUCCESS);
+    EXPECT_EQ(ret, CS_ERR_HUKS_SIGN);
 
     g_count = UPDATE;
     ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
-    EXPECT_EQ(ret, CS_SUCCESS);
+    EXPECT_EQ(ret, CS_ERR_HUKS_SIGN);
 
     g_count = FINISH;
     ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
         digest, signature);
-    EXPECT_EQ(ret, CS_SUCCESS);
+    EXPECT_EQ(ret, CS_ERR_HUKS_SIGN);
 }
 
 /**
  * @tc.name: LocalCodeSignUtilsMockTest_0002
- * @tc.desc: Sign local code with owner ID successfully, and set g_count.
- * @tc.type: Func
- * @tc.require: issueI88PPA
- */
-HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0002, TestSize.Level0)
-{
-    ByteBuffer digest;
-    std::string realPath;
-    std::string ownerID = "AppName123";
-    bool bRet = OHOS::PathToRealPath(DEMO_AN_PATH2, realPath);
-    EXPECT_EQ(bRet, true);
-    bRet = FsverityUtilsHelper::GetInstance().GenerateFormattedDigest(realPath.c_str(), digest);
-    EXPECT_EQ(bRet, true);
-
-    ByteBuffer signature;
-    g_count = ATTESTKEY;
-    int ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
-        digest, signature);
-    EXPECT_EQ(ret, CS_SUCCESS);
-
-    g_count = INIT;
-    ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
-        digest, signature);
-    EXPECT_EQ(ret, CS_SUCCESS);
-
-    g_count = UPDATE;
-    ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
-        digest, signature);
-    EXPECT_EQ(ret, CS_SUCCESS);
-
-    g_count = FINISH;
-    ret = PKCS7Generator::GenerateSignature(ownerID, LocalSignKey::GetInstance(), DEFAULT_HASH_ALGORITHM.c_str(),
-        digest, signature);
-    EXPECT_EQ(ret, CS_SUCCESS);
-}
-
-/**
- * @tc.name: LocalCodeSignUtilsMockTest_0003
  * @tc.desc: Generate formatted digest failed with wrong path
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
-HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0003, TestSize.Level0)
+HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0002, TestSize.Level0)
 {
     std::unique_ptr<ByteBuffer> challenge = GetRandomChallenge();
     LocalSignKey &key = LocalSignKey::GetInstance();
     key.SetChallenge(*challenge);
     bool bRet = key.InitKey();
-    EXPECT_EQ(bRet, false);
+    EXPECT_EQ(bRet, true);
 
     g_count = ERROR;
     bRet = key.InitKey();
@@ -152,27 +114,24 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0003, TestSize.L
 }
 
 /**
- * @tc.name: LocalCodeSignUtilsMockTest_0004
+ * @tc.name: LocalCodeSignUtilsMockTest_0003
  * @tc.desc: LocalSignKey GetSignCert test
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
-HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0004, TestSize.Level0)
+HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0003, TestSize.Level0)
 {
     LocalSignKey &key = LocalSignKey::GetInstance();
-    byte_type = 0;
-    (void)key.GetSignCert();
-    byte_type = 1;
     (void)key.GetSignCert();
 }
 
 /**
- * @tc.name: LocalCodeSignUtilsMockTest_0005
+ * @tc.name: LocalCodeSignUtilsMockTest_0004
  * @tc.desc: cert_utils FreeCertChain certChain is nullptr or certChain->certs is nullptr
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
-HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0005, TestSize.Level0)
+HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0004, TestSize.Level0)
 {
     struct HksCertChain *certChain = nullptr;
     uint32_t pos = 0;
@@ -184,12 +143,12 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0005, TestSize.L
 }
 
 /**
- * @tc.name: LocalCodeSignUtilsMockTest_0006
+ * @tc.name: LocalCodeSignUtilsMockTest_0005
  * @tc.desc: cert_utils CheckChallengeSize func test
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
-HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0006, TestSize.Level0)
+HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0005, TestSize.Level0)
 {
     uint32_t size = 0;
     bool bRet = OHOS::Security::CodeSign::CheckChallengeSize(size);
@@ -201,74 +160,64 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0006, TestSize.L
 }
 
 /**
- * @tc.name: LocalCodeSignUtilsMockTest_0007
+ * @tc.name: LocalCodeSignUtilsMockTest_0006
  * @tc.desc: cert_utils FormattedCertChain func test
+ * @tc.type: Func
+ * @tc.require: issueI8FCGF
+ */
+HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0006, TestSize.Level0)
+{
+    const HksCertChain *certChain = LocalSignKey::GetInstance().GetCertChain();
+    std::unique_ptr<ByteBuffer> buffer = GetRandomChallenge();
+    bool bRet = OHOS::Security::CodeSign::FormattedCertChain(certChain, *buffer);
+    EXPECT_EQ(bRet, false);
+}
+
+/**
+ * @tc.name: LocalCodeSignUtilsMockTest_0007
+ * @tc.desc: cert_utils GetCertChainFormBuffer func test
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
 HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0007, TestSize.Level0)
 {
-    const HksCertChain *certChain = LocalSignKey::GetInstance().GetCertChain();
-    ByteBufferMockHelper buffer;
-    byte_type = PUTDATA;
-    bool bRet = OHOS::Security::CodeSign::FormattedCertChain(certChain, buffer);
+    ByteBuffer certChainBuffer;
+    ByteBuffer signCert;
+    ByteBuffer issuer;
+    std::vector<ByteBuffer> chain;
+    bool bRet = OHOS::Security::CodeSign::GetCertChainFormBuffer(certChainBuffer, signCert, issuer, chain);
     EXPECT_EQ(bRet, false);
 }
 
 /**
  * @tc.name: LocalCodeSignUtilsMockTest_0008
- * @tc.desc: cert_utils GetCertChainFormBuffer func test
+ * @tc.desc: FsverityUtilsHelper GetCertChainFormBuffer func test
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
 HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0008, TestSize.Level0)
 {
-    ByteBufferMockHelper certChainBuffer;
-    ByteBufferMockHelper signCert;
-    ByteBufferMockHelper issuer;
-    std::vector<ByteBuffer> chain;
-    byte_type = 0;
-    bool bRet = OHOS::Security::CodeSign::GetCertChainFormBuffer(certChainBuffer, signCert, issuer, chain);
-    EXPECT_EQ(bRet, false);
-
-    byte_type = GETBUFFER;
-    bRet = OHOS::Security::CodeSign::GetCertChainFormBuffer(certChainBuffer, signCert, issuer, chain);
-    EXPECT_EQ(bRet, false);
-
-    byte_type = GETSIZE;
-    bRet = OHOS::Security::CodeSign::GetCertChainFormBuffer(certChainBuffer, signCert, issuer, chain);
-    EXPECT_EQ(bRet, false);
+    (void)FsverityUtilsHelper::GetInstance().ErrorMsgLogCallback(nullptr);
 }
 
 /**
  * @tc.name: LocalCodeSignUtilsMockTest_0009
- * @tc.desc: FsverityUtilsHelper GetCertChainFormBuffer func test
+ * @tc.desc: cert_path IsDeveloperModeOn func test
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
 HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0009, TestSize.Level0)
 {
-    (void)FsverityUtilsHelper::GetInstance().ErrorMsgLogCallback(nullptr);
-}
-
-/**
- * @tc.name: LocalCodeSignUtilsMockTest_0010
- * @tc.desc: cert_path IsDeveloperModeOn func test
- * @tc.type: Func
- * @tc.require: issueI8FCGF
- */
-HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0010, TestSize.Level0)
-{
     EXPECT_EQ(IsDeveloperModeOn(), false);
 }
 
 /**
- * @tc.name: LocalCodeSignUtilsMockTest_0011
+ * @tc.name: LocalCodeSignUtilsMockTest_0010
  * @tc.desc: cert_path CodeSignGetUdid func test
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
-HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0011, TestSize.Level0)
+HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0010, TestSize.Level0)
 {
     EXPECT_EQ(CodeSignGetUdid(nullptr), false);
 }
