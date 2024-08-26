@@ -21,9 +21,9 @@
 #include <unordered_set>
 
 // the list will be removed before 930
-const std::unordered_set<std::string> g_tempAllowList;
+static const std::unordered_set<std::string> g_tempAllowList;
 
-int ConvertIdType(int idType, const char *ownerId)
+uint32_t ConvertIdType(int idType, const char *ownerId)
 {
     if (idType != PROCESS_OWNERID_APP || ownerId == nullptr) {
         return idType;

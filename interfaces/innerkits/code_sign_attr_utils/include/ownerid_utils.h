@@ -15,11 +15,12 @@
 
 #ifndef OWNERID_UTILS_H
 #define OWNERID_UTILS_H
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int ConvertIdType(int idType, const char *ownerId);
+uint32_t ConvertIdType(int idType, const char *ownerId);
 
 #ifdef __cplusplus
 }
