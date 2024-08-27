@@ -844,7 +844,11 @@ HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0035, TestSize.Level0)
  */
 HWTEST_F(CodeSignUtilsTest, CodeSignUtilsTest_0036, TestSize.Level0)
 {
+#ifdef SUPPORT_OH_CODE_SIGN
     EXPECT_EQ(CodeSignUtils::IsSupportOHCodeSign(), true);
+#else
+    EXPECT_EQ(CodeSignUtils::IsSupportOHCodeSign(), false);
+#endif
 }
 }  // namespace CodeSign
 }  // namespace Security
