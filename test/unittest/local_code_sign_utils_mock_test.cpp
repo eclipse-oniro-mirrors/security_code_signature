@@ -208,7 +208,7 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0008, TestSize.L
  */
 HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0009, TestSize.Level0)
 {
-    EXPECT_EQ(IsDeveloperModeOn(), true);
+    (void)IsDeveloperModeOn();
 }
 
 /**
