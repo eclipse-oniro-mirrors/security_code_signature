@@ -64,8 +64,12 @@ ohos_unittest("code_sign_utils_unittest") {
     "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
   ]
 
+  defines = []
   if (!is_asan && !use_clang_coverage) {
-    defines = [ "NO_USE_CLANG_COVERAGE" ]
+    defines += [ "NO_USE_CLANG_COVERAGE" ]
+  }
+  if (code_signature_support_oh_code_sign) {
+    defines += [ "SUPPORT_OH_CODE_SIGN" ]
   }
 
   include_dirs = [
