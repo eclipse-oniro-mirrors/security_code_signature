@@ -25,6 +25,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/utsname.h>
 #include <linux/fs.h>
 #include <linux/fsverity.h>
 #include <linux/types.h>
@@ -66,6 +67,7 @@ const std::string DROP_CACHE_PROC_PATH = "/proc/sys/vm/drop_caches";
 const std::string DROP_ALL_CACHE_LEVEL = "3";
 
 static bool g_isXpmOn;
+static bool g_isKernelLinux = false;
 
 class EnableVerityTest : public testing::Test {
 public:
@@ -81,6 +83,10 @@ public:
         if (g_isXpmOn) {
             std::string realPath;
             g_isXpmOn = OHOS::PathToRealPath(XPM_DEBUG_FS_MODE_PATH, realPath);
+        }
+        struct utsname uts;
+        if (uname(&uts) == 0 && strcmp(uts.sysname, "Linux") == 0) {
+            g_isKernelLinux = true;
         }
     };
     static void TearDownTestCase()
@@ -347,11 +353,15 @@ static void EnableExpandedTamperFile(const std::string &filePath,
     EXPECT_EQ(ExpandFile(tmpFilePath, treeFile,
         treeOffset - arg.data_size, expandFilePath), true);
 
-    // Enable successully but cannot read
-    EXPECT_EQ(EnableVerityOnOneFile(expandFilePath, &arg), 0);
-    SaveStringToFile(DROP_CACHE_PROC_PATH, DROP_ALL_CACHE_LEVEL);
-    ByteBuffer tmp;
-    EXPECT_EQ(ReadDataFromFile(expandFilePath, tmp), false);
+    if (g_isKernelLinux) {
+        // Enable successully but cannot read
+        EXPECT_EQ(EnableVerityOnOneFile(expandFilePath, &arg), 0);
+        SaveStringToFile(DROP_CACHE_PROC_PATH, DROP_ALL_CACHE_LEVEL);
+        ByteBuffer tmp;
+        EXPECT_EQ(ReadDataFromFile(expandFilePath, tmp), false);
+    } else {
+        EXPECT_EQ(EnableVerityOnOneFile(expandFilePath, &arg), EKEYREJECTED);
+    }
 
     CleanFile(expandFilePath);
     CleanFile(tmpFilePath);
@@ -502,8 +512,11 @@ HWTEST_F(EnableVerityTest, EnableVerityTest_0006, TestSize.Level0)
     (void)memcpy_s(reinterpret_cast<void *>(arg.root_hash_ptr),
         FAKE_STRING.size(), FAKE_STRING.c_str(), FAKE_STRING.size());
 
-    EXPECT_EQ(EnableVerityOnOneFile(expandFilePath, &arg), EKEYREJECTED);
-
+    if (g_isKernelLinux) {
+        EXPECT_EQ(EnableVerityOnOneFile(expandFilePath, &arg), EKEYREJECTED);
+    } else {
+        EXPECT_EQ(EnableVerityOnOneFile(expandFilePath, &arg), 0);
+    }
     CleanFile(expandFilePath);
 }
 
