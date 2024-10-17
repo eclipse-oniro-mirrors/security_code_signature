@@ -145,47 +145,11 @@ HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0006, TestSize.Level0)
 
 /**
  * @tc.name: LocalCodeSignTest_0007
- * @tc.desc: load sa fail
- * @tc.type: Func
- * @tc.require:
- */
-HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0007, TestSize.Level0)
-{
-    LocalCodeSignLoadCallback cb;
-    cb.OnLoadSystemAbilityFail(LOCAL_CODE_SIGN_SA_ID);
-}
-
-/**
- * @tc.name: LocalCodeSignTest_0008
- * @tc.desc: load sa success and return sa id not code sign sa id
- * @tc.type: Func
- * @tc.require:
- */
-HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0008, TestSize.Level0)
-{
-    LocalCodeSignLoadCallback cb;
-    cb.OnLoadSystemAbilitySuccess(LOCAL_CODE_SIGN_SA_ID - 1, nullptr);
-}
-
-/**
- * @tc.name: LocalCodeSignTest_0009
- * @tc.desc: load sa success and return remote object is null
- * @tc.type: Func
- * @tc.require:
- */
-HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0009, TestSize.Level0)
-{
-    LocalCodeSignLoadCallback cb;
-    cb.OnLoadSystemAbilitySuccess(LOCAL_CODE_SIGN_SA_ID, nullptr);
-}
-
-/**
- * @tc.name: LocalCodeSignTest_0010
  * @tc.desc: sign local code with owner ID successfully, parse owner ID from signature success
  * @tc.type: Func
  * @tc.require: issueI88PPA
  */
-HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0010, TestSize.Level0)
+HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0007, TestSize.Level0)
 {
     ByteBuffer sig;
     uint64_t selfTokenId = NativeTokenSet("compiler_service");
@@ -202,12 +166,12 @@ HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0010, TestSize.Level0)
 }
 
 /**
- * @tc.name: LocalCodeSignTest_0011
+ * @tc.name: LocalCodeSignTest_0008
  * @tc.desc: sign local code with empty owner ID successfully
  * @tc.type: Func
  * @tc.require: issueI88PPA
  */
-HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0011, TestSize.Level0)
+HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0008, TestSize.Level0)
 {
     ByteBuffer sig;
     uint64_t selfTokenId = NativeTokenSet("compiler_service");
@@ -222,12 +186,12 @@ HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0011, TestSize.Level0)
 }
 
 /**
- * @tc.name: LocalCodeSignTest_0012
+ * @tc.name: LocalCodeSignTest_0009
  * @tc.desc: sign local code with owner ID failed, reason = invalid path
  * @tc.type: Func
  * @tc.require: issueI88PPA
  */
-HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0012, TestSize.Level0)
+HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0009, TestSize.Level0)
 {
     ByteBuffer sig;
     uint64_t selfTokenId = NativeTokenSet("compiler_service");
@@ -238,12 +202,12 @@ HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0012, TestSize.Level0)
 }
 
 /**
- * @tc.name: LocalCodeSignTest_0013
+ * @tc.name: LocalCodeSignTest_0010
  * @tc.desc: sign local code failed with invalid caller
  * @tc.type: Func
  * @tc.require: issueI88PPA
  */
-HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0013, TestSize.Level0)
+HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0010, TestSize.Level0)
 {
     ByteBuffer sig;
     std::string ownerID = "AppName123";
@@ -252,12 +216,12 @@ HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0013, TestSize.Level0)
 }
 
 /**
- * @tc.name: LocalCodeSignTest_0014
+ * @tc.name: LocalCodeSignTest_0011
  * @tc.desc: sign local code failed with ownerID exceed 128 bytes
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
-HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0014, TestSize.Level0)
+HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0011, TestSize.Level0)
 {
     ByteBuffer sig;
     uint64_t selfTokenId = NativeTokenSet("compiler_service");
@@ -268,12 +232,12 @@ HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0014, TestSize.Level0)
 }
 
 /**
- * @tc.name: LocalCodeSignTest_0015
+ * @tc.name: LocalCodeSignTest_0012
  * @tc.desc: sign local code failed with ownerID exceed 128 bytes
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
-HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0015, TestSize.Level0)
+HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0012, TestSize.Level0)
 {
     ByteBuffer sig;
     uint64_t selfTokenId = NativeTokenSet("compiler_service");
@@ -293,14 +257,18 @@ HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0015, TestSize.Level0)
 }
 
 /**
- * @tc.name: LocalCodeSignTest_0016
+ * @tc.name: LocalCodeSignTest_0013
  * @tc.desc: load sa success and return remote object is not null
  * @tc.type: Func
  * @tc.require:
  */
-HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0016, TestSize.Level0)
+HWTEST_F(LocalCodeSignTest, LocalCodeSignTest_0013, TestSize.Level0)
 {
     LocalCodeSignLoadCallback cb;
+    cb.OnLoadSystemAbilityFail(LOCAL_CODE_SIGN_SA_ID);
+    cb.OnLoadSystemAbilitySuccess(LOCAL_CODE_SIGN_SA_ID - 1, nullptr);
+    cb.OnLoadSystemAbilitySuccess(LOCAL_CODE_SIGN_SA_ID, nullptr);
+
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     EXPECT_NE(systemAbilityManager, nullptr);

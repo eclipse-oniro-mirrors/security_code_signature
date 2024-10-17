@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <gtest/gtest.h>
 #include <string>
+#include <parameters.h>
 
 #include "cert_utils.h"
 #include "directory_ex.h"
@@ -122,7 +123,7 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0002, TestSize.L
 HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0003, TestSize.Level0)
 {
     LocalSignKey &key = LocalSignKey::GetInstance();
-    (void)key.GetSignCert();
+    EXPECT_NE(key.GetSignCert(), nullptr);
 }
 
 /**
@@ -138,6 +139,7 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0004, TestSize.L
     (void)OHOS::Security::CodeSign::FreeCertChain(&certChain, pos);
 
     certChain = static_cast<struct HksCertChain *>(malloc(sizeof(struct HksCertChain)));
+    EXPECT_NE(certChain, nullptr);
     certChain->certs = nullptr;
     (void)OHOS::Security::CodeSign::FreeCertChain(&certChain, pos);
 }
@@ -190,25 +192,20 @@ HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0007, TestSize.L
 }
 
 /**
- * @tc.name: LocalCodeSignUtilsMockTest_0008
- * @tc.desc: FsverityUtilsHelper GetCertChainFormBuffer func test
- * @tc.type: Func
- * @tc.require: issueI8FCGF
- */
-HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0008, TestSize.Level0)
-{
-    (void)FsverityUtilsHelper::GetInstance().ErrorMsgLogCallback(nullptr);
-}
-
-/**
  * @tc.name: LocalCodeSignUtilsMockTest_0009
- * @tc.desc: cert_path IsDeveloperModeOn func test
+ * @tc.desc: cert_path IsDeveloperModeOn and GetCertChainFormBuffer func test
  * @tc.type: Func
  * @tc.require: issueI8FCGF
  */
 HWTEST_F(LocalCodeSignUtilsMockTest, LocalCodeSignUtilsMockTest_0009, TestSize.Level0)
 {
-    (void)IsDeveloperModeOn();
+    (void)FsverityUtilsHelper::GetInstance().ErrorMsgLogCallback(nullptr);
+
+    if (OHOS::system::GetBoolParameter("const.security.developermode.state", false)) {
+        EXPECT_EQ(IsDeveloperModeOn(), true);
+    } else {
+        EXPECT_EQ(IsDeveloperModeOn(), false);
+    }
 }
 
 /**
