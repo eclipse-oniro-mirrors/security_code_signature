@@ -107,7 +107,7 @@ int32_t CodeSignEnableMultiTask::ExecuteEnableCodeSignTask(const std::string &ow
         return taskRet;
     }
     int32_t ret = CS_SUCCESS;
-    for (auto &data : enableData_) {
+    for (const auto &data : enableData_) {
         const std::string &filePath = data.first;
         if (IsFsVerityEnabled(filePath) != CS_SUCCESS) {
             ret = CS_ERR_FSVERITY_NOT_ENABLED;

@@ -35,7 +35,6 @@ int32_t CodeSignHelper::ProcessMultiTask(const std::string &ownerId, const std::
     do {
         ret = ProcessOneFile();
         if (ret == CS_SUCCESS_END) {
-            ret = CS_SUCCESS;
             break;
         } else if (ret != CS_SUCCESS) {
             return ret;
