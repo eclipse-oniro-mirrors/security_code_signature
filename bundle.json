@@ -56,31 +56,43 @@
       ],
       "inner_kits": [
         {
-          "name" : "//base/security/code_signature/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
+          "name" : "//base/security/code_signature/interfaces/inner_api/code_sign_utils:libcode_sign_utils",
           "header": {
-            "header_files": [],
-            "header_base": "//base/security/code_signature/interfaces/innerkits/code_sign_utils/include"
+            "header_files": [
+              "code_sign_utils.h",
+              "code_sign_utils_in_c.h"
+            ],
+            "header_base": "//base/security/code_signature/interfaces/inner_api/code_sign_utils/include"
           }
         },
         {
-          "name" : "//base/security/code_signature/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
+          "name" : "//base/security/code_signature/interfaces/inner_api/local_code_sign:liblocal_code_sign_sdk",
           "header": {
-            "header_files": [],
-            "header_base": "//base/security/code_signature/interfaces/innerkits/local_code_sign/include"
+            "header_files": [
+              "local_code_sign_kit.h"
+            ],
+            "header_base": "//base/security/code_signature/interfaces/inner_api/local_code_sign/include"
           }
         },
         {
-          "name" : "//base/security/code_signature/interfaces/innerkits/code_sign_attr_utils:libcode_sign_attr_utils",
+          "name" : "//base/security/code_signature/interfaces/inner_api/code_sign_attr_utils:libcode_sign_attr_utils",
           "header": {
-            "header_files": [],
-            "header_base": "//base/security/code_signature/interfaces/innerkits/code_sign_attr_utils/include"
+            "header_files": [
+              "code_sign_attr_utils.h"
+            ],
+            "header_base": "//base/security/code_signature/interfaces/inner_api/code_sign_attr_utils/include"
           }
         },
         {
-          "name" : "//base/security/code_signature/interfaces/innerkits/jit_code_sign:libjit_code_sign",
+          "name" : "//base/security/code_signature/interfaces/inner_api/jit_code_sign:libjit_code_sign",
           "header": {
-            "header_files": [],
-            "header_base": "//base/security/code_signature/interfaces/innerkits/jit_code_sign/include"
+            "header_files": [
+              "jit_buffer_integrity.h",
+              "jit_code_signer_base.h",
+              "jit_code_signer_factory.h",
+              "jit_fort_helper.h"
+            ],
+            "header_base": "//base/security/code_signature/interfaces/inner_api/jit_code_sign/include"
           }
         }
       ],

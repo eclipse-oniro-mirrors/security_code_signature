@@ -61,7 +61,7 @@ ohos_unittest("code_sign_utils_unittest") {
 
   deps = [
     ":key_enable_src_set",
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils:libcode_sign_utils",
   ]
 
   defines = []
@@ -74,7 +74,7 @@ ohos_unittest("code_sign_utils_unittest") {
 
   include_dirs = [
     "utils/include",
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils/include",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils/include",
     "${code_signature_root_dir}/utils/include",
   ]
 
@@ -89,11 +89,11 @@ ohos_unittest("code_sign_attr_utils_unittest") {
   module_out_path = "security/code_signature"
   sources = [ "code_sign_attr_utils_test.cpp" ]
 
-  deps = [ "${code_signature_root_dir}/interfaces/innerkits/code_sign_attr_utils:libcode_sign_attr_utils" ]
+  deps = [ "${code_signature_root_dir}/interfaces/inner_api/code_sign_attr_utils:libcode_sign_attr_utils" ]
 
   include_dirs = [
     "utils/include",
-    "${code_signature_root_dir}/interfaces/innerkits/common/include",
+    "${code_signature_root_dir}/interfaces/inner_api/common/include",
     "${code_signature_root_dir}/utils/include",
   ]
 
@@ -108,10 +108,10 @@ ohos_unittest("code_sign_utils_in_c_unittest") {
   resource_config_file = "resources/ohos_test.xml"
   sources = [ "code_sign_utils_in_c_test.cpp" ]
 
-  deps = [ "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils" ]
+  deps = [ "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils:libcode_sign_utils" ]
 
   include_dirs = [
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils/include",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils/include",
     "${code_signature_root_dir}/utils/include",
   ]
 
@@ -132,15 +132,15 @@ ohos_unittest("local_code_sign_unittest") {
   resource_config_file = "resources/ohos_test.xml"
   sources = [ "local_code_sign_test.cpp" ]
   deps = [
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
-    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils:libcode_sign_utils",
+    "${code_signature_root_dir}/interfaces/inner_api/local_code_sign:liblocal_code_sign_sdk",
   ]
 
   include_dirs = [
     "utils/include",
-    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign/include",
+    "${code_signature_root_dir}/interfaces/inner_api/local_code_sign/include",
     "${code_signature_root_dir}/services/local_code_sign/include",
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils/include",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils/include",
   ]
   configs = [ "${code_signature_root_dir}:common_utils_config" ]
   external_deps = [
@@ -166,7 +166,7 @@ ohos_unittest("local_code_sign_utils_unittest") {
     "mock/src/hks_api.cpp",
     "mock/src/hks_api_mock_helper.cpp",
   ]
-  deps = [ "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils" ]
+  deps = [ "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils:libcode_sign_utils" ]
 
   include_dirs = [
     "mock/include",
@@ -195,7 +195,7 @@ ohos_unittest("local_code_sign_utils_mock_unittest") {
     "mock/src/hks_api_mock_helper.cpp",
     "mock/src/hks_api_mock_test.cpp",
   ]
-  deps = [ "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils" ]
+  deps = [ "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils:libcode_sign_utils" ]
 
   include_dirs = [
     "mock/include",
@@ -220,15 +220,15 @@ ohos_unittest("sign_and_enforce_unittest") {
   resource_config_file = "resources/ohos_test.xml"
   sources = [ "sign_and_enforce_test.cpp" ]
   deps = [
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
-    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils:libcode_sign_utils",
+    "${code_signature_root_dir}/interfaces/inner_api/local_code_sign:liblocal_code_sign_sdk",
   ]
 
   include_dirs = [
     "utils/include",
-    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign/include",
+    "${code_signature_root_dir}/interfaces/inner_api/local_code_sign/include",
     "${code_signature_root_dir}/services/local_code_sign/include",
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils/include",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils/include",
   ]
   configs = [ "${code_signature_root_dir}:common_utils_config" ]
   external_deps = [
@@ -249,15 +249,15 @@ ohos_unittest("multi_thread_local_sign_unittest") {
   resource_config_file = "resources/ohos_test.xml"
   sources = [ "multi_thread_local_sign_test.cpp" ]
   deps = [
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils:libcode_sign_utils",
-    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign:liblocal_code_sign_sdk",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils:libcode_sign_utils",
+    "${code_signature_root_dir}/interfaces/inner_api/local_code_sign:liblocal_code_sign_sdk",
   ]
 
   include_dirs = [
     "utils/include",
-    "${code_signature_root_dir}/interfaces/innerkits/local_code_sign/include",
+    "${code_signature_root_dir}/interfaces/inner_api/local_code_sign/include",
     "${code_signature_root_dir}/services/local_code_sign/include",
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_utils/include",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_utils/include",
   ]
   configs = [ "${code_signature_root_dir}:common_utils_config" ]
   external_deps = [
@@ -330,7 +330,7 @@ ohos_unittest("enable_verity_ioctl_unittest") {
   ]
   deps = [
     ":key_enable_src_set",
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_attr_utils:libcode_sign_attr_utils",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_attr_utils:libcode_sign_attr_utils",
     "${selinux_dir}:libselinux",
   ]
   external_deps = [
@@ -342,7 +342,7 @@ ohos_unittest("enable_verity_ioctl_unittest") {
 ohos_unittest("jit_code_sign_unittest") {
   module_out_path = "security/code_signature"
   include_dirs = [
-    "${code_signature_root_dir}/interfaces/innerkits/jit_code_sign/include",
+    "${code_signature_root_dir}/interfaces/inner_api/jit_code_sign/include",
   ]
   sources = [ "jit_code_sign_test.cpp" ]
   sanitize = {
@@ -351,8 +351,8 @@ ohos_unittest("jit_code_sign_unittest") {
     debug = false
   }
   deps = [
-    "${code_signature_root_dir}/interfaces/innerkits/code_sign_attr_utils:libcode_sign_attr_utils",
-    "${code_signature_root_dir}/interfaces/innerkits/jit_code_sign:libjit_code_sign",
+    "${code_signature_root_dir}/interfaces/inner_api/code_sign_attr_utils:libcode_sign_attr_utils",
+    "${code_signature_root_dir}/interfaces/inner_api/jit_code_sign:libjit_code_sign",
   ]
   external_deps = [
     "c_utils:utils",
