@@ -21,7 +21,7 @@
 ```
 /base/security/code_signature
 ├── interfaces                   # 接口层
-│   └── innerkits                #
+│   └── inner_api                #
 │       ├── code_sign_attr_utils # 属性设置接口
 │       ├── code_sign_utils      # 使能接口
 │       ├── common               # 公共基础能力

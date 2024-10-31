@@ -20,7 +20,7 @@ The code signature component provides the following functions:
 ```
 /base/security/code_signature
 ├── interfaces                   # Interface layer
-│   └── innerkits                #
+│   └── inner_api                #
 │       ├── code_sign_attr_utils # APIs for setting code signing attributes
 │       ├── code_sign_utils      # APIs for enabling code signing
 │       ├── common               # Common basic capacities
