@@ -34,15 +34,15 @@ static inline int GetIndexFromOffset(int offset)
     return static_cast<int>(static_cast<uint32_t>(offset) >> LOG_2_INSTRUCTION_SIZE);
 }
 
-class JitCodeSignerBase {
+class JitCodeSigner {
 public:
-    JitCodeSignerBase() : tmpBuffer_(nullptr), offset_(0) {};
-    virtual ~JitCodeSignerBase() {}
-    virtual void Reset() = 0;
-    virtual void SignInstruction(Instr insn) = 0;
-    virtual void SkipNext(uint32_t n) = 0;
-    virtual int32_t PatchInstruction(int offset, Instr insn) = 0;
-    virtual int32_t ValidateCodeCopy(Instr *jitMemory, Byte *jitBuffer, int size) = 0;
+    JitCodeSigner() : tmpBuffer_(nullptr), offset_(0) {};
+    ~JitCodeSigner() {}
+    void Reset() = 0;
+    void SignInstruction(Instr insn) = 0;
+    void SkipNext(uint32_t n) = 0;
+    int32_t PatchInstruction(int offset, Instr insn) = 0;
+    int32_t ValidateCodeCopy(Instr *jitMemory, Byte *jitBuffer, int size) = 0;
 
     void RegisterTmpBuffer(Byte *tmpBuffer);
     int32_t SignData(const Byte *data, uint32_t size);

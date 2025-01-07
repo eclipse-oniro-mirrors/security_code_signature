@@ -146,10 +146,10 @@ public:
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0001, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL; level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         int i = 0;
         while (i < INSTRUCTIONS_SET_SIZE) {
             AppendInstruction(signer, g_testInstructionSet[i]);
@@ -174,10 +174,10 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0001, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0002, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL; level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         AppendData(signer, g_testInstructionBuf, INSTRUCTIONS_SET_SIZE_BYTES);
 
         EXPECT_EQ(CopyToJitCode(signer, g_jitMemory, g_testInstructionBuf,
@@ -197,11 +197,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0002, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0003, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         int i = 0, offset = 0;
         while (i < TEST_PATCH_INDEX) {
             AppendInstruction(signer, g_testInstructionSet[i]);
@@ -239,11 +239,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0003, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0004, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         int i = 0, offset = 0;
         while (i < TEST_PATCH_INDEX) {
             AppendInstruction(signer, g_testInstructionSet[i]);
@@ -288,11 +288,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0004, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0005, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         AppendData(signer, g_testInstructionBuf, INSTRUCTIONS_SET_SIZE_BYTES);
         int sizeInByte = sizeof(g_testInstructionSet);
         EXPECT_EQ(CopyToJitCode(signer, g_jitMemory, g_afterPatchInstructionBuf,
@@ -311,11 +311,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0005, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0006, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         RegisterTmpBuffer(signer, g_testInstructionBuf);
         AppendData(signer, g_testInstructionBuf, INSTRUCTIONS_SET_SIZE_BYTES);
 
@@ -335,11 +335,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0006, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0007, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         RegisterTmpBuffer(signer, g_testInstructionBuf);
         AppendData(signer, g_testInstructionBuf, INSTRUCTIONS_SET_SIZE_BYTES - 1);
 
@@ -359,11 +359,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0007, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0008, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         Byte *ptr = reinterpret_cast<Byte *>(g_testInstructionBuf) + 1;
         AppendData(signer, g_testInstructionBuf, 1);
         AppendData(signer, CAST_VOID_PTR(ptr), INSTRUCTIONS_SET_SIZE_BYTES - 1);
@@ -384,11 +384,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0008, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0009, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         int i = 0, offset = 0;
         while (i < TEST_PATCH_INDEX) {
             AppendInstruction(signer, g_testInstructionSet[i]);
@@ -424,11 +424,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0009, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0010, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         int i = 0, offset = 0;
         while (i < TEST_PATCH_INDEX) {
             AppendInstruction(signer, g_testInstructionSet[i]);
@@ -468,11 +468,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0010, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0011, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
 
         RegisterTmpBuffer(signer, g_afterPatchInstructionBuf);
         EXPECT_EQ(PatchInstruction(signer, nullptr, INSTRUCTION_SIZE), CS_ERR_PATCH_INVALID);
@@ -507,11 +507,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_00012, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_00013, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         AppendData(signer, g_testInstructionBuf, INSTRUCTIONS_SET_SIZE_BYTES);
         EXPECT_EQ(CopyToJitCode(signer, g_jitMemory, g_testInstructionBuf,
             INSTRUCTIONS_SET_SIZE_BYTES - 1), CS_ERR_JIT_SIGN_SIZE);
@@ -533,11 +533,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_00013, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_00014, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         Byte *data = reinterpret_cast<Byte *>(g_testInstructionSet);
         uint32_t dataSize[] = {1, 2, 1, 4, 2, 8, 2, 1, 3};
         int pos = 0;
@@ -563,11 +563,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_00014, TestSize.Level0)
  */
 HWMTEST_F(JitCodeSignTest, JitCodeSignTest_00015, TestSize.Level1, MULTI_THREAD_NUM)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         int i = 0;
         while (i < INSTRUCTIONS_SET_SIZE) {
             AppendInstruction(signer, g_testInstructionSet[i]);
@@ -611,11 +611,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_00016, TestSize.Level0)
         PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 #endif
     EXPECT_NE(tmpMemory, MAP_FAILED);
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         int i = 0;
         while (i < INSTRUCTIONS_SET_SIZE) {
             AppendInstruction(signer, g_testInstructionSet[i]);
@@ -657,7 +657,7 @@ HWMTEST_F(JitCodeSignTest, JitCodeSignTest_0017, TestSize.Level1, MULTI_THREAD_N
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL;
         level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        JitCodeSignerBase *signer = CreateJitCodeSigner(level);
+        JitCodeSigner *signer = CreateJitCodeSigner();
         int i = 0;
         while (i < instructionNum) {
             AppendInstruction(signer, tmpBuffer[i]);
@@ -718,10 +718,10 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0019, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0020, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL; level = static_cast<JitBufferIntegrityLevel>(static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         AppendData(signer, g_testInstructionBuf, INSTRUCTIONS_SET_SIZE_BYTES);
 
         // offset is greater than signed size
@@ -749,11 +749,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0020, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0021, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL; level = static_cast<JitBufferIntegrityLevel>(
         static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         AppendData(signer, nullptr, INSTRUCTIONS_SET_SIZE_BYTES);
 
         AppendData(signer, g_testInstructionBuf, INSTRUCTIONS_SET_SIZE_BYTES);
@@ -777,11 +777,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0021, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0022, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL; level = static_cast<JitBufferIntegrityLevel>(
         static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         EXPECT_EQ(ResetJitCode(nullptr, 0), CS_ERR_JIT_MEMORY);
         EXPECT_EQ(CopyToJitCode(signer, nullptr, g_testInstructionBuf, 0), CS_ERR_JIT_MEMORY);
 
@@ -798,11 +798,11 @@ HWTEST_F(JitCodeSignTest, JitCodeSignTest_0022, TestSize.Level0)
  */
 HWTEST_F(JitCodeSignTest, JitCodeSignTest_0023, TestSize.Level0)
 {
-    JitCodeSignerBase *signer = nullptr;
+    JitCodeSigner *signer = nullptr;
     for (JitBufferIntegrityLevel level = MIN_LEVEL;
         level <= MAX_LEVEL; level = static_cast<JitBufferIntegrityLevel>(
         static_cast<int>(level) + 1)) {
-        signer = CreateJitCodeSigner(level);
+        signer = CreateJitCodeSigner();
         for (int i = 0; i < INSTRUCTIONS_SET_SIZE_BYTES; i++) {
             uint32_t tmpBuffer[INSTRUCTIONS_SET_SIZE];
             (void) memcpy_s(tmpBuffer, INSTRUCTIONS_SET_SIZE_BYTES, g_testInstructionBuf, INSTRUCTIONS_SET_SIZE_BYTES);
