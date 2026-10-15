@@ -78,6 +78,7 @@ ohos_unittest("code_sign_utils_unittest") {
   if (code_signature_support_oh_code_sign) {
     defines += [ "SUPPORT_OH_CODE_SIGN" ]
   }
+
   if (code_signature_support_binary_enable) {
     defines += [ "SUPPORT_BINARY_ENABLE" ]
     sources +=
@@ -534,18 +535,26 @@ group("unittest_group") {
       ":add_cert_path_unittest",
       ":cert_chain_verifier_unittest",
       ":code_sign_attr_utils_unittest",
-      ":code_sign_utils_in_c_unittest",
-      ":code_sign_utils_unittest",
-      ":enable_verity_ioctl_unittest",
-      ":local_code_sign_unittest",
-      ":local_code_sign_utils_mock_unittest",
-      ":local_code_sign_utils_unittest",
-      ":multi_thread_local_sign_unittest",
       ":openssl_utils_unittest",
-      ":sign_and_enforce_unittest",
     ]
     if (!use_clang_coverage && !ohos_indep_compiler_enable) {
       deps += [ ":rust_key_enable_unittest" ]
+    }
+    # The following tests require HCK kernel hooks, hardware security
+    # (HUKS key operations), or code_signature_support_oh_code_sign=true
+    # to function correctly. They are not supported on the emulator
+    # platform where these kernel/hardware features are unavailable.
+    if (!is_emulator) {
+      deps += [
+        ":code_sign_utils_in_c_unittest",
+        ":code_sign_utils_unittest",
+        ":enable_verity_ioctl_unittest",
+        ":local_code_sign_unittest",
+        ":local_code_sign_utils_mock_unittest",
+        ":local_code_sign_utils_unittest",
+        ":multi_thread_local_sign_unittest",
+        ":sign_and_enforce_unittest",
+      ]
     }
     if (code_signature_support_oh_code_sign) {
       deps += [ ":key_enable_utils_unittest" ]
