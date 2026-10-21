@@ -143,6 +143,63 @@ HWTEST_F(CodeSignUtilsInCTest, CodeSignUtilsInCTest_0003, TestSize.Level0)
     entryMapEntry = nullptr;
     entryMapEntryData = nullptr;
 }
+
+/**
+ * @tc.name: CodeSignUtilsInCTest_0004
+ * @tc.desc: enable code signature for app with the c interface, flag parameter
+ * @tc.type: Func
+ * @tc.require:
+ */
+HWTEST_F(CodeSignUtilsInCTest, CodeSignUtilsInCTest_0004, TestSize.Level0)
+{
+    std::string hapRealPath = APP_BASE_PATH + "/demo_with_multi_lib/demo_with_code_sign_block.hap";
+    std::string filePath1("libs/arm64-v8a/libc++_shared.so");
+    std::string targetPath1 = APP_BASE_PATH + "/demo_with_multi_lib/libs/arm64-v8a/code_sign_block/libc++_shared.so";
+
+    EntryMapEntryData *entryMapEntryData = static_cast<EntryMapEntryData *>(malloc(sizeof(EntryMapEntryData)));
+    (void)memset_s(entryMapEntryData, sizeof(EntryMapEntryData), 0, sizeof(EntryMapEntryData));
+
+    int32_t length = sizeof(EntryMapEntry);
+    EntryMapEntry *entryMapEntry = static_cast<EntryMapEntry *>(malloc(length));
+    (void)memset_s(entryMapEntry, length, 0, length);
+
+    entryMapEntry[0].key = const_cast<char *>(filePath1.c_str());
+    entryMapEntry[0].value = const_cast<char *>(targetPath1.c_str());
+
+    entryMapEntryData->count = 1;
+    entryMapEntryData->entries = entryMapEntry;
+
+    // Verify the flag values are consistent with the c++ interface
+    EXPECT_EQ(IS_UNCOMPRESSED_NATIVE_LIBS, 0x01 << 0);
+    EXPECT_EQ(IS_ENTERPRISE_RESIGN, 0x01 << 1);
+    EXPECT_EQ(IS_LOCAL_HSP_PLUGIN, 0x01 << 2);
+    EXPECT_EQ(IS_SIDE_LOADING_APP, 0x01 << 3);
+
+    // the 3-parameter entry is kept as a compatibility wrapper of flag = 0
+    int32_t ret = EnforceCodeSignForApp(hapRealPath.c_str(), entryMapEntryData, FILE_ENTRY_ADD);
+    EXPECT_EQ(ret, CS_SUCCESS);
+    ret = EnforceCodeSignForAppWithFlag(hapRealPath.c_str(), entryMapEntryData, FILE_ENTRY_ADD, 0);
+    EXPECT_EQ(ret, CS_SUCCESS);
+
+    // FILE_ENTRY_ADD only records entries, flag should be accepted and return success
+    ret = EnforceCodeSignForAppWithFlag(hapRealPath.c_str(), entryMapEntryData, FILE_ENTRY_ADD,
+        IS_UNCOMPRESSED_NATIVE_LIBS);
+    EXPECT_EQ(ret, CS_SUCCESS);
+
+    // invalid params with flag are still rejected
+    ret = EnforceCodeSignForAppWithFlag(nullptr, nullptr, FILE_ENTRY_ADD, IS_SIDE_LOADING_APP);
+    EXPECT_EQ(ret, CS_ERR_PARAM_INVALID);
+
+    // hap path not exists, flag is forwarded to the c++ interface
+    std::string invalidPath = APP_BASE_PATH + "/demo_with_multi_lib/not_exist.hap";
+    ret = EnforceCodeSignForAppWithFlag(invalidPath.c_str(), entryMapEntryData, FILE_ALL, IS_ENTERPRISE_RESIGN);
+    EXPECT_EQ(ret, CS_ERR_FILE_PATH);
+
+    free(entryMapEntry);
+    free(entryMapEntryData);
+    entryMapEntry = nullptr;
+    entryMapEntryData = nullptr;
+}
 }  // namespace CodeSign
 }  // namespace Security
 }  // namespace OHOS
