@@ -47,6 +47,7 @@ ohos_fuzztest("SignLocalCodeFuzzTest") {
     "${code_signature_root_dir}/services/local_code_sign/src/local_code_sign_stub.cpp",
     "${code_signature_root_dir}/services/local_code_sign/src/local_sign_key.cpp",
     "${code_signature_root_dir}/services/local_code_sign/src/permission_utils.cpp",
+    "${code_signature_root_dir}/services/local_code_sign/src/security_guard_report.cpp",
     "${code_signature_root_dir}/utils/src/cert_utils.cpp",
     "${code_signature_root_dir}/utils/src/file_helper.cpp",
   ]
@@ -62,6 +63,7 @@ ohos_fuzztest("SignLocalCodeFuzzTest") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "bounds_checking_function:libsec_shared",
+    "cJSON:cjson",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "fsverity-utils:libfsverity_utils",
@@ -76,5 +78,6 @@ ohos_fuzztest("SignLocalCodeFuzzTest") {
     "samgr:samgr_proxy",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "security_guard:libsg_collect_sdk",
   ]
 }

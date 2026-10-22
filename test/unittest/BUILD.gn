@@ -528,6 +528,34 @@ ohos_unittest("openssl_utils_unittest") {
   ]
 }
 
+ohos_unittest("security_guard_report_unittest") {
+  testonly = true
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  module_out_path = "code_signature/code_signature"
+  resource_config_file = "resources/ohos_test.xml"
+  sources = [
+    "${code_signature_root_dir}/services/local_code_sign/src/security_guard_report.cpp",
+    "security_guard_report_test.cpp",
+  ]
+  include_dirs = [
+    "${code_signature_root_dir}/services/local_code_sign/include",
+  ]
+  configs = [ "${code_signature_root_dir}:common_utils_config" ]
+  external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "cJSON:cjson",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+    "security_guard:libsg_collect_sdk",
+  ]
+}
+
 group("unittest_group") {
   testonly = true
   if (!defined(ohos_lite)) {
@@ -536,6 +564,7 @@ group("unittest_group") {
       ":cert_chain_verifier_unittest",
       ":code_sign_attr_utils_unittest",
       ":openssl_utils_unittest",
+      ":security_guard_report_unittest",
     ]
     if (!use_clang_coverage && !ohos_indep_compiler_enable) {
       deps += [ ":rust_key_enable_unittest" ]

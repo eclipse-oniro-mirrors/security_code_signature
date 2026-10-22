@@ -24,6 +24,7 @@
 #include "log.h"
 #include "message_parcel.h"
 #include "permission_utils.h"
+#include "security_guard_report.h"
 #include <sys/stat.h>
 
 namespace OHOS {
@@ -167,10 +168,13 @@ int32_t LocalCodeSignStub::SignLocalCodeByFdInner(MessageParcel &data, MessagePa
         return CS_ERR_INVALID_FD;
     }
     std::string ownerID = data.ReadString();
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
     StartTrace(HITRACE_TAG_ACCESS_CONTROL, CODE_SIGN_ENABLE_START);
     ByteBuffer signature;
     int32_t result = SignLocalCodeByFd(ownerID, fd, signature);
     FinishTrace(HITRACE_TAG_ACCESS_CONTROL);
+    SecurityGuardReport::ReportLocalCodeSignSecurityInfo(callerUid, callerPid, fd, ownerID, result);
     if (!reply.WriteInt32(result)) {
         return CS_ERR_IPC_WRITE_DATA;
     }
