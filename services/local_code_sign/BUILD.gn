@@ -28,6 +28,7 @@ ohos_shared_library("liblocal_code_sign") {
     "src/local_code_sign_stub.cpp",
     "src/local_sign_key.cpp",
     "src/permission_utils.cpp",
+    "src/security_guard_report.cpp",
   ]
   cflags_cc = [
     "-Os",
@@ -48,6 +49,7 @@ ohos_shared_library("liblocal_code_sign") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "bounds_checking_function:libsec_shared",
+    "cJSON:cjson",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "fsverity-utils:libfsverity_utils",
@@ -62,6 +64,7 @@ ohos_shared_library("liblocal_code_sign") {
     "samgr:samgr_proxy",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "security_guard:libsg_collect_sdk",
   ]
 
   part_name = "code_signature"
