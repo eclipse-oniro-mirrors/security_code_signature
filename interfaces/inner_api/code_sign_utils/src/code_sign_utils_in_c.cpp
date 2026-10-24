@@ -23,8 +23,8 @@
 
 using EntryMap = std::unordered_map<std::string, std::string>;
 
-extern "C" int EnforceCodeSignForApp(const char *hapPath, const struct EntryMapEntryData *entryMapEntryData,
-    enum FileType type)
+extern "C" int EnforceCodeSignForAppWithFlag(const char *hapPath, const struct EntryMapEntryData *entryMapEntryData,
+    enum FileType type, uint32_t flag)
 {
     if (hapPath == nullptr || entryMapEntryData == nullptr) {
         return CS_ERR_PARAM_INVALID;
@@ -45,5 +45,12 @@ extern "C" int EnforceCodeSignForApp(const char *hapPath, const struct EntryMapE
         entryPathMap[strKey] = strValue;
     }
     OHOS::Security::CodeSign::CodeSignUtils utils;
-    return utils.EnforceCodeSignForApp(path, entryPathMap, static_cast<OHOS::Security::CodeSign::FileType>(type));
+    return utils.EnforceCodeSignForApp(path, entryPathMap,
+        static_cast<OHOS::Security::CodeSign::FileType>(type), flag);
+}
+
+extern "C" int EnforceCodeSignForApp(const char *hapPath, const struct EntryMapEntryData *entryMapEntryData,
+    enum FileType type)
+{
+    return EnforceCodeSignForAppWithFlag(hapPath, entryMapEntryData, type, 0);
 }
