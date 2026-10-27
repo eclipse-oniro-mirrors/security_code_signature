@@ -562,7 +562,6 @@ group("unittest_group") {
     deps = [
       ":add_cert_path_unittest",
       ":cert_chain_verifier_unittest",
-      ":code_sign_attr_utils_unittest",
       ":openssl_utils_unittest",
       ":security_guard_report_unittest",
     ]
@@ -575,6 +574,7 @@ group("unittest_group") {
     # platform where these kernel/hardware features are unavailable.
     if (!is_emulator) {
       deps += [
+        ":code_sign_attr_utils_unittest",
         ":code_sign_utils_in_c_unittest",
         ":code_sign_utils_unittest",
         ":enable_verity_ioctl_unittest",
