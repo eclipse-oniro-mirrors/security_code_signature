@@ -132,6 +132,7 @@ public:
     static void SetUpTestCase()
     {
         SaveStringToFile(SELINUX_MODE_PATH, PERMISSIVE_MODE);
+        SaveStringToFile(JITFORT_MODE_PATH, PERMISSIVE_MODE);
         EXPECT_EQ(IsSupportJitCodeSigner(), true);
         JitFortPrepare();
         AllocJitMemory();
@@ -140,6 +141,7 @@ public:
     static void TearDownTestCase()
     {
         FreeJitMemory();
+        SaveStringToFile(JITFORT_MODE_PATH, ENFORCE_MODE);
     };
 
     void SetUp() {};

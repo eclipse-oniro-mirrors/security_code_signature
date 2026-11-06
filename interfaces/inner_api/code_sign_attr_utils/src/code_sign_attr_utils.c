@@ -35,10 +35,12 @@
 #define XPM_SET_JITFORT_ENABLE _IOW('x', 0x3, unsigned long)
 #define SET_EXT_XPM_INFO_ID 0x08
 #define XPM_SET_EXT_XPM_INFO _IOW('x', SET_EXT_XPM_INFO_ID, struct XpmExtInfo)
+#define XPM_SET_OWNERID_WITH_INTRUSION_DETECTION _IOW('x', 0x09, struct XpmConfig)
 #define ENTERPRISE_RESIGN "enterpriseReSign"
 
 struct XpmOwnerIdParam {
     uint32_t idType;
+    int withIntrusionDetection;
     const char *ownerId;
     uint32_t apiTargetVersion;
     const char *appSignType;
@@ -82,7 +84,7 @@ static int XpmIoctl(int fd, uint32_t cmd, void *data)
     } else {
         LOG_DEBUG("Ioctl cmd %{public}x success", cmd);
     }
-    return CS_SUCCESS;
+    return ret;
 }
 
 static int DoSetXpmOwnerId(int fd, const struct XpmOwnerIdParam *ownerIdParam)
@@ -114,7 +116,15 @@ static int DoSetXpmOwnerId(int fd, const struct XpmOwnerIdParam *ownerIdParam)
     LOG_DEBUG("Set type = %{public}u, ownerId = %{public}s, apiTargetVersion is %{public}u, "
               "appDistributionType = %{public}d",
         config.idType, ownerId ? ownerId : "NULL", config.apiTargetVersion, xpmDistributionType);
-    (void)XpmIoctl(fd, XPM_SET_OWNERID, &config);
+
+    if (ownerIdParam->withIntrusionDetection == INTRUSION_DETECTION_ON) {
+        if (XpmIoctl(fd, XPM_SET_OWNERID_WITH_INTRUSION_DETECTION, &config) != CS_SUCCESS) {
+            // Backward compatible with lower-version chip components
+            (void)XpmIoctl(fd, XPM_SET_OWNERID, &config);
+        }
+    } else {
+        (void)XpmIoctl(fd, XPM_SET_OWNERID, &config);
+    }
 
     struct XpmExtInfo extInfo = {0};
     if ((xpmDistributionType >= XPM_DISTRIBUTION_DEFAULT) &&
@@ -164,6 +174,7 @@ int InitXpmWithParam(const struct XpmInitParam *initParam)
             apiTargetVersion = strtoul(initParam->apiTargetVersionStr, &endPtr, API_VERSION_DECIMAL);
         }
         ownerIdParam.idType = idType;
+        ownerIdParam.withIntrusionDetection = initParam->withIntrusionDetection;
         ownerIdParam.ownerId = ownerId;
         ownerIdParam.apiTargetVersion = apiTargetVersion;
         ownerIdParam.appSignType = initParam->appSignType;

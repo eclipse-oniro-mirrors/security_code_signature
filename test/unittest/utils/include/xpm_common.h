@@ -31,6 +31,7 @@ const unsigned long PAGE_MASK = ~(PAGE_SIZE - 1);
 
 const std::string XPM_DEBUG_FS_MODE_PATH = "/proc/sys/kernel/xpm/xpm_mode";
 const std::string SELINUX_MODE_PATH = "/sys/fs/selinux/enforce";
+const std::string JITFORT_MODE_PATH = "/proc/sys/kernel/jitfort/jitfort_mode";
 const std::string PERMISSIVE_MODE = "0";
 const std::string ENFORCE_MODE = "1";
 
