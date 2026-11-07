@@ -94,6 +94,9 @@ HWTEST_F(CodeSignAttrUtilsTest, CodeSignAttrUtilsTest_0001, TestSize.Level0)
 
     initParam.appSignType = "appgallery";
     EXPECT_EQ(CallInitXpm(initParam), CS_SUCCESS);
+
+    initParam.withIntrusionDetection = INTRUSION_DETECTION_ON;
+    EXPECT_EQ(CallInitXpm(initParam), CS_SUCCESS);
 }
 
 /**

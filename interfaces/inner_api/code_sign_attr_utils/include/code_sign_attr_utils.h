@@ -29,6 +29,8 @@ extern "C" {
 #endif
 
 #define MAX_OWNERID_LEN 64
+#define INTRUSION_DETECTION_ON  1
+#define INTRUSION_DETECTION_OFF 0
 
 #define OWNERID_SYSTEM_TAG "SYSTEM_LIB_ID"
 #define OWNERID_DEBUG_TAG  "DEBUG_LIB_ID"
@@ -107,6 +109,7 @@ enum XPMDistributionEnum {
 
 struct XpmInitParam {
     int enableJitFort;
+    int withIntrusionDetection;
     uint32_t idType;
     const char *ownerId;
     const char *apiTargetVersionStr;
