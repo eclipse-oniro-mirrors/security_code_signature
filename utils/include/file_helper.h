@@ -16,6 +16,7 @@
 #ifndef CODE_SIGN_FILE_HELPER_H
 #define CODE_SIGN_FILE_HELPER_H
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -23,6 +24,7 @@ namespace OHOS {
 namespace Security {
 namespace CodeSign {
 bool CheckFilePathValid(const std::string &path, const std::string &basePath);
+bool ReadFileToString(const std::string &path, uint32_t maxSize, std::string &content);
 }
 }
 }

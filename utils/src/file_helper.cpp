@@ -17,6 +17,8 @@
 
 #include <climits>
 #include <cstdlib>
+#include <fstream>
+#include <iterator>
 #include <unistd.h>
 
 #include "directory_ex.h"
@@ -35,6 +37,39 @@ bool CheckFilePathValid(const std::string &path, const std::string &baseRealPath
     return (realPath.size() > baseRealPath.size()) &&
         (realPath.compare(0, baseRealPath.size(), baseRealPath) == 0) &&
         (realPath[baseRealPath.size()] == '/');
+}
+
+bool ReadFileToString(const std::string &path, uint32_t maxSize, std::string &content)
+{
+    std::string realPath;
+    if (!OHOS::PathToRealPath(path, realPath)) {
+        LOG_ERROR("Get real path failed, path = %{public}s", path.c_str());
+        return false;
+    }
+    std::ifstream ifs(realPath, std::ios::in | std::ios::binary);
+    if (!ifs.is_open()) {
+        LOG_ERROR("Open file failed, path = %{public}s", realPath.c_str());
+        return false;
+    }
+    ifs.seekg(0, std::ios::end);
+    std::streamoff fileSize = ifs.tellg();
+    ifs.seekg(0, std::ios::beg);
+    if (fileSize < 0) {
+        LOG_ERROR("Get file size failed, path = %{public}s", realPath.c_str());
+        return false;
+    }
+    if (static_cast<uint64_t>(fileSize) > maxSize) {
+        LOG_ERROR("File size exceeds limit, path = %{public}s", realPath.c_str());
+        return false;
+    }
+    content.assign((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    ifs.close();
+    if (static_cast<std::streamoff>(content.size()) != fileSize) {
+        LOG_ERROR("Read file incomplete, path = %{public}s", realPath.c_str());
+        content.clear();
+        return false;
+    }
+    return true;
 }
 }
 }

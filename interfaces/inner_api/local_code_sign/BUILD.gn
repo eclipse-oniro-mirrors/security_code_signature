@@ -27,6 +27,7 @@ ohos_shared_library("liblocal_code_sign_sdk") {
   branch_protector_ret = "pac_ret"
   sources = [
     "${code_signature_root_dir}/utils/src/cert_utils.cpp",
+    "${code_signature_root_dir}/utils/src/file_helper.cpp",
     "${code_signature_root_dir}/utils/src/huks_attest_verifier.cpp",
     "${code_signature_root_dir}/utils/src/openssl_utils.cpp",
     "src/local_code_sign_client.cpp",
@@ -56,6 +57,7 @@ ohos_shared_library("liblocal_code_sign_sdk") {
 
   external_deps = [
     "bounds_checking_function:libsec_shared",
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "hisysevent:libhisysevent",

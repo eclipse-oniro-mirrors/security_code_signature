@@ -474,9 +474,11 @@ ohos_unittest("key_enable_utils_unittest") {
 ohos_unittest("cert_chain_verifier_unittest") {
   testonly = true
   module_out_path = "code_signature/code_signature"
+  resource_config_file = "resources/ohos_test.xml"
+  ldflags = [ "-Wl,--wrap=fopen" ]
   sources = [
     "${code_signature_root_dir}/utils/src/cert_utils.cpp",
-    "${code_signature_root_dir}/utils/src/huks_attest_verifier.cpp",
+    "${code_signature_root_dir}/utils/src/file_helper.cpp",
     "${code_signature_root_dir}/utils/src/openssl_utils.cpp",
     "cert_chain_verifier_test.cpp",
   ]
@@ -485,7 +487,10 @@ ohos_unittest("cert_chain_verifier_unittest") {
     "${code_signature_root_dir}:common_utils_config",
     "${code_signature_root_dir}:common_public_config",
   ]
-  defines = [ "CODE_SIGNATURE_DEBUGGABLE" ]
+  defines = [
+    "CODE_SIGNATURE_DEBUGGABLE",
+    "VERIFY_KEY_ATTEST_CERTCHAIN",
+  ]
   if (code_signature_support_oh_release_app) {
     defines += [ "CODE_SIGNATURE_OH_ROOT_CA" ]
   }
@@ -497,6 +502,7 @@ ohos_unittest("cert_chain_verifier_unittest") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "bounds_checking_function:libsec_shared",
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
