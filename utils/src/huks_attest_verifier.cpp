@@ -15,6 +15,7 @@
 
 #include "huks_attest_verifier.h"
 
+#include <mutex>
 #include <openssl/asn1.h>
 #include <openssl/obj_mac.h>
 #include <openssl/objects.h>
@@ -29,13 +30,16 @@
 
 #include "byte_buffer.h"
 #include "cert_utils.h"
+#include "cJSON.h"
+#include "file_helper.h"
 #include "log.h"
 #include "openssl_utils.h"
 
 namespace OHOS {
 namespace Security {
 namespace CodeSign {
-static const std::string ATTEST_ROOT_CA_PATH = "/system/etc/security/trusted_attest_root_ca.cer";
+static const std::string ATTEST_ROOT_CA_PATH = "/system/etc/security/oemdevcertca/rootcerts";
+static const std::string SUB_CA_SUBJECT_INFOS_PATH = "/system/etc/security/oemdevcertca/subcasubjectinfos";
 static const std::vector<std::string> ATTESTTATION_EXTENSION = {
     "1.3.6.1.4.1.2011.2.376.1.3",
     "AttestationInfo",
@@ -63,6 +67,9 @@ static int g_challengeNid = 0;
 static int g_attestationNid = 0;
 #ifdef VERIFY_KEY_ATTEST_CERTCHAIN
 static constexpr uint32_t COMMON_NAME_BUF_SIZE = 256;
+static constexpr uint32_t MAX_SUBJECT_INFOS_FILE_SIZE = 12 * 1024;
+static cJSON *g_subCaSubjectInfos = nullptr;
+static std::mutex g_subCaSubjectInfosMutex;
 #endif
 
 static inline int GetNidFromDefination(const std::vector<std::string> &defVector)
@@ -90,11 +97,12 @@ static bool AddCAToStore(X509_STORE *store)
 {
     FILE *fp = fopen(ATTEST_ROOT_CA_PATH.c_str(), "r");
     if (fp == nullptr) {
-        LOG_ERROR("Open file failed.");
+        LOG_ERROR("Open root certs file failed.");
         return false;
     }
 
     X509 *caCert = nullptr;
+    // rootcerts may contain multiple PEM certificates, read them one by one until EOF
     do {
         caCert = PEM_read_X509(fp, nullptr, nullptr, nullptr);
         if (caCert == nullptr) {
@@ -103,8 +111,9 @@ static bool AddCAToStore(X509_STORE *store)
         if (X509_STORE_add_cert(store, caCert) <= 0) {
             LOG_ERROR("add cert to X509 store failed");
             GetOpensslErrorMessage();
+        } else {
+            LOG_INFO("Add root CA successfully");
         }
-        LOG_INFO("Add root CA successfully");
         X509_free(caCert);
     } while (caCert != nullptr);
     (void) fclose(fp);
@@ -285,6 +294,82 @@ bool VerifyCertAndExtension(X509 *signCert, X509 *issuerCert, const ByteBuffer &
     return true;
 }
 
+#ifdef VERIFY_KEY_ATTEST_CERTCHAIN
+static bool LoadSubCaSubjectInfosLocked()
+{
+    std::string content;
+    if (!ReadFileToString(SUB_CA_SUBJECT_INFOS_PATH, MAX_SUBJECT_INFOS_FILE_SIZE, content)) {
+        LOG_ERROR("Read sub CA subject infos file failed.");
+        return false;
+    }
+    cJSON *root = cJSON_Parse(content.c_str());
+    if (root == nullptr) {
+        LOG_ERROR("Parse sub CA subject infos failed.");
+        return false;
+    }
+    if (!cJSON_IsObject(root)) {
+        LOG_ERROR("Sub CA subject infos is not a JSON object.");
+        cJSON_Delete(root);
+        return false;
+    }
+    if (g_subCaSubjectInfos != nullptr) {
+        cJSON_Delete(g_subCaSubjectInfos);
+    }
+    g_subCaSubjectInfos = root;
+    return true;
+}
+
+static bool GetSubjectField(X509_NAME *subjectName, int nid, std::string &value)
+{
+    char buf[COMMON_NAME_BUF_SIZE] = {0};
+    int len = X509_NAME_get_text_by_NID(subjectName, nid, buf, COMMON_NAME_BUF_SIZE);
+    if (len <= 0) {
+        return false;
+    }
+    value.assign(buf, static_cast<size_t>(len));
+    return true;
+}
+
+static bool MatchSubjectField(const cJSON *item, const char *key, int nid, X509_NAME *subjectName)
+{
+    const cJSON *field = cJSON_GetObjectItemCaseSensitive(item, key);
+    if (field == nullptr) {
+        // entry does not constrain this field
+        return true;
+    }
+    if (!cJSON_IsString(field) || field->valuestring == nullptr) {
+        LOG_ERROR("Invalid field type in sub CA subject infos, key = %{public}s", key);
+        return false;
+    }
+    std::string actual;
+    if (!GetSubjectField(subjectName, nid, actual)) {
+        LOG_ERROR("Get subject field failed, key = %{public}s", key);
+        return false;
+    }
+    return actual == field->valuestring;
+}
+
+static bool MatchSubCaSubject(X509_NAME *subjectName)
+{
+    const cJSON *item = nullptr;
+    cJSON_ArrayForEach(item, g_subCaSubjectInfos) {
+        if (!cJSON_IsObject(item)) {
+            continue;
+        }
+        // "cn" is mandatory in every entry, otherwise the entry is skipped
+        if (cJSON_GetObjectItemCaseSensitive(item, "cn") == nullptr) {
+            continue;
+        }
+        // only the common name is compared, ou/o/c fields in the entry are ignored
+        if (MatchSubjectField(item, "cn", NID_commonName, subjectName)) {
+            LOG_INFO("Intermediate CA subject matched entry: %{private}s", item->string);
+            return true;
+        }
+    }
+    return false;
+}
+#endif
+
 static bool VerifyIntermediateCASubject(const std::vector<ByteBuffer> &certChainBuffer)
 {
 #ifndef VERIFY_KEY_ATTEST_CERTCHAIN
@@ -311,17 +396,17 @@ static bool VerifyIntermediateCASubject(const std::vector<ByteBuffer> &certChain
             break;
         }
 
-        char commonNameBuf[COMMON_NAME_BUF_SIZE] = {0};
-        int len = X509_NAME_get_text_by_NID(subjectName, NID_commonName, commonNameBuf, COMMON_NAME_BUF_SIZE);
-        if (len <= 0) {
-            LOG_ERROR("Get common name failed.");
+        std::lock_guard<std::mutex> lock(g_subCaSubjectInfosMutex);
+        // reload until success, since the file is maintained by another service
+        if (g_subCaSubjectInfos == nullptr && !LoadSubCaSubjectInfosLocked()) {
+            LOG_ERROR("Sub CA subject infos unavailable.");
             break;
         }
 
-        if (!strstr(commonNameBuf, "Huawei CBG Mobile Equipment CA") &&
-            !strstr(commonNameBuf, "Huawei CBG Equipment S2 CA") &&
-            !strstr(commonNameBuf, "Huawei CBG Equipment S3 CA")) {
-            LOG_ERROR("Intermediate CA common name not matched, common name:%{private}s", commonNameBuf);
+        if (!MatchSubCaSubject(subjectName)) {
+            char commonNameBuf[COMMON_NAME_BUF_SIZE] = {0};
+            (void) X509_NAME_get_text_by_NID(subjectName, NID_commonName, commonNameBuf, COMMON_NAME_BUF_SIZE);
+            LOG_ERROR("Intermediate CA subject not matched, common name:%{private}s", commonNameBuf);
             break;
         }
 
