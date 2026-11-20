@@ -16,7 +16,7 @@
 #include "code_sign_utils.h"
 #include <fstream>
 #include <string>
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 #include <cstdlib>
 #include <cstdint>
 #include <cstdio>

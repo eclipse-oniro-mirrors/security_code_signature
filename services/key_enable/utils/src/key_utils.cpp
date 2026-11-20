@@ -15,7 +15,7 @@
 
 #include "key_utils.h"
 
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
