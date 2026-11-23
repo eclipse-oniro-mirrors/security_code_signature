@@ -18,7 +18,7 @@
 
 #include <string>
 #include <unistd.h>
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 #include <linux/stat.h>
 
 namespace OHOS {

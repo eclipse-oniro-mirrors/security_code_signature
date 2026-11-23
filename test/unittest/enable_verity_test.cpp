@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include <asm/unistd.h>
+#include <sys/syscall.h>
 #include <cstdint>
 #include <cstdlib>
 #include <gtest/gtest.h>
